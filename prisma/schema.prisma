@@ -1,0 +1,73 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:dev.sqlite"
+}
+
+model Session {
+  id                  String    @id
+  shop                String
+  state               String
+  isOnline            Boolean   @default(false)
+  scope               String?
+  expires             DateTime?
+  accessToken         String
+  userId              BigInt?
+  firstName           String?
+  lastName            String?
+  email               String?
+  accountOwner        Boolean   @default(false)
+  locale              String?
+  collaborator        Boolean?  @default(false)
+  emailVerified       Boolean?  @default(false)
+  refreshToken        String?
+  refreshTokenExpires DateTime?
+}
+
+// ====================================================
+// Custlo-Style Customer Portal Configurations & Menus
+// ====================================================
+
+model PortalConfig {
+  id              String        @id @default(uuid())
+  shop            String        @unique
+  portalTitle     String        @default("Amolih Customer Portal")
+  primaryColor    String        @default("#355E59") // Custlo deep forest / sage
+  sidebarBgColor  String        @default("#FBF8F5") // Custlo warm cream
+  textColor       String        @default("#1A1A1A")
+  fontFamily      String        @default("Inter, -apple-system, sans-serif")
+  supportUrl      String        @default("https://wa.me/918233905718?text=Hi+AMOLIH%21+I+have+a+question.")
+  circleTierTitle String        @default("Amolih Circle's Progress Bar")
+  welcomeMessage  String        @default("Welcome back")
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  menuItems       MenuItem[]
+}
+
+model MenuItem {
+  id            String        @id @default(uuid())
+  configId      String
+  config        PortalConfig  @relation(fields: [configId], references: [id], onDelete: Cascade)
+  label         String
+  icon          String        @default("👤")
+  destination   String        // e.g. "details", "orders", "circle", "addresses", "https://wa.me/..."
+  linkType      String        @default("INTERNAL_PAGE") // INTERNAL_PAGE, SHOPIFY_STORE, EXTERNAL_URL, SUPPORT_ACTION
+  badgeText     String?
+  badgeTone     String?       // "info", "success", "attention", "warning"
+  position      Int           @default(0)
+  isEnabled     Boolean       @default(true)
+  openInNewTab  Boolean       @default(false)
+  visibility    String        @default("ALL") // "ALL", "VIP_ONLY", "LOGGED_IN"
+  mobileVisible Boolean       @default(true)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  @@index([configId, position])
+}

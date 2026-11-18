@@ -1,0 +1,14 @@
+api_version = "2026-10"
+
+[[extensions]]
+name = "amolih-customer-portal"
+handle = "amolih-customer-portal"
+type = "ui_extension"
+uid = "07d5fe30-a2d4-47be-8376-5be0dd5a1e4c177d684f"
+
+[[extensions.targeting]]
+module = "./src/CustomerPortalPage.jsx"
+target = "customer-account.page.render"
+
+[extensions.capabilities]
+api_access = true

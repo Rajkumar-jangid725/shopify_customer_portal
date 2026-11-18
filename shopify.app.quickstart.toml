@@ -1,0 +1,19 @@
+# Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
+
+name = "Amolih Customer Portal"
+application_url = "https://shopify.dev/apps/default-app-home"
+embedded = true
+client_id = "17ede14fa374679b3206552fa66c1200"
+
+[access_scopes]
+# Learn more at https://shopify.dev/docs/apps/tools/cli/configuration#access_scopes
+scopes = "read_customers,write_customers,read_orders"
+
+[webhooks]
+api_version = "2027-01"
+
+[auth]
+redirect_urls = [ "https://shopify.dev/apps/default-app-home/api/auth" ]
+
+[build]
+automatically_update_urls_on_dev = true
