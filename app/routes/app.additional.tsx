@@ -23,13 +23,13 @@ export default function AdditionalPage() {
           <InlineStack align="space-between" blockAlign="center">
             <BlockStack gap="100">
               <Text as="p" fontWeight="bold">
-                Custlo-Inspired Shopify Customer Portal Architecture
+                Shopify App Proxy Customer Dashboard
               </Text>
               <Text as="p" tone="subdued">
-                Manage menus, links, theme palettes, and extensions for Shopify New Customer Accounts.
+                Manage menus, links, and theme palettes for the storefront dashboard at /apps/customerdashboard.
               </Text>
             </BlockStack>
-            <Badge tone="success">Production Ready</Badge>
+            <Badge tone="success">App Proxy</Badge>
           </InlineStack>
         </Banner>
 
@@ -43,7 +43,7 @@ export default function AdditionalPage() {
                   </Text>
                   <Divider />
                   <Text as="p" variant="bodyMd">
-                    From the <strong>Portal Dashboard &gt; Navigation &amp; Menu Builder</strong> tab, you can add unlimited custom menus with tailored destinations:
+                    From the <strong>Portal Dashboard &gt; Navigation &amp; Menu Builder</strong> tab, you can add custom menus with tailored destinations:
                   </Text>
                   <List type="bullet">
                     <List.Item>
@@ -53,10 +53,10 @@ export default function AdditionalPage() {
                       <strong>Shopify Storefront Links:</strong> Point directly to store catalog routes like <Code>/collections/all</Code>, <Code>/pages/about</Code>, or <Code>/pages/wishlist</Code>.
                     </List.Item>
                     <List.Item>
-                      <strong>External Destinations:</strong> Connect third-party portals such as courier shipment tracking (<Code>https://track.aftership.com</Code>) or return portals.
+                      <strong>External Destinations:</strong> Connect third-party portals such as courier shipment tracking or return portals.
                     </List.Item>
                     <List.Item>
-                      <strong>Concierge &amp; Support Actions:</strong> Direct WhatsApp support (<Code>https://wa.me/...</Code>) or live chat widgets with one-click initiation.
+                      <strong>Concierge &amp; Support Actions:</strong> Direct WhatsApp support (<Code>https://wa.me/...</Code>) or live chat widgets.
                     </List.Item>
                   </List>
                 </BlockStack>
@@ -65,27 +65,24 @@ export default function AdditionalPage() {
               <Card>
                 <BlockStack gap="400">
                   <Text as="h2" variant="headingMd">
-                    2. Activating the Full-Page Extension in Shopify Admin
+                    2. Opening the dashboard on the storefront
                   </Text>
                   <Divider />
                   <Text as="p" variant="bodyMd">
-                    Shopify New Customer Accounts use sandboxed UI Extensions. Follow these steps to verify activation:
+                    This app uses Shopify App Proxy (not Customer Account UI Extensions). Follow these steps:
                   </Text>
                   <List type="number">
                     <List.Item>
-                      In your Shopify Admin, navigate to <strong>Settings &gt; Customer Accounts</strong>.
+                      Confirm App Proxy is set to <strong>apps / customerdashboard</strong> on the installed app.
                     </List.Item>
                     <List.Item>
-                      Ensure <strong>New customer accounts</strong> is selected.
+                      Run <Code>shopify app dev</Code> (or deploy) so the proxy points at your app.
                     </List.Item>
                     <List.Item>
-                      Click <strong>Customize</strong> in the Checkout and accounts editor.
+                      Open <Code>https://{"{shop}"}/apps/customerdashboard</Code> while signed in as a customer.
                     </List.Item>
                     <List.Item>
-                      Under the Account page dropdown, locate and enable the <strong>Customer Portal Page</strong> extension.
-                    </List.Item>
-                    <List.Item>
-                      Save and publish the customer accounts editor.
+                      Optionally add that URL to a theme menu or account link.
                     </List.Item>
                   </List>
                 </BlockStack>
@@ -104,20 +101,11 @@ export default function AdditionalPage() {
                   <List>
                     <List.Item>
                       <Link
-                        url="https://shopify.dev/docs/apps/build/customer-accounts"
+                        url="https://shopify.dev/docs/apps/build/online-store/app-proxies"
                         target="_blank"
                         removeUnderline
                       >
-                        Shopify Customer Accounts Guide ↗
-                      </Link>
-                    </List.Item>
-                    <List.Item>
-                      <Link
-                        url="https://shopify.dev/docs/api/customer-account-ui-extensions"
-                        target="_blank"
-                        removeUnderline
-                      >
-                        Customer Account UI Extensions API ↗
+                        Shopify App Proxies Guide ↗
                       </Link>
                     </List.Item>
                     <List.Item>
@@ -152,7 +140,9 @@ function Code({ children }: { children: React.ReactNode }) {
       borderColor="border"
       borderRadius="100"
     >
-      <code>{children}</code>
+      <Text as="span" variant="bodySm" fontWeight="semibold">
+        {children}
+      </Text>
     </Box>
   );
 }

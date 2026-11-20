@@ -150,9 +150,8 @@ export default function Index() {
   // Modal State for Live Store Launch Guide (prevents 404 errors)
   const [isLiveModalOpen, setIsLiveModalOpen] = useState(false);
   const storeHandle = shop.replace(".myshopify.com", "");
-  const customerAccountsSettingsUrl = `https://admin.shopify.com/store/${storeHandle}/settings/customer_accounts`;
-  const checkoutEditorUrl = `https://admin.shopify.com/store/${storeHandle}/settings/checkout/editor`;
-  const accountUrl = `https://${shop}/account`;
+  const dashboardUrl = `https://${shop}/apps/customerdashboard`;
+  const appProxySettingsUrl = `https://admin.shopify.com/store/${storeHandle}/settings/apps`;
 
   // Live Simulator State
   const [simActiveTab, setSimActiveTab] = useState(menuItems[0]?.destination || "details");
@@ -320,11 +319,11 @@ export default function Index() {
                 Connected Store: {shop}
               </Text>
               <Text as="p" tone="subdued">
-                Custlo-inspired customer account customization engine active. All menus, links, and themes sync directly to your customer accounts.
+                Customer dashboard is served through App Proxy. Menus, links, and themes apply at /apps/customerdashboard.
               </Text>
             </BlockStack>
             <InlineStack gap="300">
-              <Badge tone="success">Active on New Customer Accounts</Badge>
+              <Badge tone="success">App Proxy</Badge>
               <Button
                 onClick={() => setIsLiveModalOpen(true)}
                 variant="plain"
@@ -1158,9 +1157,9 @@ export default function Index() {
         onClose={() => setIsLiveModalOpen(false)}
         title="Testing Your Portal on Live Shopify Store"
         primaryAction={{
-          content: "Open Store /account Page ↗",
+          content: "Open /apps/customerdashboard ↗",
           onAction: () => {
-            window.open(accountUrl, "_blank");
+            window.open(dashboardUrl, "_blank");
           },
         }}
         secondaryActions={[
@@ -1172,12 +1171,12 @@ export default function Index() {
       >
         <Modal.Section>
           <BlockStack gap="400">
-            <Banner tone="warning">
+            <Banner tone="info">
               <Text as="p" fontWeight="bold">
-                Why "404 Page not found" occurred:
+                Dashboard uses App Proxy
               </Text>
               <Text as="p">
-                Shopify Customer Account UI Extensions run exclusively on <strong>New Customer Accounts</strong>. If your store currently uses legacy "Classic accounts", Shopify's theme router cannot find extension pages and displays a 404. Follow the 2 quick verification steps below:
+                The customer portal renders inside your store theme at <strong>/apps/customerdashboard</strong>. Theme header and footer stay; the app fills the middle. Customers should be signed in on the storefront to see their data.
               </Text>
             </Banner>
 
@@ -1186,18 +1185,18 @@ export default function Index() {
                 <InlineStack align="space-between" blockAlign="center">
                   <BlockStack gap="100">
                     <Text as="h3" variant="headingSm">
-                      Step 1: Activate "New Customer Accounts"
+                      Step 1: Confirm App Proxy URL
                     </Text>
                     <Text as="p" tone="subdued">
-                      Go to Shopify Admin &gt; Settings &gt; Customer Accounts, and select <strong>New customer accounts</strong>.
+                      In Shopify Admin &gt; Settings &gt; Apps, open this app and confirm the App Proxy path is <strong>apps/customerdashboard</strong> (Customize URL if this store was installed before the proxy was added).
                     </Text>
                   </BlockStack>
                   <Button
-                    url={customerAccountsSettingsUrl}
+                    url={appProxySettingsUrl}
                     target="_blank"
                     variant="primary"
                   >
-                    Open Settings ↗
+                    Open Apps ↗
                   </Button>
                 </InlineStack>
               </BlockStack>
@@ -1208,40 +1207,18 @@ export default function Index() {
                 <InlineStack align="space-between" blockAlign="center">
                   <BlockStack gap="100">
                     <Text as="h3" variant="headingSm">
-                      Step 2: Add Extension in Accounts Editor
+                      Step 2: Open the live dashboard
                     </Text>
                     <Text as="p" tone="subdued">
-                      In the Checkout &amp; Accounts editor, select the account page and add the <strong>Customer Portal Page</strong> extension.
+                      Visit <strong>/apps/customerdashboard</strong> while signed in as a customer. You can also add that URL to a menu or account link in your theme.
                     </Text>
                   </BlockStack>
                   <Button
-                    url={checkoutEditorUrl}
+                    url={dashboardUrl}
                     target="_blank"
                     variant="secondary"
                   >
-                    Open Editor ↗
-                  </Button>
-                </InlineStack>
-              </BlockStack>
-            </Card>
-
-            <Card>
-              <BlockStack gap="300">
-                <InlineStack align="space-between" blockAlign="center">
-                  <BlockStack gap="100">
-                    <Text as="h3" variant="headingSm">
-                      Step 3: Open Live Customer Portal
-                    </Text>
-                    <Text as="p" tone="subdued">
-                      Once New Customer Accounts is active, navigating to <strong>/account</strong> opens the customer portal.
-                    </Text>
-                  </BlockStack>
-                  <Button
-                    url={accountUrl}
-                    target="_blank"
-                    variant="secondary"
-                  >
-                    Visit /account ↗
+                    Visit dashboard ↗
                   </Button>
                 </InlineStack>
               </BlockStack>
