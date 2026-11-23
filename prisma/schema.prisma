@@ -41,9 +41,13 @@ model PortalConfig {
   primaryColor    String        @default("#355E59") // Custlo deep forest / sage
   sidebarBgColor  String        @default("#FBF8F5") // Custlo warm cream
   textColor       String        @default("#1A1A1A")
-  fontFamily      String        @default("Inter, -apple-system, sans-serif")
+  fontFamily      String        @default("inherit") // Storefront Theme Typography
+  baseFontSize    String?       @default("14px")
+  customCss       String?       @default("")
+  overrideAccount Boolean?      @default(true)
   supportUrl      String        @default("https://wa.me/918233905718?text=Hi+AMOLIH%21+I+have+a+question.")
   circleTierTitle String        @default("Amolih Circle's Progress Bar")
+  circlePageUrl   String?       @default("amolih-circle-progress-bar")
   welcomeMessage  String        @default("Welcome back")
   createdAt       DateTime      @default(now())
   updatedAt       DateTime      @updatedAt

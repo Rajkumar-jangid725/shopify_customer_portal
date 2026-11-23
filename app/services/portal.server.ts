@@ -23,6 +23,7 @@ export interface PortalConfigData {
   fontFamily: string;
   supportUrl: string;
   circleTierTitle: string;
+  circlePageUrl?: string | null;
   welcomeMessage: string;
   menuItems: MenuItemData[];
 }
@@ -57,7 +58,7 @@ export const DEFAULT_MENU_ITEMS: Omit<MenuItemData, "id">[] = [
   {
     label: "Amolih Circle's Progress Bar",
     icon: "🏅",
-    destination: "circle",
+    destination: "amolih-circle-progress-bar",
     linkType: "INTERNAL_PAGE",
     badgeText: "Tier 2",
     badgeTone: "attention",
@@ -115,9 +116,10 @@ export async function getPortalConfig(shop: string) {
           primaryColor: "#355E59",
           sidebarBgColor: "#FBF8F5",
           textColor: "#1A1A1A",
-          fontFamily: "Inter, -apple-system, sans-serif",
+          fontFamily: "inherit",
           supportUrl: "https://wa.me/918233905718?text=Hi+AMOLIH%21+I+have+a+question.",
           circleTierTitle: "Amolih Circle's Progress Bar",
+          circlePageUrl: "amolih-circle-progress-bar",
           welcomeMessage: "Welcome back",
           menuItems: {
             create: DEFAULT_MENU_ITEMS,
@@ -142,9 +144,10 @@ export async function getPortalConfig(shop: string) {
       primaryColor: "#355E59",
       sidebarBgColor: "#FBF8F5",
       textColor: "#1A1A1A",
-      fontFamily: "Inter, -apple-system, sans-serif",
+      fontFamily: "inherit",
       supportUrl: "https://wa.me/918233905718?text=Hi+AMOLIH%21+I+have+a+question.",
       circleTierTitle: "Amolih Circle's Progress Bar",
+      circlePageUrl: "amolih-circle-progress-bar",
       welcomeMessage: "Welcome back",
       menuItems: DEFAULT_MENU_ITEMS.map((item, idx) => ({ ...item, id: `item-${idx}` })),
     };
@@ -161,6 +164,7 @@ export async function savePortalConfig(
     fontFamily?: string;
     supportUrl?: string;
     circleTierTitle?: string;
+    circlePageUrl?: string;
     welcomeMessage?: string;
   },
   menuItems: MenuItemData[]
@@ -179,9 +183,10 @@ export async function savePortalConfig(
         primaryColor: branding.primaryColor || "#355E59",
         sidebarBgColor: branding.sidebarBgColor || "#FBF8F5",
         textColor: branding.textColor || "#1A1A1A",
-        fontFamily: branding.fontFamily || "Inter, -apple-system, sans-serif",
+        fontFamily: branding.fontFamily || "inherit",
         supportUrl: branding.supportUrl || "https://wa.me/918233905718",
         circleTierTitle: branding.circleTierTitle || "Amolih Circle's Progress Bar",
+        circlePageUrl: branding.circlePageUrl || "amolih-circle-progress-bar",
         welcomeMessage: branding.welcomeMessage || "Welcome back",
       },
     });
