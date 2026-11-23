@@ -1,30 +1,49 @@
 /* ==============================================================
-   AMOLIH CUSTOMER ACCOUNT PORTAL - THEME APP EMBED (CUSTLO-STYLE)
+   AMOLIH CUSTOMER ACCOUNT PORTAL - THEME APP EMBED (AMOLIH STYLE)
+   Live Storefront: amolih.com
+   Typography: Bellefair, Cormorant Garamond, Inter, Open Sans
    ============================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Bellefair&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400;1,600&family=Inter:wght@300;400;500;600;700&family=Open+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap');
 
 :root {
   --amolih-primary: #355E59;
+  --amolih-primary-dark: #23433E;
+  --amolih-primary-light: rgba(53, 94, 89, 0.08);
+  --amolih-gold: #C5A880;
+  --amolih-gold-dark: #A8895E;
+  --amolih-gold-light: #FBF8F3;
+  --amolih-gold-border: rgba(197, 168, 128, 0.35);
   --amolih-sidebar-bg: #FBF8F5;
   --amolih-text: #1A1A1A;
-  --amolih-font-family: var(--font-body-family, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif);
-  --amolih-heading-font: var(--font-heading-family, var(--amolih-font-family));
-  --amolih-font-size: 14px;
-  --amolih-border: #E2E8F0;
-  --amolih-card-bg: #FFFFFF;
-  --amolih-radius: 8px;
   --amolih-muted: #64748B;
+  --amolih-border: #E8E3DD;
+  --amolih-border-light: #F4EFEB;
+  --amolih-card-bg: #FFFFFF;
+  --amolih-font-luxury: 'Bellefair', 'Cormorant Garamond', Garamond, Georgia, serif;
+  --amolih-font-editorial: 'Cormorant Garamond', 'Bellefair', Garamond, Georgia, serif;
+  --amolih-font-modern: 'Inter', 'Open Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --amolih-font-family: var(--font-body-family, var(--amolih-font-modern));
+  --amolih-heading-font: var(--font-heading-family, var(--amolih-font-luxury));
+  --amolih-font-size: 14px;
+  --amolih-radius: 12px;
+  --amolih-radius-sm: 8px;
+  --amolih-radius-lg: 16px;
+  --amolih-shadow: 0 4px 20px -2px rgba(53, 94, 89, 0.06), 0 2px 6px -1px rgba(0, 0, 0, 0.04);
 }
 
 #amolih-portal-wrapper {
   box-sizing: border-box;
   width: 100%;
-  max-width: 1200px;
-  margin: 30px auto;
+  max-width: 1220px;
+  margin: 36px auto;
   padding: 0 20px;
+  overflow-x: clip;
   font-family: var(--amolih-font-family);
   font-size: var(--amolih-font-size);
   color: var(--amolih-text);
-  line-height: 1.5;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
 }
 
 #amolih-portal-wrapper h1,
@@ -33,18 +52,84 @@
 #amolih-portal-wrapper h4,
 #amolih-portal-wrapper .amolih-pane-title {
   font-family: var(--amolih-heading-font);
-  font-weight: var(--font-heading-weight, 700);
+  font-weight: 400;
+  letter-spacing: 0.015em;
+  color: var(--amolih-text);
 }
 
 #amolih-portal-wrapper * {
   box-sizing: border-box;
 }
 
+/* Luxury Hero Customer Header */
+.amolih-hero-banner {
+  background: linear-gradient(135deg, #FAF7F2 0%, #F5EFE6 50%, #FAF7F2 100%);
+  border: 1px solid var(--amolih-gold-border);
+  border-radius: var(--amolih-radius-lg);
+  padding: 1.75rem 2rem;
+  margin-bottom: 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+  position: relative;
+  overflow: hidden;
+  box-shadow: var(--amolih-shadow);
+}
+
+.amolih-hero-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--amolih-gold-dark);
+  background: #FFFFFF;
+  border: 1px solid var(--amolih-gold-border);
+  padding: 3px 10px;
+  border-radius: 999px;
+  margin-bottom: 6px;
+}
+
+.amolih-hero-title {
+  font-family: var(--amolih-heading-font);
+  font-size: 32px;
+  color: var(--amolih-text);
+  margin: 0;
+  line-height: 1.2;
+}
+
+.amolih-hero-sub {
+  color: var(--amolih-muted);
+  font-size: 14px;
+  margin: 4px 0 0;
+  font-family: var(--amolih-font-modern);
+}
+
+.amolih-avatar-circle {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: #FFFFFF;
+  border: 2px solid var(--amolih-gold);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--amolih-heading-font);
+  font-size: 1.25rem;
+  color: var(--amolih-primary);
+  font-weight: 500;
+  box-shadow: 0 4px 10px rgba(197, 168, 128, 0.2);
+}
+
 /* Main Grid Layout */
 .amolih-portal-layout {
   display: grid;
   grid-template-columns: 280px 1fr;
-  gap: 24px;
+  gap: 28px;
   align-items: start;
 }
 
@@ -52,63 +137,70 @@
 .amolih-sidebar {
   background-color: var(--amolih-sidebar-bg);
   border: 1px solid var(--amolih-border);
-  border-radius: var(--amolih-radius);
+  border-radius: var(--amolih-radius-lg);
   overflow: hidden;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  box-shadow: var(--amolih-shadow);
 }
 
 .amolih-sidebar-header {
-  padding: 18px 20px;
+  padding: 20px 22px;
   border-bottom: 1px solid var(--amolih-border);
-  background: rgba(0, 0, 0, 0.02);
+  background: rgba(0, 0, 0, 0.015);
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
 .amolih-user-email {
-  font-size: 13px;
+  font-size: 12px;
   color: var(--amolih-muted);
   word-break: break-all;
-  font-weight: 500;
+  font-family: var(--amolih-font-modern);
 }
 
 .amolih-user-name {
-  font-size: 16px;
+  font-size: 17px;
   font-weight: 600;
+  font-family: var(--amolih-font-editorial);
   color: var(--amolih-text);
-  margin-bottom: 2px;
+  margin-bottom: 1px;
 }
 
 /* Navigation List */
 .amolih-nav-menu {
   list-style: none;
   margin: 0;
-  padding: 0;
+  padding: 8px;
 }
 
 .amolih-nav-item {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 14px 20px;
-  border-bottom: 1px solid var(--amolih-border);
+  padding: 12px 16px;
+  margin-bottom: 4px;
+  border-radius: var(--amolih-radius-sm);
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: all 0.2s ease;
   text-decoration: none;
   color: var(--amolih-text);
+  font-family: var(--amolih-font-modern);
+  font-size: 14px;
+  font-weight: 500;
   user-select: none;
 }
 
-.amolih-nav-item:last-child {
-  border-bottom: none;
-}
-
 .amolih-nav-item:hover {
-  background-color: rgba(0, 0, 0, 0.03);
+  background-color: rgba(53, 94, 89, 0.05);
+  color: var(--amolih-primary);
+  transform: translateX(2px);
 }
 
 .amolih-nav-item.amolih-active {
   background-color: var(--amolih-primary) !important;
   color: #FFFFFF !important;
   font-weight: 600;
+  box-shadow: 0 4px 12px rgba(53, 94, 89, 0.22);
 }
 
 .amolih-nav-left {
@@ -163,7 +255,7 @@
 .amolih-sidebar-footer {
   padding: 14px 20px;
   border-top: 1px solid var(--amolih-border);
-  background: rgba(0, 0, 0, 0.02);
+  background: rgba(0, 0, 0, 0.015);
 }
 
 .amolih-logout-link {
@@ -171,14 +263,14 @@
   align-items: center;
   gap: 8px;
   font-size: 13px;
-  color: #EF4444;
+  color: var(--amolih-muted);
   text-decoration: none;
   font-weight: 500;
-  transition: opacity 0.2s;
+  transition: color 0.15s;
 }
 
 .amolih-logout-link:hover {
-  opacity: 0.8;
+  color: #DC2626;
   text-decoration: underline;
 }
 
@@ -186,29 +278,75 @@
 .amolih-main-content {
   background-color: var(--amolih-card-bg);
   border: 1px solid var(--amolih-border);
-  border-radius: var(--amolih-radius);
-  padding: 28px;
-  min-height: 480px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  border-radius: var(--amolih-radius-lg);
+  padding: 32px;
+  min-height: 520px;
+  box-shadow: var(--amolih-shadow);
 }
 
 .amolih-pane-title {
-  font-size: 22px;
-  font-weight: 700;
+  font-size: 26px;
+  font-weight: 400;
   color: var(--amolih-text);
-  margin: 0 0 6px 0;
+  margin: 0 0 4px 0;
+  line-height: 1.25;
 }
 
 .amolih-pane-subtitle {
   color: var(--amolih-muted);
   font-size: 14px;
   margin: 0 0 20px 0;
+  font-family: var(--amolih-font-modern);
 }
 
 .amolih-divider {
   border: 0;
   border-bottom: 1px solid var(--amolih-border);
   margin: 0 0 24px 0;
+}
+
+/* Metrics Grid for Details */
+.amolih-metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 14px;
+  margin-bottom: 24px;
+}
+
+.amolih-metric-card {
+  background: #FAF7F2;
+  border: 1px solid var(--amolih-gold-border);
+  border-radius: var(--amolih-radius-sm);
+  padding: 16px 18px;
+  transition: transform 0.2s ease;
+}
+
+.amolih-metric-card:hover {
+  transform: translateY(-2px);
+}
+
+.amolih-metric-label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--amolih-gold-dark);
+  margin-bottom: 4px;
+  font-family: var(--amolih-font-modern);
+}
+
+.amolih-metric-val {
+  font-family: var(--amolih-heading-font);
+  font-size: 26px;
+  color: var(--amolih-text);
+  line-height: 1.2;
+}
+
+.amolih-metric-sub {
+  font-size: 12px;
+  color: var(--amolih-muted);
+  margin-top: 3px;
+  font-family: var(--amolih-font-modern);
 }
 
 /* Profile Form Elements */
@@ -229,34 +367,38 @@
 }
 
 .amolih-label {
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 600;
-  color: var(--amolih-muted);
+  color: #78716C;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.08em;
+  font-family: var(--amolih-font-modern);
 }
 
 .amolih-value-box {
-  padding: 12px 16px;
+  padding: 14px 16px;
   border: 1px solid var(--amolih-border);
-  border-radius: 6px;
-  background-color: #FAFAFA;
-  font-size: 14px;
+  border-radius: var(--amolih-radius-sm);
+  background-color: #FAF7F2;
+  font-size: 15px;
   color: var(--amolih-text);
+  font-family: var(--amolih-font-modern);
 }
 
 /* Order Cards */
 .amolih-order-card {
   border: 1px solid var(--amolih-border);
-  border-radius: 8px;
-  padding: 18px 20px;
-  margin-bottom: 14px;
-  transition: all 0.15s ease;
+  border-radius: var(--amolih-radius);
+  padding: 20px 24px;
+  margin-bottom: 16px;
+  background: #FFFFFF;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+  transition: all 0.2s ease;
 }
 
 .amolih-order-card:hover {
-  border-color: #CBD5E1;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  border-color: var(--amolih-gold);
+  box-shadow: var(--amolih-shadow);
 }
 
 .amolih-order-header {
@@ -267,15 +409,18 @@
 }
 
 .amolih-order-name {
-  font-weight: 700;
-  font-size: 15px;
+  font-family: var(--amolih-heading-font);
+  font-size: 20px;
+  font-weight: 400;
   color: var(--amolih-text);
+  letter-spacing: 0.02em;
 }
 
 .amolih-order-price {
-  font-weight: 700;
+  font-family: var(--amolih-heading-font);
+  font-weight: 400;
   color: var(--amolih-primary);
-  font-size: 16px;
+  font-size: 20px;
 }
 
 .amolih-order-meta {
@@ -285,57 +430,75 @@
   gap: 16px;
   flex-wrap: wrap;
   align-items: center;
+  font-family: var(--amolih-font-modern);
 }
 
 .amolih-status-pill {
   padding: 3px 10px;
-  border-radius: 6px;
-  font-size: 12px;
+  border-radius: 999px;
+  font-size: 11px;
   font-weight: 600;
+  letter-spacing: 0.04em;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
 }
 
 .amolih-status-pill.fulfilled {
-  background: #DCFCE7;
-  color: #166534;
+  background: #ECFDF5;
+  color: #065F46;
+  border: 1px solid #A7F3D0;
 }
 
 .amolih-status-pill.unfulfilled {
-  background: #FEF3C7;
+  background: #FFFBEB;
   color: #92400E;
+  border: 1px solid #FDE68A;
 }
 
 .amolih-order-items {
-  margin-top: 12px;
-  padding-top: 12px;
+  margin-top: 14px;
+  padding-top: 14px;
   border-top: 1px dashed var(--amolih-border);
-  font-size: 13px;
+  font-size: 14px;
   color: var(--amolih-text);
+  font-family: var(--amolih-font-modern);
 }
 
 .amolih-order-action {
   margin-top: 14px;
-  display: inline-block;
-  padding: 8px 16px;
-  border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 18px;
+  border-radius: var(--amolih-radius-sm);
   background-color: var(--amolih-primary);
-  color: #FFFFFF;
+  color: #FFFFFF !important;
   text-decoration: none;
   font-size: 13px;
   font-weight: 600;
+  letter-spacing: 0.02em;
+  box-shadow: 0 4px 12px rgba(53, 94, 89, 0.18);
+  transition: all 0.15s ease;
+}
+
+.amolih-order-action:hover {
+  background-color: var(--amolih-primary-dark);
+  transform: translateY(-1px);
 }
 
 /* Loyalty / Circle Bar */
 .amolih-loyalty-card {
   padding: 24px;
-  background: linear-gradient(135deg, rgba(53, 94, 89, 0.05) 0%, rgba(251, 248, 245, 0.5) 100%);
-  border: 1px solid var(--amolih-border);
-  border-radius: 8px;
+  background: linear-gradient(135deg, #FAF7F2 0%, #F5EFE6 100%);
+  border: 1px solid var(--amolih-gold-border);
+  border-radius: var(--amolih-radius);
 }
 
 .amolih-progress-track {
   width: 100%;
   height: 12px;
-  background: #E2E8F0;
+  background: #E7DFD5;
   border-radius: 9999px;
   overflow: hidden;
   margin: 16px 0 8px 0;
@@ -343,17 +506,18 @@
 
 .amolih-progress-bar {
   height: 100%;
-  background: var(--amolih-primary);
+  background: linear-gradient(90deg, var(--amolih-primary) 0%, var(--amolih-gold) 60%, var(--amolih-primary) 100%);
   border-radius: 9999px;
-  transition: width 0.4s ease;
+  transition: width 0.6s ease;
 }
 
 /* Addresses */
 .amolih-address-card {
   border: 1px solid var(--amolih-border);
-  border-radius: 8px;
-  padding: 18px 20px;
-  margin-bottom: 14px;
+  border-radius: var(--amolih-radius);
+  padding: 20px 22px;
+  margin-bottom: 16px;
+  background: #FFFFFF;
 }
 
 .amolih-address-header {
@@ -361,40 +525,134 @@
   justify-content: space-between;
   align-items: center;
   margin-bottom: 8px;
+  font-family: var(--amolih-font-editorial);
+  font-size: 18px;
+  font-weight: 600;
 }
 
-/* Responsive / Mobile */
+/* Responsive / Mobile Navigation & Layout */
 .amolih-mobile-toggle {
+  display: none !important;
+}
+
+.amolih-mobile-footer-actions {
   display: none;
-  width: 100%;
-  padding: 14px 18px;
-  background: var(--amolih-sidebar-bg);
-  border: 1px solid var(--amolih-border);
-  border-radius: 8px;
-  margin-bottom: 16px;
-  align-items: center;
-  justify-content: space-between;
-  font-weight: 600;
-  cursor: pointer;
 }
 
 @media (max-width: 768px) {
+  #amolih-portal-wrapper {
+    padding: 0 12px;
+    margin: 16px auto;
+    overflow-x: clip;
+    width: 100%;
+    max-width: 100%;
+  }
+
   .amolih-portal-layout {
-    grid-template-columns: 1fr;
-    gap: 16px;
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    gap: 14px;
+    overflow: hidden;
   }
 
-  .amolih-mobile-toggle {
-    display: flex;
-  }
-
+  /* Linear Horizontal Scrolling Nav Bar on Mobile */
   .amolih-sidebar {
+    display: block !important;
+    position: sticky;
+    top: 10px;
+    z-index: 45;
+    background: rgba(251, 248, 245, 0.96);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border: 1px solid var(--amolih-border);
+    border-radius: 16px;
+    padding: 6px;
+    margin-bottom: 12px;
+    box-shadow: 0 4px 18px rgba(53, 94, 89, 0.08);
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+    overflow: hidden;
+  }
+
+  .amolih-sidebar-header,
+  .amolih-sidebar-concierge-card,
+  .amolih-sidebar-footer {
+    display: none !important;
+  }
+
+  .amolih-nav-menu {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center;
+    overflow-x: auto !important;
+    overflow-y: hidden;
+    white-space: nowrap !important;
+    gap: 8px;
+    padding: 2px 2px;
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-x !important;
+    overscroll-behavior-x: contain !important;
+    overscroll-behavior: contain !important;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    scroll-snap-type: x proximity;
+    margin: 0;
+    list-style: none;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+  }
+
+  .amolih-nav-menu::-webkit-scrollbar {
     display: none;
   }
 
-  .amolih-sidebar.mobile-open {
-    display: block;
-    margin-bottom: 16px;
+  .amolih-nav-menu > li {
+    flex: 0 0 auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  .amolih-nav-item {
+    flex: 0 0 auto !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 8px;
+    padding: 8px 16px !important;
+    border-radius: 9999px !important;
+    font-size: 13px !important;
+    font-weight: 500;
+    background: #FFFFFF;
+    border: 1px solid var(--amolih-border);
+    margin-bottom: 0 !important;
+    white-space: nowrap !important;
+    scroll-snap-align: center;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+    transition: all 0.2s ease;
+  }
+
+  .amolih-nav-item:hover {
+    transform: none !important;
+    background-color: rgba(53, 94, 89, 0.05);
+  }
+
+  .amolih-nav-item.amolih-active {
+    background-color: var(--amolih-primary) !important;
+    color: #FFFFFF !important;
+    border-color: var(--amolih-primary);
+    font-weight: 600;
+    box-shadow: 0 3px 12px rgba(53, 94, 89, 0.28);
+  }
+
+  .amolih-nav-badge {
+    padding: 1px 6px;
+    font-size: 10px;
   }
 
   .amolih-profile-grid {
@@ -407,6 +665,71 @@
 
   .amolih-main-content {
     padding: 20px 16px;
+    border-radius: var(--amolih-radius);
+    min-height: auto;
+  }
+
+  .amolih-hero-banner {
+    padding: 16px 16px;
+    margin-bottom: 14px;
+  }
+
+  .amolih-hero-title {
+    font-size: 22px;
+  }
+
+  .amolih-metrics-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 10px !important;
+    margin-bottom: 18px !important;
+  }
+
+  .amolih-metric-card {
+    padding: 12px 14px !important;
+  }
+
+  .amolih-metric-val {
+    font-size: 20px !important;
+  }
+
+  .amolih-metric-label {
+    font-size: 10px !important;
+  }
+
+  .amolih-order-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+
+  .amolih-order-price {
+    font-size: 20px !important;
+  }
+
+  /* Mobile Concierge & Logout Actions */
+  .amolih-mobile-footer-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 24px;
+  }
+
+  .amolih-mobile-concierge-box {
+    padding: 18px 16px;
+    background: #FFFFFF;
+    border: 1px solid var(--amolih-border);
+    border-radius: var(--amolih-radius);
+    text-align: center;
+    box-shadow: var(--amolih-shadow-sm);
   }
 }
 
+@media (max-width: 420px) {
+  .amolih-metrics-grid {
+    grid-template-columns: 1fr !important;
+  }
+  .amolih-nav-item {
+    padding: 7px 13px !important;
+    font-size: 12px !important;
+  }
+}

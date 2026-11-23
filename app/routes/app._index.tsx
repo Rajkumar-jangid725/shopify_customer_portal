@@ -703,49 +703,207 @@ export default function Index() {
                   {/* Simulator Canvas */}
                   <div
                     style={{
-                      maxWidth: previewDevice === "mobile" ? "420px" : "100%",
+                      maxWidth: previewDevice === "mobile" ? "440px" : "100%",
+                      width: "100%",
                       margin: previewDevice === "mobile" ? "0 auto" : "0",
                       border: "1px solid #CBD5E1",
-                      borderRadius: "12px",
-                      padding: "24px",
+                      borderRadius: "16px",
+                      padding: previewDevice === "mobile" ? "14px 12px" : "24px",
                       backgroundColor: "#F8FAFC",
-                      boxShadow: "0 4px 12px rgba(0,0,0,0.05)",
+                      overflowX: "clip",
+                      boxSizing: "border-box",
+                      boxShadow: "0 4px 16px rgba(0,0,0,0.06)",
                     }}
                   >
+                    <link
+                      rel="stylesheet"
+                      href="https://fonts.googleapis.com/css2?family=Bellefair&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Inter:wght@400;500;600;700&family=Open+Sans:wght@400;600&display=swap"
+                    />
+
+                    {/* Luxury Amolih Hero Welcome Banner */}
+                    <div
+                      style={{
+                        background: "linear-gradient(135deg, #FAF7F2 0%, #F5EFE6 50%, #FAF7F2 100%)",
+                        border: "1px solid rgba(197, 168, 128, 0.4)",
+                        borderRadius: "12px",
+                        padding: "20px 24px",
+                        marginBottom: "20px",
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                        gap: "16px",
+                      }}
+                    >
+                      <div>
+                        <div
+                          style={{
+                            display: "inline-flex",
+                            alignItems: "center",
+                            gap: "6px",
+                            fontSize: "10px",
+                            fontWeight: 700,
+                            letterSpacing: "0.12em",
+                            textTransform: "uppercase",
+                            color: "#A8895E",
+                            background: "#FFFFFF",
+                            border: "1px solid rgba(197, 168, 128, 0.4)",
+                            padding: "2px 8px",
+                            borderRadius: "999px",
+                            marginBottom: "6px",
+                            fontFamily: "'Inter', sans-serif",
+                          }}
+                        >
+                          ✦ AMOLIH PRIVÉ &bull; JAIPUR ATELIER
+                        </div>
+                        <h1
+                          style={{
+                            fontFamily: "'Bellefair', 'Cormorant Garamond', Georgia, serif",
+                            fontSize: "26px",
+                            color: textColor,
+                            margin: 0,
+                            fontWeight: 400,
+                            lineHeight: 1.2,
+                          }}
+                        >
+                          {welcomeMessage}, Sarah
+                        </h1>
+                        <p
+                          style={{
+                            color: "#64748B",
+                            fontSize: "13px",
+                            margin: "4px 0 0",
+                            fontFamily: "'Inter', 'Open Sans', sans-serif",
+                          }}
+                        >
+                          Jaipur Artisan Fine Jewelry &bull; Bespoke account dashboard & concierge
+                        </p>
+                      </div>
+
+                      <div
+                        style={{
+                          width: "48px",
+                          height: "48px",
+                          borderRadius: "50%",
+                          background: "#FFFFFF",
+                          border: "2px solid #C5A880",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          fontFamily: "'Bellefair', serif",
+                          fontSize: "20px",
+                          color: primaryColor,
+                          fontWeight: 500,
+                          boxShadow: "0 4px 10px rgba(197, 168, 128, 0.25)",
+                        }}
+                      >
+                        SJ
+                      </div>
+                    </div>
+
                     <div
                       style={{
                         display: "grid",
-                        gridTemplateColumns: previewDevice === "mobile" ? "1fr" : "280px 1fr",
-                        gap: "24px",
-                        fontFamily,
+                        gridTemplateColumns: previewDevice === "mobile" ? "minmax(0, 1fr)" : "280px 1fr",
+                        gap: previewDevice === "mobile" ? "14px" : "24px",
+                        fontFamily: "'Inter', 'Open Sans', sans-serif",
+                        width: "100%",
+                        maxWidth: "100%",
+                        minWidth: 0,
+                        overflowX: "clip",
                       }}
                     >
-                      {/* DYNAMIC LEFT SIDEBAR (EXACT CUSTLO SPECIFICATION) */}
+                      {/* DYNAMIC LEFT NAVIGATION (VERTICAL SIDEBAR ON DESKTOP, LINEAR HORIZONTAL SCROLL PILL BAR ON MOBILE) */}
                       <div
                         style={{
                           backgroundColor: sidebarBgColor,
                           border: "1px solid #E2E8F0",
-                          borderRadius: "8px",
+                          borderRadius: previewDevice === "mobile" ? "16px" : "12px",
                           overflow: "hidden",
                           display: "flex",
-                          flexDirection: "column",
+                          flexDirection: previewDevice === "mobile" ? "row" : "column",
                           height: "fit-content",
+                          width: "100%",
+                          maxWidth: "100%",
+                          minWidth: 0,
+                          boxSizing: "border-box",
+                          boxShadow: "0 2px 8px rgba(0,0,0,0.03)",
+                          ...(previewDevice === "mobile"
+                            ? {
+                                padding: "6px",
+                                overflowX: "auto",
+                                whiteSpace: "nowrap",
+                                scrollbarWidth: "none",
+                                touchAction: "pan-x",
+                                overscrollBehaviorX: "contain",
+                                gap: "8px",
+                                alignItems: "center",
+                              }
+                            : {}),
                         }}
                       >
-                        {/* Customer Email Header */}
-                        <div style={{ padding: "16px 20px", fontSize: "13px", color: "#64748B", backgroundColor: "rgba(0,0,0,0.02)" }}>
-                          sarah.j@amolih.com
-                        </div>
-                        <div style={{ borderBottom: "1px solid #E2E8F0" }} />
+                        {/* Customer Profile Header (Desktop only) */}
+                        {previewDevice !== "mobile" && (
+                          <div
+                            style={{
+                              padding: "16px 18px",
+                              borderBottom: "1px solid #E2E8F0",
+                              display: "flex",
+                              alignItems: "center",
+                              gap: "12px",
+                              backgroundColor: "rgba(0,0,0,0.015)",
+                            }}
+                          >
+                            <div
+                              style={{
+                                width: "36px",
+                                height: "36px",
+                                borderRadius: "50%",
+                                background: "#FFFFFF",
+                                border: "1.5px solid #C5A880",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                fontFamily: "'Bellefair', serif",
+                                fontSize: "15px",
+                                color: primaryColor,
+                              }}
+                            >
+                              SJ
+                            </div>
+                            <div>
+                              <div
+                                style={{
+                                  fontFamily: "'Cormorant Garamond', 'Bellefair', serif",
+                                  fontSize: "16px",
+                                  fontWeight: 600,
+                                  color: textColor,
+                                }}
+                              >
+                                Sarah Jenkins
+                              </div>
+                              <div style={{ fontSize: "11px", color: "#64748B" }}>sarah.j@amolih.com</div>
+                            </div>
+                          </div>
+                        )}
 
-                        {/* RENDER DYNAMICALLY CONFIGURED MENUS */}
-                        {menuItems
-                          .filter((item) => item.isEnabled)
-                          .map((item, idx) => {
-                            const isActive = simActiveTab === item.destination;
-                            return (
-                              <div key={idx}>
+                        {/* RENDER DYNAMICALLY CONFIGURED MENUS (LINEAR PILLS ON MOBILE, FULL ROWS ON DESKTOP) */}
+                        <div
+                          style={{
+                            padding: previewDevice === "mobile" ? "0" : "8px",
+                            display: "flex",
+                            flexDirection: previewDevice === "mobile" ? "row" : "column",
+                            gap: previewDevice === "mobile" ? "8px" : "4px",
+                            overflowX: previewDevice === "mobile" ? "auto" : "visible",
+                            width: previewDevice === "mobile" ? "100%" : "auto",
+                          }}
+                        >
+                          {menuItems
+                            .filter((item) => item.isEnabled)
+                            .map((item, idx) => {
+                              const isActive = simActiveTab === item.destination;
+                              return (
                                 <div
+                                  key={idx}
                                   onClick={() => {
                                     if (item.linkType === "EXTERNAL_URL" || item.linkType === "SUPPORT_ACTION") {
                                       window.open(item.destination, "_blank");
@@ -754,28 +912,35 @@ export default function Index() {
                                     }
                                   }}
                                   style={{
-                                    backgroundColor: isActive ? primaryColor : "transparent",
+                                    flex: previewDevice === "mobile" ? "0 0 auto" : "none",
+                                    backgroundColor: isActive ? primaryColor : (previewDevice === "mobile" ? "#FFFFFF" : "transparent"),
                                     color: isActive ? "#FFFFFF" : textColor,
-                                    padding: "16px 20px",
-                                    display: "flex",
+                                    border: previewDevice === "mobile" ? (isActive ? `1px solid ${primaryColor}` : "1px solid #E2E8F0") : "none",
+                                    padding: previewDevice === "mobile" ? "8px 16px" : "12px 14px",
+                                    borderRadius: previewDevice === "mobile" ? "999px" : "8px",
+                                    display: "inline-flex",
                                     alignItems: "center",
-                                    justifyContent: "space-between",
+                                    justifyContent: previewDevice === "mobile" ? "center" : "space-between",
+                                    gap: "8px",
                                     cursor: "pointer",
-                                    fontWeight: isActive ? 600 : 400,
-                                    transition: "background-color 0.15s ease",
+                                    fontWeight: isActive ? 600 : 500,
+                                    fontSize: previewDevice === "mobile" ? "13px" : "14px",
+                                    boxShadow: isActive ? "0 4px 12px rgba(53,94,89,0.22)" : (previewDevice === "mobile" ? "0 1px 3px rgba(0,0,0,0.03)" : "none"),
+                                    transition: "all 0.15s ease",
+                                    whiteSpace: "nowrap",
                                   }}
                                 >
-                                  <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-                                    <span style={{ fontSize: "18px" }}>{item.icon}</span>
+                                  <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                                    <span style={{ fontSize: "15px" }}>{item.icon}</span>
                                     <span>{item.label}</span>
                                   </div>
 
                                   {item.badgeText && (
                                     <span
                                       style={{
-                                        fontSize: "11px",
+                                        fontSize: "10px",
                                         fontWeight: 600,
-                                        padding: "3px 8px",
+                                        padding: "1px 6px",
                                         borderRadius: "999px",
                                         backgroundColor: isActive ? "rgba(255,255,255,0.25)" : "#E2E8F0",
                                         color: isActive ? "#FFFFFF" : "#1E293B",
@@ -785,10 +950,55 @@ export default function Index() {
                                     </span>
                                   )}
                                 </div>
-                                <div style={{ borderBottom: "1px solid #E2E8F0" }} />
-                              </div>
-                            );
-                          })}
+                              );
+                            })}
+                        </div>
+
+                        {/* WhatsApp Concierge Strip (Desktop only) */}
+                        {previewDevice !== "mobile" && (
+                          <div
+                            style={{
+                              margin: "8px",
+                              padding: "14px",
+                              background: "#FFFFFF",
+                              border: "1px solid #E2E8F0",
+                              borderRadius: "8px",
+                              textAlign: "center",
+                            }}
+                          >
+                            <div
+                              style={{
+                                fontFamily: "'Cormorant Garamond', serif",
+                                fontSize: "15px",
+                                fontWeight: 600,
+                                color: textColor,
+                                marginBottom: "2px",
+                              }}
+                            >
+                              Jaipur Atelier Concierge
+                            </div>
+                            <div style={{ fontSize: "11px", color: "#64748B", marginBottom: "8px" }}>
+                              Bespoke sizing, styling & assistance
+                            </div>
+                            <a
+                              href={supportUrl}
+                              target="_blank"
+                              rel="noreferrer"
+                              style={{
+                                display: "block",
+                                padding: "6px 10px",
+                                borderRadius: "6px",
+                                background: primaryColor,
+                                color: "#fff",
+                                textDecoration: "none",
+                                fontSize: "12px",
+                                fontWeight: 600,
+                              }}
+                            >
+                              💬 Chat on WhatsApp
+                            </a>
+                          </div>
+                        )}
                       </div>
 
                       {/* RIGHT SIMULATOR CANVAS: DYNAMIC CONTENT ACCORDING TO SELECTED MENU */}
@@ -796,45 +1006,143 @@ export default function Index() {
                         style={{
                           backgroundColor: "#FFFFFF",
                           border: "1px solid #E2E8F0",
-                          borderRadius: "8px",
-                          padding: "24px",
-                          minHeight: "420px",
+                          borderRadius: "12px",
+                          padding: previewDevice === "mobile" ? "18px 14px" : "28px",
+                          minHeight: previewDevice === "mobile" ? "auto" : "440px",
+                          boxShadow: "0 2px 8px rgba(0,0,0,0.03)",
                         }}
                       >
                         {simActiveTab === "details" && (
                           <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
-                            <div>
-                              <h2 style={{ fontSize: "20px", fontWeight: 700, margin: "0 0 6px 0", color: textColor }}>
-                                Profile Details
-                              </h2>
-                              <p style={{ margin: 0, color: "#64748B", fontSize: "14px" }}>
-                                Manage your personal account information and communication settings.
-                              </p>
+                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                              <div>
+                                <h2
+                                  style={{
+                                    fontFamily: "'Bellefair', 'Cormorant Garamond', serif",
+                                    fontSize: "24px",
+                                    fontWeight: 400,
+                                    margin: "0 0 4px 0",
+                                    color: textColor,
+                                    letterSpacing: "0.015em",
+                                  }}
+                                >
+                                  Client Profile & Bespoke Contact
+                                </h2>
+                                <p style={{ margin: 0, color: "#64748B", fontSize: "13px" }}>
+                                  Your registered client information, fine jewelry investment totals, and concierge details.
+                                </p>
+                              </div>
                             </div>
                             <div style={{ borderBottom: "1px solid #E2E8F0" }} />
 
-                            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
-                              <div>
-                                <label style={{ fontSize: "12px", fontWeight: 600, color: "#64748B" }}>First Name</label>
-                                <div style={{ padding: "10px 14px", border: "1px solid #CBD5E1", borderRadius: "6px", marginTop: "4px" }}>
+                            {/* 4 Quick Metric Cards */}
+                            <div
+                              style={{
+                                display: "grid",
+                                gridTemplateColumns: previewDevice === "mobile" ? "repeat(2, 1fr)" : "repeat(auto-fit, minmax(130px, 1fr))",
+                                gap: "12px",
+                              }}
+                            >
+                              <div
+                                style={{
+                                  background: "#FAF7F2",
+                                  border: "1px solid rgba(197, 168, 128, 0.4)",
+                                  borderRadius: "8px",
+                                  padding: previewDevice === "mobile" ? "10px 12px" : "14px",
+                                }}
+                              >
+                                <div style={{ fontSize: "10px", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "#A8895E" }}>
+                                  Lifetime Investment
+                                </div>
+                                <div style={{ fontFamily: "'Bellefair', serif", fontSize: previewDevice === "mobile" ? "20px" : "24px", color: primaryColor, marginTop: "2px" }}>
+                                  ₹38,450.00
+                                </div>
+                                <div style={{ fontSize: "11px", color: "#64748B", marginTop: "2px" }}>Fine jewelry acquired</div>
+                              </div>
+
+                              <div
+                                style={{
+                                  background: "#FAF7F2",
+                                  border: "1px solid rgba(197, 168, 128, 0.4)",
+                                  borderRadius: "8px",
+                                  padding: previewDevice === "mobile" ? "10px 12px" : "14px",
+                                }}
+                              >
+                                <div style={{ fontSize: "10px", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "#A8895E" }}>
+                                  Orders Placed
+                                </div>
+                                <div style={{ fontFamily: "'Bellefair', serif", fontSize: previewDevice === "mobile" ? "20px" : "24px", color: textColor, marginTop: "2px" }}>
+                                  3
+                                </div>
+                                <div style={{ fontSize: "11px", color: "#64748B", marginTop: "2px" }}>Bespoke & ready pieces</div>
+                              </div>
+
+                              <div
+                                style={{
+                                  background: "#FAF7F2",
+                                  border: "1px solid rgba(197, 168, 128, 0.4)",
+                                  borderRadius: "8px",
+                                  padding: previewDevice === "mobile" ? "10px 12px" : "14px",
+                                }}
+                              >
+                                <div style={{ fontSize: "10px", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "#A8895E" }}>
+                                  Privilege Status
+                                </div>
+                                <div style={{ fontFamily: "'Bellefair', serif", fontSize: previewDevice === "mobile" ? "18px" : "20px", color: textColor, marginTop: "2px" }}>
+                                  Tier 2 Privé
+                                </div>
+                                <div style={{ fontSize: "11px", color: "#64748B", marginTop: "2px" }}>Amolih Circle VIP</div>
+                              </div>
+
+                              <div
+                                style={{
+                                  background: "#FAF7F2",
+                                  border: "1px solid rgba(197, 168, 128, 0.4)",
+                                  borderRadius: "8px",
+                                  padding: previewDevice === "mobile" ? "10px 12px" : "14px",
+                                }}
+                              >
+                                <div style={{ fontSize: "10px", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "#A8895E" }}>
+                                  Primary Destination
+                                </div>
+                                <div style={{ fontSize: previewDevice === "mobile" ? "14px" : "15px", fontWeight: 600, color: textColor, marginTop: "4px" }}>
+                                  Mumbai, IN
+                                </div>
+                                <div style={{ fontSize: "11px", color: "#64748B", marginTop: "2px" }}>Insured Courier</div>
+                              </div>
+                            </div>
+
+                            {/* Profile Grid */}
+                            <div style={{ display: "grid", gridTemplateColumns: previewDevice === "mobile" ? "1fr" : "1fr 1fr", gap: "14px" }}>
+                              <div style={{ background: "#FAF7F2", border: "1px solid #E2E8F0", borderRadius: "8px", padding: "12px 14px" }}>
+                                <label style={{ fontSize: "11px", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.08em", color: "#78716C" }}>
+                                  First Name
+                                </label>
+                                <div style={{ fontSize: "15px", fontWeight: 500, color: textColor, marginTop: "4px" }}>
                                   Sarah
                                 </div>
                               </div>
-                              <div>
-                                <label style={{ fontSize: "12px", fontWeight: 600, color: "#64748B" }}>Last Name</label>
-                                <div style={{ padding: "10px 14px", border: "1px solid #CBD5E1", borderRadius: "6px", marginTop: "4px" }}>
+                              <div style={{ background: "#FAF7F2", border: "1px solid #E2E8F0", borderRadius: "8px", padding: "12px 14px" }}>
+                                <label style={{ fontSize: "11px", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.08em", color: "#78716C" }}>
+                                  Last Name
+                                </label>
+                                <div style={{ fontSize: "15px", fontWeight: 500, color: textColor, marginTop: "4px" }}>
                                   Jenkins
                                 </div>
                               </div>
-                              <div style={{ gridColumn: "span 2" }}>
-                                <label style={{ fontSize: "12px", fontWeight: 600, color: "#64748B" }}>Email Address</label>
-                                <div style={{ padding: "10px 14px", border: "1px solid #CBD5E1", borderRadius: "6px", marginTop: "4px" }}>
+                              <div style={{ gridColumn: previewDevice === "mobile" ? "span 1" : "span 2", background: "#FAF7F2", border: "1px solid #E2E8F0", borderRadius: "8px", padding: "12px 14px" }}>
+                                <label style={{ fontSize: "11px", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.08em", color: "#78716C" }}>
+                                  Email Address
+                                </label>
+                                <div style={{ fontSize: "15px", fontWeight: 500, color: textColor, marginTop: "4px" }}>
                                   sarah.j@amolih.com
                                 </div>
                               </div>
-                              <div style={{ gridColumn: "span 2" }}>
-                                <label style={{ fontSize: "12px", fontWeight: 600, color: "#64748B" }}>Contact Phone</label>
-                                <div style={{ padding: "10px 14px", border: "1px solid #CBD5E1", borderRadius: "6px", marginTop: "4px" }}>
+                              <div style={{ gridColumn: previewDevice === "mobile" ? "span 1" : "span 2", background: "#FAF7F2", border: "1px solid #E2E8F0", borderRadius: "8px", padding: "12px 14px" }}>
+                                <label style={{ fontSize: "11px", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.08em", color: "#78716C" }}>
+                                  Contact Phone
+                                </label>
+                                <div style={{ fontSize: "15px", fontWeight: 500, color: textColor, marginTop: "4px" }}>
                                   +91 98234 56789
                                 </div>
                               </div>
@@ -846,24 +1154,66 @@ export default function Index() {
                           <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
                             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                               <div>
-                                <h2 style={{ fontSize: "20px", fontWeight: 700, margin: "0 0 4px 0", color: textColor }}>
+                                <h2
+                                  style={{
+                                    fontFamily: "'Bellefair', 'Cormorant Garamond', serif",
+                                    fontSize: "24px",
+                                    fontWeight: 400,
+                                    margin: "0 0 4px 0",
+                                    color: textColor,
+                                  }}
+                                >
                                   Orders History
                                 </h2>
-                                <p style={{ margin: 0, color: "#64748B", fontSize: "14px" }}>1 order placed</p>
+                                <p style={{ margin: 0, color: "#64748B", fontSize: "13px" }}>
+                                  3 fine jewelry orders recorded in your archive.
+                                </p>
                               </div>
-                              <span style={{ padding: "4px 10px", borderRadius: "6px", backgroundColor: "#ECFDF5", color: "#065F46", fontSize: "12px", fontWeight: 600 }}>
-                                Fulfilled
-                              </span>
                             </div>
                             <div style={{ borderBottom: "1px solid #E2E8F0" }} />
 
-                            <div style={{ border: "1px solid #E2E8F0", borderRadius: "8px", padding: "16px" }}>
-                              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "8px" }}>
-                                <span style={{ fontWeight: 600 }}>Order #1042</span>
-                                <span style={{ fontWeight: 700, color: primaryColor }}>₹3,450.00</span>
+                            <div
+                              style={{
+                                border: "1px solid #E2E8F0",
+                                borderRadius: "12px",
+                                padding: "18px 20px",
+                                background: "#FFFFFF",
+                                boxShadow: "0 2px 6px rgba(0,0,0,0.03)",
+                              }}
+                            >
+                              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px" }}>
+                                <div>
+                                  <span style={{ fontFamily: "'Bellefair', serif", fontSize: "18px", color: textColor }}>
+                                    Order #1042
+                                  </span>
+                                  <div style={{ fontSize: "12px", color: "#64748B" }}>Placed on 28 Oct 2026 &bull; Air Courier</div>
+                                </div>
+                                <div style={{ display: "flex", gap: "6px" }}>
+                                  <span style={{ padding: "3px 8px", borderRadius: "999px", background: "#F0FDF4", color: "#166534", fontSize: "11px", fontWeight: 600 }}>
+                                    ● Paid
+                                  </span>
+                                  <span style={{ padding: "3px 8px", borderRadius: "999px", background: "#ECFDF5", color: "#065F46", fontSize: "11px", fontWeight: 600 }}>
+                                    ● Fulfilled
+                                  </span>
+                                </div>
                               </div>
-                              <div style={{ fontSize: "13px", color: "#64748B" }}>
-                                Placed on 28 Oct 2026 &bull; Standard Shipping (Air Courier)
+
+                              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", margin: "10px 0" }}>
+                                <span style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "16px", fontWeight: 600 }}>
+                                  Jaipur Solitaire Charm Necklace &times; 1
+                                </span>
+                                <span style={{ fontFamily: "'Bellefair', serif", fontSize: "20px", color: primaryColor }}>
+                                  ₹3,450.00
+                                </span>
+                              </div>
+
+                              <div style={{ display: "flex", gap: "8px", marginTop: "12px", paddingTop: "10px", borderTop: "1px solid #F1F5F9" }}>
+                                <span style={{ padding: "5px 10px", borderRadius: "6px", background: primaryColor, color: "#fff", fontSize: "12px", fontWeight: 600 }}>
+                                  Track Shipment ↗
+                                </span>
+                                <span style={{ padding: "5px 10px", borderRadius: "6px", background: "#FAF7F2", border: "1px solid #E2E8F0", color: textColor, fontSize: "12px", fontWeight: 500 }}>
+                                  💬 Inquire on WhatsApp
+                                </span>
                               </div>
                             </div>
                           </div>
@@ -873,35 +1223,52 @@ export default function Index() {
                           <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
                             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "10px" }}>
                               <div>
-                                <h2 style={{ fontSize: "20px", fontWeight: 700, margin: "0 0 4px 0", color: textColor }}>
+                                <h2
+                                  style={{
+                                    fontFamily: "'Bellefair', 'Cormorant Garamond', serif",
+                                    fontSize: "24px",
+                                    fontWeight: 400,
+                                    margin: "0 0 4px 0",
+                                    color: textColor,
+                                  }}
+                                >
                                   {circleTierTitle}
                                 </h2>
-                                <p style={{ margin: 0, color: "#64748B", fontSize: "14px" }}>
-                                  /pages/{circlePageUrl.replace(/^https?:\/\/[^/]+/i, "").replace(/^\/?pages\//i, "").replace(/^\/+|\/+$/g, "") || "amolih-circle-progress-bar"}
+                                <p style={{ margin: 0, color: "#64748B", fontSize: "13px" }}>
+                                  Jaipur Heritage Loyalty Tier &bull; /pages/{circlePageUrl.replace(/^https?:\/\/[^/]+/i, "").replace(/^\/?pages\//i, "").replace(/^\/+|\/+$/g, "") || "amolih-circle-progress-bar"}
                                 </p>
                               </div>
                               <span style={{ fontSize: "12px", padding: "4px 10px", borderRadius: "999px", background: "rgba(53,94,89,0.1)", color: primaryColor, fontWeight: 600 }}>
-                                Live Page Embed
+                                ✦ Active Privileges
                               </span>
                             </div>
                             <div style={{ borderBottom: "1px solid #E2E8F0" }} />
 
-                            <div style={{ padding: "28px 16px", border: "1px dashed #CBD5E1", borderRadius: "8px", background: "#F8FAFC", textAlign: "center" }}>
-                              <div style={{ fontSize: "32px", marginBottom: "8px" }}>📄</div>
-                              <div style={{ fontWeight: 600, color: textColor, marginBottom: "4px", fontSize: "15px" }}>
-                                Live Storefront Page: /pages/{circlePageUrl.replace(/^https?:\/\/[^/]+/i, "").replace(/^\/?pages\//i, "").replace(/^\/+|\/+$/g, "") || "amolih-circle-progress-bar"}
+                            {/* Loyalty Progress Tracker */}
+                            <div
+                              style={{
+                                background: "linear-gradient(135deg, #FAF7F2 0%, #F5EFE6 100%)",
+                                border: "1px solid rgba(197, 168, 128, 0.4)",
+                                borderRadius: "10px",
+                                padding: "20px",
+                              }}
+                            >
+                              <div style={{ fontSize: "11px", textTransform: "uppercase", letterSpacing: "0.08em", color: "#A8895E", fontWeight: 700 }}>
+                                Current Membership Status
                               </div>
-                              <div style={{ fontSize: "13px", color: "#64748B", maxWidth: "480px", margin: "0 auto 16px auto", lineHeight: 1.5 }}>
-                                The customer dashboard directly renders the content of your store page <strong>pages/{circlePageUrl.replace(/^https?:\/\/[^/]+/i, "").replace(/^\/?pages\//i, "").replace(/^\/+|\/+$/g, "") || "amolih-circle-progress-bar"}</strong> inside this tab.
+                              <div style={{ fontFamily: "'Bellefair', serif", fontSize: "22px", color: textColor, marginTop: "2px" }}>
+                                Amolih Circle &bull; Tier 2 Privé
                               </div>
-                              <a
-                                href={circlePageUrl.startsWith("/") ? circlePageUrl : `/pages/${circlePageUrl}`}
-                                target="_blank"
-                                rel="noreferrer"
-                                style={{ display: "inline-block", padding: "8px 14px", borderRadius: "6px", backgroundColor: primaryColor, color: "#fff", textDecoration: "none", fontSize: "13px", fontWeight: 600 }}
-                              >
-                                Open Full Page ↗
-                              </a>
+
+                              <div style={{ width: "100%", height: "12px", background: "#E7DFD5", borderRadius: "999px", overflow: "hidden", margin: "14px 0 8px" }}>
+                                <div style={{ height: "100%", width: "65%", background: "linear-gradient(90deg, #355E59 0%, #C5A880 60%, #355E59 100%)", borderRadius: "999px" }} />
+                              </div>
+
+                              <div style={{ display: "flex", justifyContent: "space-between", fontSize: "11px", fontWeight: 600, color: "#A8895E" }}>
+                                <span>Tier 1: Silver Artisan</span>
+                                <span>Tier 2: Royal Jaipur Privé</span>
+                                <span>Tier 3: Imperial Heritage</span>
+                              </div>
                             </div>
                           </div>
                         )}
@@ -909,24 +1276,44 @@ export default function Index() {
                         {simActiveTab === "addresses" && (
                           <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
                             <div>
-                              <h2 style={{ fontSize: "20px", fontWeight: 700, margin: "0 0 4px 0", color: textColor }}>
-                                Saved Shipping Addresses
+                              <h2
+                                style={{
+                                  fontFamily: "'Bellefair', 'Cormorant Garamond', serif",
+                                  fontSize: "24px",
+                                  fontWeight: 400,
+                                  margin: "0 0 4px 0",
+                                  color: textColor,
+                                }}
+                              >
+                                Saved Delivery Locations
                               </h2>
-                              <p style={{ margin: 0, color: "#64748B", fontSize: "14px" }}>
+                              <p style={{ margin: 0, color: "#64748B", fontSize: "13px" }}>
                                 2 shipping addresses linked to your account.
                               </p>
                             </div>
                             <div style={{ borderBottom: "1px solid #E2E8F0" }} />
 
-                            <div style={{ border: "1px solid #E2E8F0", borderRadius: "8px", padding: "16px" }}>
-                              <div style={{ display: "flex", justifyContent: "space-between" }}>
-                                <strong>Default Address</strong>
-                                <span style={{ fontSize: "12px", color: "#166534", fontWeight: 600 }}>Default</span>
+                            <div
+                              style={{
+                                border: "1px solid #E2E8F0",
+                                borderRadius: "10px",
+                                padding: "18px",
+                                background: "#FFFFFF",
+                                boxShadow: "0 2px 6px rgba(0,0,0,0.03)",
+                              }}
+                            >
+                              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                                <strong style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "18px" }}>
+                                  Sarah Jenkins
+                                </strong>
+                                <span style={{ fontSize: "11px", padding: "2px 8px", borderRadius: "999px", background: "#ECFDF5", color: "#166534", fontWeight: 600 }}>
+                                  ✦ Default Location
+                                </span>
                               </div>
-                              <div style={{ marginTop: "6px", fontSize: "13px", color: "#475569", lineHeight: "1.5" }}>
-                                Sarah Jenkins<br />
+                              <div style={{ marginTop: "6px", fontSize: "13px", color: "#475569", lineHeight: "1.6" }}>
                                 42 Marina Boulevard, Apt 9B<br />
-                                Mumbai, Maharashtra 400001
+                                Mumbai, Maharashtra 400001 &bull; India<br />
+                                <span style={{ color: "#64748B", fontSize: "12px" }}>📞 +91 98234 56789</span>
                               </div>
                             </div>
                           </div>
@@ -945,6 +1332,58 @@ export default function Index() {
                         )}
                       </div>
                     </div>
+
+                    {/* Mobile Concierge Strip (Visible below content on mobile preview) */}
+                    {previewDevice === "mobile" && (
+                      <div
+                        style={{
+                          marginTop: "14px",
+                          padding: "16px",
+                          background: "#FFFFFF",
+                          border: "1px solid #E2E8F0",
+                          borderRadius: "12px",
+                          textAlign: "center",
+                          boxShadow: "0 2px 6px rgba(0,0,0,0.02)",
+                        }}
+                      >
+                        <div
+                          style={{
+                            fontFamily: "'Cormorant Garamond', serif",
+                            fontSize: "16px",
+                            fontWeight: 600,
+                            color: textColor,
+                            marginBottom: "2px",
+                          }}
+                        >
+                          Jaipur Atelier Concierge
+                        </div>
+                        <div style={{ fontSize: "11px", color: "#64748B", marginBottom: "10px" }}>
+                          Bespoke sizing, styling & assistance
+                        </div>
+                        <a
+                          href={supportUrl}
+                          target="_blank"
+                          rel="noreferrer"
+                          style={{
+                            display: "inline-flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            padding: "8px 16px",
+                            borderRadius: "6px",
+                            background: primaryColor,
+                            color: "#fff",
+                            textDecoration: "none",
+                            fontSize: "12px",
+                            fontWeight: 600,
+                          }}
+                        >
+                          💬 Chat on WhatsApp
+                        </a>
+                        <div style={{ marginTop: "12px", paddingTop: "10px", borderTop: "1px solid #F1F5F9" }}>
+                          <span style={{ fontSize: "12px", color: "#94A3B8" }}>🚪 Sign out of account</span>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </BlockStack>
               )}
@@ -998,17 +1437,18 @@ export default function Index() {
                           <Select
                             label="Portal Typography (Front End Theme Font)"
                             options={[
+                              { label: "👑 Amolih Luxury Signature (Bellefair, Cormorant Garamond, Inter, Open Sans)", value: "amolih" },
                               { label: "✨ Storefront Theme Typography (Inherit - Live Front End Font)", value: "inherit" },
-                              { label: "Modern Clean Sans (Inter / System)", value: "Inter, -apple-system, sans-serif" },
+                              { label: "Bellefair & Cormorant Garamond (Jaipur Heritage Serif)", value: "Bellefair, 'Cormorant Garamond', serif" },
+                              { label: "Inter & Open Sans (Modern Clean Sans)", value: "Inter, 'Open Sans', -apple-system, sans-serif" },
                               { label: "Clean Geometric (Poppins)", value: "Poppins, -apple-system, sans-serif" },
                               { label: "Luxury Editorial Serif (Playfair Display)", value: "Playfair Display, Georgia, serif" },
                               { label: "Contemporary Modern (Montserrat)", value: "Montserrat, -apple-system, sans-serif" },
                               { label: "Modern Neutral (Plus Jakarta Sans)", value: "Plus Jakarta Sans, sans-serif" },
-                              { label: "Classic Humanist (Open Sans)", value: "Open Sans, -apple-system, sans-serif" },
                             ]}
                             value={fontFamily}
                             onChange={setFontFamily}
-                            helpText="Choose 'Storefront Theme Typography' to seamlessly show your store's live front end fonts, or pick a Google web font."
+                            helpText="Choose 'Amolih Luxury Signature' to automatically apply Bellefair/Cormorant Garamond for luxury headings and Inter/Open Sans for modern body text."
                           />
                           <TextField
                             label="Loyalty Program Menu Title"

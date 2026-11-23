@@ -103,24 +103,23 @@
     s.setProperty("--amolih-sidebar-bg", portalConfig.sidebarBgColor || "#FBF8F5");
     s.setProperty("--amolih-text", portalConfig.textColor || "#1A1A1A");
 
-    var isInherit = !portalConfig.fontFamily || portalConfig.fontFamily === "inherit" || portalConfig.fontFamily.indexOf("inherit") !== -1;
+    // Ensure Google Fonts for Bellefair, Cormorant Garamond, Inter, Open Sans are loaded
+    var fontLinkId = "amolih-store-fonts";
+    if (!document.getElementById(fontLinkId)) {
+      var link = document.createElement("link");
+      link.id = fontLinkId;
+      link.rel = "stylesheet";
+      link.href = "https://fonts.googleapis.com/css2?family=Bellefair&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400;1,600&family=Inter:wght@300;400;500;600;700&family=Open+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap";
+      document.head.appendChild(link);
+    }
+
+    var isInherit = !portalConfig.fontFamily || portalConfig.fontFamily === "inherit" || portalConfig.fontFamily === "amolih" || portalConfig.fontFamily.indexOf("inherit") !== -1 || portalConfig.fontFamily.indexOf("amolih") !== -1;
     if (isInherit) {
-      s.setProperty("--amolih-font-family", "var(--font-body-family, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif)");
-      s.setProperty("--amolih-heading-font", "var(--font-heading-family, var(--font-body-family, inherit))");
+      s.setProperty("--amolih-font-family", "var(--font-body-family, 'Inter', 'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif)");
+      s.setProperty("--amolih-heading-font", "var(--font-heading-family, 'Bellefair', 'Cormorant Garamond', Garamond, Georgia, serif)");
     } else {
       s.setProperty("--amolih-font-family", portalConfig.fontFamily);
       s.setProperty("--amolih-heading-font", portalConfig.fontFamily);
-      if (!portalConfig.fontFamily.includes("-apple-system")) {
-        var fontName = portalConfig.fontFamily.split(",")[0].replace(/['"]/g, "").trim();
-        var id = "amolih-font-" + fontName.toLowerCase().replace(/\s+/g, "-");
-        if (!document.getElementById(id)) {
-          var link = document.createElement("link");
-          link.id = id;
-          link.rel = "stylesheet";
-          link.href = "https://fonts.googleapis.com/css2?family=" + encodeURIComponent(fontName) + ":wght@400;500;600;700&display=swap";
-          document.head.appendChild(link);
-        }
-      }
     }
     s.setProperty("--amolih-font-size", portalConfig.baseFontSize || "14px");
 
@@ -153,13 +152,27 @@
     var items = (portalConfig.menuItems || []).filter(function (i) { return i.isEnabled; });
     var cur = items.filter(function (i) { return i.destination === activeTab; })[0] || items[0] || { label: "My Account", icon: "👤" };
 
-    wrap.innerHTML = '<button class="amolih-mobile-toggle" id="amolih-mobile-menu-btn" type="button">' +
-      '<span style="display:flex;align-items:center;gap:10px;"><span>' + (cur.icon || "👤") + '</span><span>' + esc(cur.label) + '</span></span>' +
-      '<span style="font-size:12px;color:var(--amolih-muted);">Menu ▾</span></button>' +
+    var userInitials = (customerData.firstName ? customerData.firstName.charAt(0) : "A") + (customerData.lastName ? customerData.lastName.charAt(0) : "M");
+    userInitials = userInitials.toUpperCase();
+
+    var heroHtml = '<div class="amolih-hero-banner">' +
+      '<div>' +
+      '<div class="amolih-hero-tag">✦ Amolih Privé &bull; Jaipur Atelier</div>' +
+      '<h1 class="amolih-hero-title">' + (customerData.firstName ? esc(portalConfig.welcomeMessage || "Welcome back") + ", " + esc(customerData.firstName) : esc(portalConfig.portalTitle || "Amolih Customer Portal")) + '</h1>' +
+      '<p class="amolih-hero-sub">Jaipur Artisan Fine Jewelry &bull; Bespoke account dashboard & concierge</p>' +
+      '</div>' +
+      '<div class="amolih-avatar-circle" title="' + esc(customerData.name || "") + '">' + userInitials + '</div>' +
+      '</div>';
+
+    wrap.innerHTML = heroHtml +
       '<div class="amolih-portal-layout">' +
       '<div class="amolih-sidebar" id="amolih-sidebar">' +
-      '<div class="amolih-sidebar-header"><div class="amolih-user-name">' + (customerData.firstName ? esc(customerData.firstName) + " " + esc(customerData.lastName || "") : esc(portalConfig.welcomeMessage || "Welcome back")) + '</div>' +
-      '<div class="amolih-user-email">' + esc(customerData.email || "") + '</div></div>' +
+      '<div class="amolih-sidebar-header">' +
+      '<div class="amolih-avatar-circle" style="width:38px;height:38px;font-size:1rem;">' + userInitials + '</div>' +
+      '<div>' +
+      '<div class="amolih-user-name">' + (customerData.firstName ? esc(customerData.firstName) + " " + esc(customerData.lastName || "") : esc(portalConfig.welcomeMessage || "Welcome back")) + '</div>' +
+      '<div class="amolih-user-email">' + esc(customerData.email || "") + '</div>' +
+      '</div></div>' +
       '<ul class="amolih-nav-menu">' +
       items.map(function (item) {
         var act = activeTab === item.destination ? " amolih-active" : "";
@@ -167,41 +180,81 @@
         return '<li><div class="amolih-nav-item' + act + '" data-dest="' + esc(item.destination) + '" data-type="' + esc(item.linkType) + '" data-newtab="' + (item.openInNewTab ? "true" : "false") + '">' +
           '<div class="amolih-nav-left"><span class="amolih-nav-icon">' + (item.icon || "🔗") + '</span><span class="amolih-nav-label">' + esc(item.label) + '</span></div>' + badge + '</div></li>';
       }).join("") +
-      '</ul><div class="amolih-sidebar-footer"><a href="/account/logout" class="amolih-logout-link"><span>🚪</span><span>Log out</span></a></div></div>' +
-      '<div class="amolih-main-content" id="amolih-main-pane">' + renderTab() + '</div></div>';
+      '</ul>' +
+      '<div class="amolih-sidebar-concierge-card" style="padding:16px; margin:8px; background:#FFFFFF; border:1px solid var(--amolih-border); border-radius:var(--amolih-radius-sm); text-align:center;">' +
+      '<div style="font-family:var(--amolih-font-editorial); font-size:15px; font-weight:600; color:var(--amolih-text); margin-bottom:4px;">Jaipur Atelier Concierge</div>' +
+      '<div style="font-size:12px; color:var(--amolih-muted); margin-bottom:10px;">Bespoke sizing, styling & assistance</div>' +
+      '<a href="' + esc(portalConfig.supportUrl || "https://wa.me/918233905718") + '" target="_blank" rel="noopener" class="amolih-order-action" style="width:100%; display:inline-flex; justify-content:center; padding:8px 12px; font-size:12px; margin-top:0;">💬 Chat on WhatsApp</a>' +
+      '</div>' +
+      '<div class="amolih-sidebar-footer"><a href="/account/logout" class="amolih-logout-link"><span>🚪</span><span>Sign out</span></a></div></div>' +
+      '<div class="amolih-main-content" id="amolih-main-pane">' + renderTab() +
+      '<div class="amolih-mobile-footer-actions">' +
+      '<div class="amolih-mobile-concierge-box">' +
+      '<div style="font-family:var(--amolih-font-editorial); font-size:16px; font-weight:600; color:var(--amolih-text); margin-bottom:4px;">Jaipur Atelier Concierge</div>' +
+      '<div style="font-size:12px; color:var(--amolih-muted); margin-bottom:12px;">Bespoke jewelry sizing, customization & order care</div>' +
+      '<a href="' + esc(portalConfig.supportUrl || "https://wa.me/918233905718") + '" target="_blank" rel="noopener" class="amolih-order-action" style="width:auto; display:inline-flex; justify-content:center; padding:9px 18px; font-size:13px; margin-top:0;">💬 Chat on WhatsApp</a>' +
+      '</div>' +
+      '<div style="text-align:center; padding:6px 0;"><a href="/account/logout" class="amolih-logout-link" style="justify-content:center;"><span>🚪</span><span>Sign out of account</span></a></div>' +
+      '</div>' +
+      '</div></div>';
 
     bindEvents();
   }
 
   function renderTab() {
     if (activeTab === "details") {
-      return '<div><h2 class="amolih-pane-title">Profile Details</h2><p class="amolih-pane-subtitle">Manage your personal account information and primary contact details.</p><hr class="amolih-divider" />' +
+      var defaultCity = (customerData.defaultAddress && customerData.defaultAddress.city) ? customerData.defaultAddress.city : "Jaipur / Global";
+      var defaultCountry = (customerData.defaultAddress && customerData.defaultAddress.country) ? customerData.defaultAddress.country : "Insured Delivery";
+
+      return '<div><div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:10px;margin-bottom:6px;">' +
+        '<div><h2 class="amolih-pane-title">Client Profile & Bespoke Contact</h2>' +
+        '<p class="amolih-pane-subtitle">Your registered client information, fine jewelry investment totals, and concierge details.</p></div>' +
+        '<a href="/account/addresses" class="amolih-order-action" style="margin-top:0;font-size:12px;padding:6px 14px;">Manage Locations</a></div><hr class="amolih-divider" />' +
+        '<div class="amolih-metrics-grid">' +
+        '<div class="amolih-metric-card"><div class="amolih-metric-label">Lifetime Investment</div><div class="amolih-metric-val">' + formatOrderPrice(customerData.totalSpent, customerData.currency, customerData.currencySymbol) + '</div><div class="amolih-metric-sub">Fine jewelry acquired</div></div>' +
+        '<div class="amolih-metric-card"><div class="amolih-metric-label">Orders Placed</div><div class="amolih-metric-val">' + customerData.ordersCount + '</div><div class="amolih-metric-sub">Bespoke & ready pieces</div></div>' +
+        '<div class="amolih-metric-card"><div class="amolih-metric-label">Privilege Status</div><div class="amolih-metric-val" style="font-size:22px;">Tier 2 Privé</div><div class="amolih-metric-sub">Amolih Circle VIP Perks</div></div>' +
+        '<div class="amolih-metric-card"><div class="amolih-metric-label">Primary Destination</div><div class="amolih-metric-val" style="font-size:20px;font-family:var(--amolih-font-modern);">' + esc(defaultCity) + '</div><div class="amolih-metric-sub">' + esc(defaultCountry) + '</div></div>' +
+        '</div>' +
         '<div class="amolih-profile-grid">' +
         '<div class="amolih-field-group"><label class="amolih-label">First Name</label><div class="amolih-value-box">' + esc(customerData.firstName || "-") + '</div></div>' +
         '<div class="amolih-field-group"><label class="amolih-label">Last Name</label><div class="amolih-value-box">' + esc(customerData.lastName || "-") + '</div></div>' +
         '<div class="amolih-field-group full-width"><label class="amolih-label">Email Address</label><div class="amolih-value-box">' + esc(customerData.email || "-") + '</div></div>' +
         '<div class="amolih-field-group full-width"><label class="amolih-label">Contact Phone</label><div class="amolih-value-box">' + esc(customerData.phone || "-") + '</div></div>' +
-        '<div class="amolih-field-group"><label class="amolih-label">Total Orders</label><div class="amolih-value-box">' + customerData.ordersCount + ' orders</div></div>' +
-        '<div class="amolih-field-group"><label class="amolih-label">Total Spent</label><div class="amolih-value-box" style="font-weight:700;color:var(--amolih-primary);">' + formatOrderPrice(customerData.totalSpent, customerData.currency, customerData.currencySymbol) + '</div></div>' +
         '</div></div>';
     }
     if (activeTab === "orders") {
       var orders = customerData.orders || [];
       if (!orders.length) {
-        return '<div><h2 class="amolih-pane-title">Orders History</h2><p class="amolih-pane-subtitle">You have not placed any orders yet.</p><hr class="amolih-divider" /><div style="text-align:center;padding:40px 20px;"><div style="font-size:40px;margin-bottom:12px;">🛒</div><p style="color:var(--amolih-muted);">When you make a purchase, your tracking details and receipts will appear here.</p><a href="/collections/all" class="amolih-order-action">Start Shopping</a></div></div>';
+        return '<div><h2 class="amolih-pane-title">Orders History</h2><p class="amolih-pane-subtitle">You have not placed any fine jewelry orders yet.</p><hr class="amolih-divider" />' +
+          '<div style="text-align:center;padding:48px 20px;background:#FAF7F2;border:1px dashed var(--amolih-gold-border);border-radius:var(--amolih-radius);">' +
+          '<div style="font-size:42px;margin-bottom:12px;">💎</div>' +
+          '<h3 style="font-family:var(--amolih-heading-font);font-size:24px;margin:0 0 8px;font-weight:400;">Your Jewelry Box is Waiting</h3>' +
+          '<p style="color:var(--amolih-muted);max-width:400px;margin:0 auto 18px;font-family:var(--amolih-font-modern);">Discover our latest Jaipur handcrafted solitaires, bespoke charms, and customizable fine jewelry.</p>' +
+          '<a href="/collections/all" class="amolih-order-action">Explore Atelier Collection</a></div></div>';
       }
-      return '<div><h2 class="amolih-pane-title">Orders History</h2><p class="amolih-pane-subtitle">' + orders.length + ' order' + (orders.length > 1 ? "s" : "") + ' recorded.</p><hr class="amolih-divider" />' +
+      return '<div><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;"><div><h2 class="amolih-pane-title">Orders History</h2><p class="amolih-pane-subtitle">' + orders.length + ' fine jewelry order' + (orders.length > 1 ? "s" : "") + ' recorded in your archive.</p></div>' +
+        '<a href="/collections/all" class="amolih-order-action" style="margin-top:0;font-size:12px;padding:6px 14px;">Explore New Arrivals ↗</a></div><hr class="amolih-divider" />' +
         orders.map(function (o) {
           var fPill = o.fulfillmentStatus === "Fulfilled" ? "fulfilled" : "unfulfilled";
           var orderPrice = formatOrderPrice(o.totalPrice, o.currency, o.currencySymbol);
           var itemsHtml = (o.lineItems || []).map(function (it) {
             var itPrice = formatOrderPrice(it.price, o.currency, o.currencySymbol);
-            return '<div style="display:flex;justify-content:space-between;padding:4px 0;"><span>' + esc(it.title) + ' &times; ' + it.quantity + '</span><span style="font-weight:600;">' + itPrice + '</span></div>';
+            return '<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;">' +
+              '<div><span style="font-family:var(--amolih-font-editorial);font-size:16px;font-weight:500;">' + esc(it.title) + '</span>' +
+              '<span style="font-size:12px;color:var(--amolih-muted);margin-left:6px;">&times; ' + it.quantity + '</span></div>' +
+              '<span style="font-weight:600;font-size:14px;">' + itPrice + '</span></div>';
           }).join("");
-          var trackBtn = o.statusUrl ? '<div style="margin-top:14px;"><a href="' + o.statusUrl + '" target="_blank" class="amolih-order-action">View Tracking ↗</a></div>' : '';
-          return '<div class="amolih-order-card"><div class="amolih-order-header"><div><span class="amolih-order-name">' + esc(o.name || "#" + o.orderNumber) + '</span><div style="font-size:12px;color:var(--amolih-muted);">' + esc(o.createdAt || "") + '</div></div><span class="amolih-order-price">' + orderPrice + '</span></div>' +
-            '<div class="amolih-order-meta"><span class="amolih-status-pill ' + fPill + '">' + esc(o.fulfillmentStatus || "Unfulfilled") + '</span><span>Payment: ' + esc(o.financialStatus || "Paid") + '</span></div>' +
-            (itemsHtml ? '<div class="amolih-order-items">' + itemsHtml + '</div>' : '') + trackBtn + '</div>';
+          var trackBtn = o.statusUrl ? '<a href="' + o.statusUrl + '" target="_blank" rel="noopener" class="amolih-order-action" style="margin-top:0;font-size:12px;padding:6px 12px;">Track Shipment & Invoice ↗</a>' : '';
+          var inquiryBtn = '<a href="https://wa.me/918233905718?text=Hi+Amolih%2C+I+have+a+question+regarding+my+Order+' + encodeURIComponent(o.name || "#" + o.orderNumber) + '." target="_blank" rel="noopener" class="amolih-order-action" style="margin-top:0;background:#FFFFFF;color:var(--amolih-text)!important;border:1px solid var(--amolih-border);font-size:12px;padding:6px 12px;">💬 Inquire on WhatsApp</a>';
+          return '<div class="amolih-order-card">' +
+            '<div class="amolih-order-header"><div><span class="amolih-order-name">' + esc(o.name || "#" + o.orderNumber) + '</span>' +
+            '<div style="font-size:12px;color:var(--amolih-muted);margin-top:2px;">Placed on ' + esc(o.createdAt || "") + '</div></div>' +
+            '<span class="amolih-order-price">' + orderPrice + '</span></div>' +
+            '<div class="amolih-order-meta"><span class="amolih-status-pill ' + fPill + '">● ' + esc(o.fulfillmentStatus || "In Atelier") + '</span><span>Payment: ' + esc(o.financialStatus || "Paid") + '</span></div>' +
+            (itemsHtml ? '<div class="amolih-order-items">' + itemsHtml + '</div>' : '') +
+            '<div style="display:flex;gap:8px;margin-top:14px;padding-top:10px;border-top:1px solid var(--amolih-border-light);flex-wrap:wrap;">' + trackBtn + inquiryBtn + '</div>' +
+            '</div>';
         }).join("") + '</div>';
     }
     var isCircle = activeTab === "circle" || activeTab === "amolih-circle-progress-bar" || activeTab === (portalConfig.circlePageUrl || "amolih-circle-progress-bar") || activeTab.indexOf("progress-bar") !== -1 || activeTab.indexOf("circle") !== -1;
@@ -265,17 +318,57 @@
         if (type === "SHOPIFY_STORE") { window.location.href = dest; return; }
         activeTab = dest;
         window.location.hash = dest;
-        var sb = document.getElementById("amolih-sidebar");
-        if (sb) sb.classList.remove("mobile-open");
         renderPortalUI();
       });
     });
-    var btn = document.getElementById("amolih-mobile-menu-btn");
-    if (btn) {
-      btn.addEventListener("click", function () {
-        var sb = document.getElementById("amolih-sidebar");
-        if (sb) sb.classList.toggle("mobile-open");
+
+    // Horizontal swipe gesture containment (prevents dragging whole screen)
+    var navMenu = document.querySelector(".amolih-nav-menu");
+    if (navMenu) {
+      var startX = 0;
+      var startY = 0;
+      navMenu.addEventListener("touchstart", function (e) {
+        if (e.touches && e.touches.length === 1) {
+          startX = e.touches[0].clientX;
+          startY = e.touches[0].clientY;
+        }
+      }, { passive: true });
+
+      navMenu.addEventListener("touchmove", function (e) {
+        if (e.touches && e.touches.length === 1) {
+          var dx = Math.abs(e.touches[0].clientX - startX);
+          var dy = Math.abs(e.touches[0].clientY - startY);
+          if (dx > dy && dx > 3) {
+            e.stopPropagation();
+          }
+        }
+      }, { passive: false });
+
+      // Mouse drag-to-scroll support
+      var isDown = false;
+      var mouseStartX = 0;
+      var scrollInitial = 0;
+      navMenu.addEventListener("mousedown", function (e) {
+        isDown = true;
+        mouseStartX = e.pageX - navMenu.offsetLeft;
+        scrollInitial = navMenu.scrollLeft;
       });
+      window.addEventListener("mouseup", function () { isDown = false; });
+      navMenu.addEventListener("mousemove", function (e) {
+        if (!isDown) return;
+        e.preventDefault();
+        var x = e.pageX - navMenu.offsetLeft;
+        var walk = (x - mouseStartX) * 1.5;
+        navMenu.scrollLeft = scrollInitial - walk;
+      });
+    }
+
+    // Auto-scroll active horizontal nav item to center view
+    var activeItem = document.querySelector(".amolih-nav-item.amolih-active");
+    if (activeItem) {
+      setTimeout(function () {
+        activeItem.scrollIntoView({ inline: "center", block: "nearest", behavior: "smooth" });
+      }, 100);
     }
   }
 

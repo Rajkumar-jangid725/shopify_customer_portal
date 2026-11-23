@@ -587,20 +587,28 @@ function renderDashboardHtml({
     config.circleTierTitle || "Amolih Circle's Progress Bar",
   );
 
-  // TYPOGRAPHY ENGINE:
-  // If 'inherit' or empty, seamlessly adopt storefront theme typography (Dawn/Sense/etc.)
-  // If a specific font name is specified, load Google Fonts stylesheet and apply font family.
+  // AMOLIH TYPOGRAPHY ARCHITECTURE:
+  // Storefront font stack:
+  // Headings/Serifs: 'Bellefair', 'Cormorant Garamond' (Editorial Jaipur Luxury)
+  // Interface/Body: 'Inter', 'Open Sans' (Modern Clean Sans)
   const isInheritTheme =
     !rawFontFamily ||
     rawFontFamily === "inherit" ||
+    rawFontFamily === "amolih" ||
     rawFontFamily.toLowerCase().includes("inherit") ||
+    rawFontFamily.toLowerCase().includes("amolih") ||
     rawFontFamily.toLowerCase().includes("theme");
 
-  let googleFontLink = "";
+  // Always preload and load Google Fonts for Bellefair, Cormorant Garamond, Inter, and Open Sans
+  let googleFontLink = `
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bellefair&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400;1,600&family=Inter:wght@300;400;500;600;700&family=Open+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">`;
+
   let bodyFontFamily =
-    "var(--font-body-family, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif)";
+    "var(--font-body-family, 'Inter', 'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif)";
   let headingFontFamily =
-    "var(--font-heading-family, var(--font-body-family, inherit))";
+    "var(--font-heading-family, 'Bellefair', 'Cormorant Garamond', Garamond, Georgia, serif)";
 
   if (!isInheritTheme) {
     const fontName = rawFontFamily.split(",")[0].replace(/['"]/g, "").trim();
@@ -610,12 +618,10 @@ function renderDashboardHtml({
       fontName !== "sans-serif" &&
       fontName !== "serif"
     ) {
-      googleFontLink = `
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+      googleFontLink += `
 <link href="https://fonts.googleapis.com/css2?family=${encodeURIComponent(fontName)}:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400;1,600&display=swap" rel="stylesheet">`;
-      bodyFontFamily = `'${fontName}', var(--font-body-family, -apple-system, sans-serif)`;
-      headingFontFamily = `'${fontName}', var(--font-heading-family, var(--font-body-family, inherit))`;
+      bodyFontFamily = `'${fontName}', var(--font-body-family, 'Inter', sans-serif)`;
+      headingFontFamily = `'${fontName}', var(--font-heading-family, 'Bellefair', serif)`;
     } else {
       bodyFontFamily = escapeHtml(rawFontFamily);
       headingFontFamily = escapeHtml(rawFontFamily);
@@ -640,7 +646,7 @@ function renderDashboardHtml({
       const badge = renderMenuBadge(destination, item.badgeText);
 
       return `<a class="amolih-menu-item${active ? " is-active" : ""}" href="${href}"${target}>
-        <span class="amolih-menu-label"><span class="amolih-icon">${escapeHtml(item.icon || "🔗")}</span>${escapeHtml(item.label)}</span>
+        <span class="amolih-menu-label"><span class="amolih-icon">${escapeHtml(item.icon || "✦")}</span>${escapeHtml(item.label)}</span>
         ${badge}
       </a>`;
     })
@@ -657,18 +663,50 @@ function renderDashboardHtml({
   return `
 ${googleFontLink}
 <style>
-  .amolih-dashboard {
+  :root {
     --amolih-primary: ${primary};
+    --amolih-primary-dark: #23433E;
+    --amolih-primary-light: rgba(53, 94, 89, 0.08);
+    --amolih-gold: #C5A880;
+    --amolih-gold-dark: #A8895E;
+    --amolih-gold-light: #FBF8F3;
+    --amolih-gold-border: rgba(197, 168, 128, 0.35);
     --amolih-sidebar: ${sidebarBg};
+    --amolih-card-bg: #FFFFFF;
     --amolih-text: ${textColor};
+    --amolih-text-muted: #64748B;
+    --amolih-border: #E8E3DD;
+    --amolih-border-light: #F4EFEB;
+    --amolih-font-luxury: 'Bellefair', 'Cormorant Garamond', Garamond, Georgia, serif;
+    --amolih-font-editorial: 'Cormorant Garamond', 'Bellefair', Garamond, Georgia, serif;
+    --amolih-font-modern: 'Inter', 'Open Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     --amolih-font-family: ${bodyFontFamily};
     --amolih-heading-font: ${headingFontFamily};
+    --amolih-radius: 12px;
+    --amolih-radius-lg: 16px;
+    --amolih-radius-sm: 8px;
+    --amolih-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.04);
+    --amolih-shadow: 0 4px 20px -2px rgba(53, 94, 89, 0.06), 0 2px 6px -1px rgba(0, 0, 0, 0.04);
+    --amolih-shadow-hover: 0 10px 25px -4px rgba(53, 94, 89, 0.12), 0 4px 10px -2px rgba(0, 0, 0, 0.06);
+  }
+
+  html, body {
+    overflow-x: hidden;
+    max-width: 100vw;
+  }
+
+  .amolih-dashboard {
     font-family: var(--amolih-font-family);
     color: var(--amolih-text);
-    max-width: 1100px;
+    width: 100%;
+    max-width: 1220px;
     margin: 0 auto;
-    padding: 1.5rem 1rem 3.5rem;
-    line-height: 1.5;
+    padding: 2rem 1.25rem 4rem;
+    line-height: 1.55;
+    overflow-x: clip;
+    box-sizing: border-box;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
   .amolih-dashboard * {
     box-sizing: border-box;
@@ -676,199 +714,751 @@ ${googleFontLink}
   .amolih-dashboard h1,
   .amolih-dashboard h2,
   .amolih-dashboard h3,
-  .amolih-dashboard h4 {
+  .amolih-dashboard h4,
+  .amolih-serif {
     font-family: var(--amolih-heading-font);
-    font-weight: var(--font-heading-weight, 700);
-    letter-spacing: var(--font-heading-letter-spacing, -0.01em);
+    font-weight: 400;
     color: var(--amolih-text);
+    letter-spacing: 0.015em;
   }
-  .amolih-dashboard h1 { margin: 0 0 0.35rem; font-size: 1.85rem; }
-  .amolih-dashboard h2 { margin: 0 0 0.5rem; font-size: 1.35rem; }
+  .amolih-dashboard h1 { margin: 0; font-size: 2.35rem; line-height: 1.15; }
+  .amolih-dashboard h2 { margin: 0 0 0.4rem; font-size: 1.55rem; line-height: 1.25; }
+  .amolih-dashboard h3 { margin: 0 0 0.35rem; font-size: 1.25rem; font-family: var(--amolih-font-editorial); }
   .amolih-dashboard input,
   .amolih-dashboard button,
   .amolih-dashboard select,
   .amolih-dashboard textarea,
   .amolih-dashboard label,
   .amolih-dashboard a {
-    font-family: inherit;
+    font-family: var(--amolih-font-modern);
   }
-  .amolih-muted { color: #64748B; margin: 0 0 1rem; }
+
+  /* Luxury Hero Customer Header */
+  .amolih-hero-banner {
+    background: linear-gradient(135deg, #FAF7F2 0%, #F5EFE6 50%, #FAF7F2 100%);
+    border: 1px solid var(--amolih-gold-border);
+    border-radius: var(--amolih-radius-lg);
+    padding: 1.75rem 2rem;
+    margin-bottom: 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+    position: relative;
+    overflow: hidden;
+    box-shadow: var(--amolih-shadow);
+  }
+  .amolih-hero-banner::after {
+    content: "AMOLIH";
+    position: absolute;
+    right: 20px;
+    bottom: -15px;
+    font-family: var(--amolih-heading-font);
+    font-size: 5rem;
+    font-weight: 700;
+    color: rgba(197, 168, 128, 0.07);
+    letter-spacing: 0.25em;
+    pointer-events: none;
+    user-select: none;
+  }
+  .amolih-hero-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--amolih-gold-dark);
+    background: #FFFFFF;
+    border: 1px solid var(--amolih-gold-border);
+    padding: 0.25rem 0.75rem;
+    border-radius: 999px;
+    margin-bottom: 0.5rem;
+  }
+  .amolih-hero-title {
+    font-family: var(--amolih-heading-font);
+    font-size: 2.15rem;
+    color: var(--amolih-text);
+    margin: 0;
+    line-height: 1.2;
+  }
+  .amolih-hero-sub {
+    color: var(--amolih-text-muted);
+    font-size: 0.92rem;
+    margin: 0.35rem 0 0;
+    font-family: var(--amolih-font-modern);
+    letter-spacing: 0.01em;
+  }
+  .amolih-hero-stats {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+  }
+  .amolih-avatar-circle {
+    width: 54px;
+    height: 54px;
+    border-radius: 50%;
+    background: #FFFFFF;
+    border: 2px solid var(--amolih-gold);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--amolih-heading-font);
+    font-size: 1.35rem;
+    color: var(--amolih-primary);
+    font-weight: 500;
+    box-shadow: 0 4px 10px rgba(197, 168, 128, 0.2);
+  }
+
+  /* Layout Structure */
   .amolih-layout {
     display: grid;
-    grid-template-columns: minmax(220px, 260px) minmax(0, 1fr);
-    gap: 1.5rem;
+    grid-template-columns: minmax(240px, 280px) minmax(0, 1fr);
+    gap: 2rem;
     align-items: start;
-    margin-top: 1rem;
   }
-  @media (max-width: 800px) {
-    .amolih-layout { grid-template-columns: 1fr; }
-  }
+
+  /* Luxury Sidebar & Linear Navigation */
   .amolih-sidebar {
     background: var(--amolih-sidebar);
-    border: 1px solid #E2E8F0;
-    border-radius: 12px;
-    padding: 0.75rem;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+    border: 1px solid var(--amolih-border);
+    border-radius: var(--amolih-radius-lg);
+    padding: 0.85rem;
+    box-shadow: var(--amolih-shadow);
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
   }
-  .amolih-email {
-    font-size: 0.85rem;
-    color: #64748B;
-    padding: 0.5rem 0.75rem 0.75rem;
-    word-break: break-word;
-    font-weight: 500;
+  .amolih-nav-scroll-wrapper {
+    position: relative;
+    width: 100%;
+  }
+  .amolih-nav-scroll-track {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    width: 100%;
+  }
+  .amolih-sidebar-profile {
+    padding: 1rem 1rem 1.15rem;
+    border-bottom: 1px solid var(--amolih-border);
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .amolih-sidebar-name {
+    font-family: var(--amolih-font-editorial);
+    font-size: 1.15rem;
+    font-weight: 600;
+    color: var(--amolih-text);
+    line-height: 1.25;
+  }
+  .amolih-sidebar-email {
+    font-size: 0.78rem;
+    color: var(--amolih-text-muted);
+    word-break: break-all;
+    font-family: var(--amolih-font-modern);
+    margin-top: 2px;
   }
   .amolih-menu-item {
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 0.75rem;
-    padding: 0.75rem 0.85rem;
-    border-radius: 8px;
+    padding: 0.85rem 1rem;
+    border-radius: var(--amolih-radius-sm);
     text-decoration: none;
-    color: inherit;
-    font-size: 0.95rem;
-    transition: all 0.15s ease;
+    color: var(--amolih-text);
+    font-size: 0.93rem;
+    font-weight: 500;
+    font-family: var(--amolih-font-modern);
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    position: relative;
   }
   .amolih-menu-item:hover {
-    background: rgba(255, 255, 255, 0.7);
+    background: rgba(53, 94, 89, 0.05);
+    color: var(--amolih-primary);
+    transform: translateX(2px);
   }
   .amolih-menu-item.is-active {
     background: var(--amolih-primary);
     color: #FFFFFF !important;
     font-weight: 600;
+    box-shadow: 0 4px 12px rgba(53, 94, 89, 0.25);
   }
-  .amolih-menu-label { display: inline-flex; align-items: center; gap: 0.65rem; }
-  .amolih-icon { width: 1.25rem; text-align: center; }
+  .amolih-menu-label { display: inline-flex; align-items: center; gap: 0.75rem; }
+  .amolih-icon { width: 1.35rem; text-align: center; font-size: 1.05rem; }
   .amolih-badge {
     display: inline-flex;
     align-items: center;
     border-radius: 999px;
     background: #E2E8F0;
     color: #1E293B;
-    font-size: 0.75rem;
-    padding: 0.15rem 0.6rem;
+    font-size: 0.72rem;
+    padding: 0.2rem 0.65rem;
     white-space: nowrap;
     font-weight: 600;
+    letter-spacing: 0.04em;
   }
   .amolih-menu-item.is-active .amolih-badge {
-    background: rgba(255,255,255,0.25);
+    background: rgba(255, 255, 255, 0.22);
     color: #FFFFFF;
   }
-  .amolih-panel {
+
+  /* Sidebar WhatsApp Concierge Card (Desktop) */
+  .amolih-sidebar-concierge {
+    margin-top: 1rem;
+    padding: 1rem;
     background: #FFFFFF;
-    border: 1px solid #E2E8F0;
-    border-radius: 12px;
-    padding: 1.5rem;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+    border: 1px solid var(--amolih-border);
+    border-radius: var(--amolih-radius-sm);
+    text-align: center;
+  }
+  .amolih-concierge-title {
+    font-family: var(--amolih-font-editorial);
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 0 0 4px;
+    color: var(--amolih-text);
+  }
+  .amolih-concierge-desc {
+    font-size: 0.78rem;
+    color: var(--amolih-text-muted);
+    margin: 0 0 10px;
+  }
+  .amolih-concierge-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    width: 100%;
+    padding: 0.6rem 0.85rem;
+    background: var(--amolih-primary);
+    color: #FFFFFF !important;
+    border-radius: var(--amolih-radius-sm);
+    text-decoration: none;
+    font-size: 0.82rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    transition: opacity 0.15s ease;
+  }
+  .amolih-concierge-btn:hover { opacity: 0.92; }
+  .amolih-sidebar-logout {
+    margin-top: 0.5rem;
+    padding: 0.75rem 1rem;
+    border-top: 1px solid var(--amolih-border-light);
+  }
+  .amolih-logout-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.84rem;
+    color: #94A3B8;
+    text-decoration: none;
+    transition: color 0.15s;
+  }
+  .amolih-logout-link:hover { color: #DC2626; }
+
+  /* Mobile Footer Actions (Concierge & Logout) - Hidden on desktop */
+  .amolih-mobile-footer-strip {
+    display: none;
+  }
+
+  /* Fully Responsive & Linear Horizontal Nav for Mobile */
+  @media (max-width: 860px) {
+    .amolih-dashboard {
+      padding: 1.25rem 1rem 3.5rem;
+      width: 100%;
+      max-width: 100%;
+      overflow-x: clip;
+    }
+    .amolih-hero-banner {
+      padding: 1.25rem 1.25rem;
+      margin-bottom: 1.25rem;
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+      max-width: 100%;
+      box-sizing: border-box;
+    }
+    .amolih-hero-title {
+      font-size: 1.7rem;
+    }
+    .amolih-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
+      width: 100%;
+      max-width: 100%;
+      min-width: 0;
+      gap: 1.25rem;
+    }
+
+    /* Transform Sidebar into Linear Horizontal Scrollable Pill Bar */
+    .amolih-sidebar {
+      position: sticky;
+      top: 10px;
+      z-index: 45;
+      background: rgba(251, 248, 245, 0.96);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border: 1px solid var(--amolih-border);
+      border-radius: 16px;
+      padding: 6px;
+      box-shadow: 0 4px 18px rgba(53, 94, 89, 0.08);
+      gap: 0;
+      margin-bottom: 0.5rem;
+      width: 100%;
+      max-width: 100%;
+      min-width: 0;
+      box-sizing: border-box;
+      overflow: hidden;
+    }
+    .amolih-sidebar-profile,
+    .amolih-sidebar-concierge,
+    .amolih-sidebar-logout {
+      display: none !important;
+    }
+
+    .amolih-nav-scroll-wrapper {
+      position: relative;
+      width: 100%;
+      max-width: 100%;
+      min-width: 0;
+      box-sizing: border-box;
+      overflow: hidden;
+    }
+    .amolih-nav-scroll-track {
+      width: 100%;
+      max-width: 100%;
+      min-width: 0;
+      box-sizing: border-box;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      overflow-x: auto;
+      overflow-y: hidden;
+      white-space: nowrap;
+      gap: 8px;
+      padding: 2px 2px;
+      -webkit-overflow-scrolling: touch;
+      touch-action: pan-x;
+      overscroll-behavior-x: contain;
+      overscroll-behavior: contain;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+      scroll-snap-type: x proximity;
+    }
+    .amolih-nav-scroll-track::-webkit-scrollbar {
+      display: none;
+    }
+    .amolih-main-pane {
+      width: 100%;
+      max-width: 100%;
+      min-width: 0;
+      box-sizing: border-box;
+    }
+
+    .amolih-menu-item {
+      flex: 0 0 auto;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 0.55rem 1.15rem;
+      border-radius: 999px;
+      background: #FFFFFF;
+      border: 1px solid var(--amolih-border);
+      font-size: 0.86rem;
+      font-weight: 500;
+      color: var(--amolih-text);
+      scroll-snap-align: center;
+      white-space: nowrap;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+      transition: all 0.2s ease;
+    }
+    .amolih-menu-item:hover {
+      transform: none;
+      background: rgba(53, 94, 89, 0.05);
+    }
+    .amolih-menu-item.is-active {
+      background: var(--amolih-primary) !important;
+      color: #FFFFFF !important;
+      border-color: var(--amolih-primary);
+      box-shadow: 0 3px 12px rgba(53, 94, 89, 0.28);
+      font-weight: 600;
+    }
+    .amolih-menu-label {
+      gap: 6px;
+    }
+    .amolih-icon {
+      width: auto;
+      font-size: 0.95rem;
+    }
+    .amolih-badge {
+      font-size: 0.68rem;
+      padding: 0.15rem 0.5rem;
+    }
+
+    /* Mobile Footer Actions (Concierge & Logout) */
+    .amolih-mobile-footer-strip {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      margin-top: 1.75rem;
+    }
+    .amolih-mobile-concierge-card {
+      background: #FFFFFF;
+      border: 1px solid var(--amolih-border);
+      border-radius: var(--amolih-radius);
+      padding: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      text-align: center;
+      align-items: center;
+      box-shadow: var(--amolih-shadow-sm);
+    }
+  }
+
+  @media (max-width: 640px) {
+    .amolih-dashboard {
+      padding: 0.85rem 0.75rem 3rem;
+    }
+    .amolih-hero-banner {
+      padding: 1.15rem 1rem;
+      margin-bottom: 1rem;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 1rem;
+    }
+    .amolih-hero-title {
+      font-size: 1.55rem;
+    }
+    .amolih-hero-stats {
+      width: 100%;
+      justify-content: flex-start;
+    }
+    .amolih-metrics-grid {
+      grid-template-columns: repeat(2, 1fr) !important;
+      gap: 10px !important;
+      margin-bottom: 1.25rem !important;
+    }
+    .amolih-metric-card {
+      padding: 0.85rem 0.95rem !important;
+    }
+    .amolih-metric-val {
+      font-size: 1.4rem !important;
+    }
+    .amolih-metric-label {
+      font-size: 0.65rem !important;
+    }
+    .amolih-panel {
+      padding: 1.25rem 1rem !important;
+      border-radius: var(--amolih-radius) !important;
+    }
+    .amolih-pane-title {
+      font-size: 1.45rem !important;
+    }
+    .amolih-order-card {
+      padding: 1rem 1rem !important;
+    }
+    .amolih-order-header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 4px;
+    }
+    .amolih-order-price {
+      font-size: 1.25rem !important;
+    }
+    .amolih-tier-milestones {
+      font-size: 0.68rem;
+    }
+  }
+
+  @media (max-width: 380px) {
+    .amolih-metrics-grid {
+      grid-template-columns: 1fr !important;
+    }
+    .amolih-menu-item {
+      padding: 0.5rem 0.95rem;
+      font-size: 0.82rem;
+    }
+  }
+
+  /* Main Display Panel */
+  .amolih-panel {
+    background: var(--amolih-card-bg);
+    border: 1px solid var(--amolih-border);
+    border-radius: var(--amolih-radius-lg);
+    padding: 2.25rem 2.25rem;
+    box-shadow: var(--amolih-shadow);
+  }
+  @media (max-width: 640px) {
+    .amolih-panel { padding: 1.5rem 1.15rem; }
+  }
+
+  .amolih-panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-bottom: 0.5rem;
+  }
+  .amolih-pane-title {
+    font-family: var(--amolih-heading-font);
+    font-size: 1.85rem;
+    font-weight: 400;
+    color: var(--amolih-text);
+    margin: 0;
+    line-height: 1.2;
+    letter-spacing: 0.02em;
+  }
+  .amolih-pane-subtitle {
+    color: var(--amolih-text-muted);
+    font-size: 0.92rem;
+    margin: 0.25rem 0 0;
+    font-family: var(--amolih-font-modern);
   }
   .amolih-divider {
     border: 0;
-    border-bottom: 1px solid #E2E8F0;
-    margin: 1rem 0 1.25rem;
+    border-bottom: 1px solid var(--amolih-border);
+    margin: 1.25rem 0 1.75rem;
   }
+
+  /* Metric Stat Cards Grid */
+  .amolih-metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.75rem;
+  }
+  .amolih-metric-card {
+    background: #FAF7F2;
+    border: 1px solid var(--amolih-gold-border);
+    border-radius: var(--amolih-radius);
+    padding: 1.15rem 1.25rem;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  .amolih-metric-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--amolih-shadow);
+  }
+  .amolih-metric-label {
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--amolih-gold-dark);
+    margin-bottom: 0.35rem;
+    font-family: var(--amolih-font-modern);
+  }
+  .amolih-metric-val {
+    font-family: var(--amolih-heading-font);
+    font-size: 1.85rem;
+    font-weight: 400;
+    color: var(--amolih-text);
+    line-height: 1.15;
+  }
+  .amolih-metric-sub {
+    font-size: 0.78rem;
+    color: var(--amolih-text-muted);
+    margin-top: 0.25rem;
+  }
+
+  /* Folio Profile Fields */
   .amolih-fields {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 1rem;
+    gap: 1.25rem;
+  }
+  @media (max-width: 600px) {
+    .amolih-fields { grid-template-columns: 1fr; }
   }
   .amolih-field-box {
-    background: #F8FAFC;
-    border: 1px solid #E2E8F0;
-    border-radius: 8px;
-    padding: 0.85rem 1rem;
+    background: #FAF7F2;
+    border: 1px solid var(--amolih-border);
+    border-radius: var(--amolih-radius-sm);
+    padding: 1rem 1.15rem;
+    transition: border-color 0.15s ease;
   }
   .amolih-field-box label {
     display: block;
-    font-size: 0.75rem;
+    font-size: 0.72rem;
     font-weight: 600;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
-    color: #64748B;
+    letter-spacing: 0.1em;
+    color: #78716C;
     margin-bottom: 0.3rem;
   }
   .amolih-field-val {
     font-size: 1rem;
+    font-weight: 500;
     color: var(--amolih-text);
     word-break: break-word;
+    font-family: var(--amolih-font-modern);
   }
   .amolih-span-2 { grid-column: 1 / -1; }
-  .amolih-card {
-    border: 1px solid #E2E8F0;
-    border-radius: 10px;
-    padding: 1rem 1.15rem;
-    background: #FAFAFA;
-    margin-bottom: 0.85rem;
-    transition: border-color 0.15s ease;
+
+  /* Luxury Order Folio Cards */
+  .amolih-order-card {
+    border: 1px solid var(--amolih-border);
+    border-radius: var(--amolih-radius);
+    padding: 1.35rem 1.5rem;
+    background: #FFFFFF;
+    margin-bottom: 1.25rem;
+    box-shadow: var(--amolih-shadow-sm);
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   }
-  .amolih-card:hover {
-    border-color: #CBD5E1;
+  .amolih-order-card:hover {
+    border-color: var(--amolih-gold);
+    box-shadow: var(--amolih-shadow);
   }
-  .amolih-card-row {
+  .amolih-order-header {
     display: flex;
     justify-content: space-between;
-    gap: 1rem;
     align-items: center;
-    margin-bottom: 0.4rem;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-bottom: 0.65rem;
   }
-  .amolih-banner {
+  .amolih-order-name {
+    font-family: var(--amolih-heading-font);
+    font-size: 1.4rem;
+    font-weight: 400;
+    color: var(--amolih-text);
+    letter-spacing: 0.02em;
+  }
+  .amolih-order-meta {
+    font-size: 0.85rem;
+    color: var(--amolih-text-muted);
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+  .amolih-order-price {
+    font-family: var(--amolih-heading-font);
+    font-size: 1.35rem;
+    font-weight: 400;
+    color: var(--amolih-primary);
+  }
+  .amolih-status-pill {
+    padding: 0.25rem 0.75rem;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: capitalize;
+    letter-spacing: 0.04em;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .amolih-status-pill.fulfilled {
+    background: #ECFDF5;
+    color: #065F46;
+    border: 1px solid #A7F3D0;
+  }
+  .amolih-status-pill.unfulfilled {
     background: #FFFBEB;
+    color: #92400E;
     border: 1px solid #FDE68A;
-    border-radius: 12px;
-    padding: 1.5rem;
   }
-  .amolih-actions { margin-top: 1rem; }
+  .amolih-status-pill.paid {
+    background: #F0FDF4;
+    color: #166534;
+    border: 1px solid #BBF7D0;
+  }
+
+  /* Line Items Container */
+  .amolih-order-items {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px dashed var(--amolih-border);
+    font-size: 0.92rem;
+  }
+  .amolih-line-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.4rem 0;
+    color: var(--amolih-text);
+  }
+  .amolih-line-item-title {
+    font-family: var(--amolih-font-editorial);
+    font-size: 1.05rem;
+    font-weight: 500;
+  }
+
+  /* Luxury Buttons */
   .amolih-button {
     display: inline-flex;
     align-items: center;
     justify-content: center;
+    gap: 8px;
     background: var(--amolih-primary);
     color: #FFFFFF !important;
     text-decoration: none;
-    padding: 0.65rem 1.25rem;
-    border-radius: 8px;
+    padding: 0.75rem 1.5rem;
+    border-radius: var(--amolih-radius-sm);
     font-size: 0.92rem;
     font-weight: 600;
+    letter-spacing: 0.03em;
     border: none;
     cursor: pointer;
-    transition: opacity 0.15s ease;
+    box-shadow: 0 4px 12px rgba(53, 94, 89, 0.2);
+    transition: all 0.2s ease;
   }
   .amolih-button:hover {
-    opacity: 0.92;
+    background: var(--amolih-primary-dark);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(53, 94, 89, 0.3);
   }
   .amolih-button-secondary {
     display: inline-flex;
     align-items: center;
     justify-content: center;
+    gap: 6px;
     background: #FFFFFF;
     color: var(--amolih-text) !important;
     text-decoration: none;
-    padding: 0.6rem 1.15rem;
-    border-radius: 8px;
-    font-size: 0.9rem;
+    padding: 0.65rem 1.25rem;
+    border-radius: var(--amolih-radius-sm);
+    font-size: 0.88rem;
     font-weight: 500;
-    border: 1px solid #CBD5E1;
+    border: 1px solid var(--amolih-border);
     cursor: pointer;
     transition: all 0.15s ease;
   }
   .amolih-button-secondary:hover {
-    background: #F8FAFC;
-    border-color: #94A3B8;
+    background: #FAF7F2;
+    border-color: var(--amolih-gold);
+    color: var(--amolih-primary) !important;
   }
   .amolih-btn-sm {
     display: inline-flex;
     align-items: center;
-    padding: 0.35rem 0.65rem;
-    font-size: 0.8rem;
+    gap: 5px;
+    padding: 0.4rem 0.75rem;
+    font-size: 0.82rem;
     border-radius: 6px;
-    border: 1px solid #CBD5E1;
+    border: 1px solid var(--amolih-border);
     background: #FFFFFF;
     color: var(--amolih-text);
     cursor: pointer;
     text-decoration: none;
     font-weight: 500;
+    transition: all 0.15s;
   }
   .amolih-btn-sm:hover {
-    background: #F1F5F9;
+    background: #FAF7F2;
+    border-color: var(--amolih-gold);
   }
   .amolih-btn-danger {
     color: #DC2626 !important;
@@ -877,10 +1467,15 @@ ${googleFontLink}
   .amolih-btn-danger:hover {
     background: #FEF2F2 !important;
   }
+
+  /* Form Grid & Inputs */
   .amolih-form-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 0.85rem;
+    gap: 1rem;
+  }
+  @media (max-width: 600px) {
+    .amolih-form-grid { grid-template-columns: 1fr; }
   }
   .amolih-form-group {
     display: flex;
@@ -888,15 +1483,17 @@ ${googleFontLink}
     gap: 0.35rem;
   }
   .amolih-form-group label {
-    font-size: 0.82rem;
+    font-size: 0.76rem;
     font-weight: 600;
-    color: #475569;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #57534E;
   }
   .amolih-input {
     width: 100%;
-    padding: 0.65rem 0.85rem;
-    border: 1px solid #CBD5E1;
-    border-radius: 6px;
+    padding: 0.75rem 0.95rem;
+    border: 1px solid var(--amolih-border);
+    border-radius: var(--amolih-radius-sm);
     font-size: 0.95rem;
     background: #FFFFFF;
     color: var(--amolih-text);
@@ -905,26 +1502,28 @@ ${googleFontLink}
   .amolih-input:focus {
     outline: none;
     border-color: var(--amolih-primary);
-    box-shadow: 0 0 0 3px rgba(53, 94, 89, 0.15);
+    box-shadow: 0 0 0 3px rgba(53, 94, 89, 0.12);
   }
   .amolih-help-text {
     font-size: 0.75rem;
-    color: #64748B;
+    color: var(--amolih-text-muted);
   }
   .amolih-form-actions {
     display: flex;
     align-items: center;
-    gap: 0.75rem;
-    margin-top: 1.25rem;
+    gap: 0.85rem;
+    margin-top: 1.5rem;
   }
+
+  /* Alerts */
   .amolih-alert {
-    padding: 0.85rem 1.15rem;
-    border-radius: 8px;
-    margin-bottom: 1.25rem;
+    padding: 0.95rem 1.25rem;
+    border-radius: var(--amolih-radius-sm);
+    margin-bottom: 1.5rem;
     font-size: 0.92rem;
     display: flex;
     align-items: center;
-    gap: 0.65rem;
+    gap: 0.75rem;
   }
   .amolih-alert-success {
     background: #ECFDF5;
@@ -936,57 +1535,39 @@ ${googleFontLink}
     border: 1px solid #FECACA;
     color: #991B1B;
   }
-  .amolih-progress {
+
+  /* Loyalty Progress Bar */
+  .amolih-loyalty-container {
+    background: linear-gradient(135deg, #FAF7F2 0%, #F5EFE6 100%);
+    border: 1px solid var(--amolih-gold-border);
+    border-radius: var(--amolih-radius);
+    padding: 1.75rem;
+    margin-bottom: 1.5rem;
+  }
+  .amolih-progress-track {
+    width: 100%;
     height: 12px;
+    background: #E7DFD5;
     border-radius: 999px;
-    background: #E2E8F0;
     overflow: hidden;
+    margin: 1.25rem 0 0.65rem 0;
   }
-  .amolih-progress span {
-    display: block;
+  .amolih-progress-bar {
     height: 100%;
-    background: var(--amolih-primary);
+    background: linear-gradient(90deg, var(--amolih-primary) 0%, var(--amolih-gold) 60%, var(--amolih-primary) 100%);
     border-radius: 999px;
-    transition: width 0.4s ease;
+    transition: width 0.6s ease;
   }
-  .amolih-circle-badge {
-    display: inline-block;
-    padding: 0.25rem 0.75rem;
-    border-radius: 999px;
-    background: rgba(53, 94, 89, 0.1);
-    color: var(--amolih-primary);
-    font-size: 0.8rem;
+  .amolih-tier-milestones {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.78rem;
     font-weight: 600;
+    color: var(--amolih-gold-dark);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
   }
-  .amolih-page-container {
-    width: 100%;
-    min-height: 250px;
-  }
-  .amolih-page-rte {
-    font-size: 1rem;
-    line-height: 1.65;
-    color: var(--amolih-text);
-  }
-  .amolih-page-rte img {
-    max-width: 100%;
-    height: auto;
-    border-radius: 6px;
-  }
-  .amolih-page-rte table {
-    width: 100%;
-    border-collapse: collapse;
-    margin: 1rem 0;
-  }
-  .amolih-page-rte th,
-  .amolih-page-rte td {
-    border: 1px solid #E2E8F0;
-    padding: 0.65rem 0.85rem;
-    text-align: left;
-  }
-  .amolih-page-rte th {
-    background: #F8FAFC;
-    font-weight: 600;
-  }
+
   .amolih-spinner {
     display: inline-block;
     width: 28px;
@@ -1003,39 +1584,157 @@ ${googleFontLink}
 </style>
 
 <section class="amolih-dashboard">
-  <h1>${title}</h1>
-  {% if customer %}
-    <p class="amolih-muted">${welcome}, {{ customer.first_name | default: customer.email | escape }}</p>
-  {% else %}
-    <p class="amolih-muted">${welcome}</p>
-  {% endif %}
+  <!-- Luxury Amolih Hero Banner -->
+  <div class="amolih-hero-banner">
+    <div>
+      <div class="amolih-hero-tag">✦ Amolih Privé &bull; Jaipur Atelier</div>
+      {% if customer %}
+        <h1 class="amolih-hero-title">${welcome}, {{ customer.first_name | default: customer.email | escape }}</h1>
+        <p class="amolih-hero-sub">Jaipur Artisan Fine Jewelry &bull; Bespoke account dashboard & concierge</p>
+      {% else %}
+        <h1 class="amolih-hero-title">${title}</h1>
+        <p class="amolih-hero-sub">Jaipur Artisan Fine Jewelry &bull; Bespoke account dashboard</p>
+      {% endif %}
+    </div>
+
+    {% if customer %}
+      <div class="amolih-hero-stats">
+        <div class="amolih-avatar-circle" title="{{ customer.name | escape }}">
+          {{ customer.first_name | slice: 0 | upcase }}{{ customer.last_name | slice: 0 | upcase }}
+        </div>
+      </div>
+    {% endif %}
+  </div>
 
   ${successMessage ? `<div class="amolih-alert amolih-alert-success"><span>✓</span> <span>${escapeHtml(successMessage)}</span></div>` : ""}
   ${errorMessage ? `<div class="amolih-alert amolih-alert-error"><span>⚠</span> <span>${escapeHtml(errorMessage)}</span></div>` : ""}
 
   <div class="amolih-layout">
+    <!-- Left Navigation Sidebar -->
     <aside class="amolih-sidebar">
       {% if customer %}
-        <div class="amolih-email">{{ customer.email | escape }}</div>
+        <div class="amolih-sidebar-profile">
+          <div class="amolih-avatar-circle" style="width:40px; height:40px; font-size:1.05rem;">
+            {{ customer.first_name | slice: 0 | upcase }}{{ customer.last_name | slice: 0 | upcase }}
+          </div>
+          <div style="min-width:0;">
+            <div class="amolih-sidebar-name">{{ customer.first_name | default: "Valued" | escape }} {{ customer.last_name | default: "Client" | escape }}</div>
+            <div class="amolih-sidebar-email">{{ customer.email | escape }}</div>
+          </div>
+        </div>
       {% endif %}
-      ${menuHtml}
+
+      <div class="amolih-nav-scroll-wrapper">
+        <nav class="amolih-nav-scroll-track" aria-label="Account Navigation">
+          ${menuHtml}
+        </nav>
+      </div>
+
+      <!-- Sidebar WhatsApp Concierge Strip (Desktop) -->
+      <div class="amolih-sidebar-concierge">
+        <div class="amolih-concierge-title">Jaipur Atelier Concierge</div>
+        <div class="amolih-concierge-desc">Bespoke sizing, personalization & care</div>
+        <a href="${escapeHtml(supportUrl)}" target="_blank" rel="noopener" class="amolih-concierge-btn">
+          <span>💬</span> <span>Chat on WhatsApp</span>
+        </a>
+      </div>
+
+      <div class="amolih-sidebar-logout">
+        <a href="/account/logout" class="amolih-logout-link">
+          <span>🚪</span> <span>Sign out of account</span>
+        </a>
+      </div>
     </aside>
-    <div>
+
+    <!-- Main Content Area -->
+    <main class="amolih-main-pane">
       {% unless customer %}
-        <div class="amolih-banner">
-          <h2>Sign in Required</h2>
-          <p class="amolih-muted" style="margin-bottom:1rem;">Please sign in to view and manage your account details, addresses, and orders.</p>
-          <div class="amolih-actions"><a class="amolih-button" href="/account/login">Sign in</a></div>
+        <div class="amolih-panel" style="text-align:center; padding:3.5rem 1.5rem;">
+          <div style="font-size:3rem; margin-bottom:1rem;">✦</div>
+          <h2 class="amolih-pane-title">Sign in Required</h2>
+          <p class="amolih-pane-subtitle" style="max-width:440px; margin:0.5rem auto 1.5rem;">
+            Please sign in to access your bespoke Jaipur fine jewelry orders, saved shipping locations, and VIP privileges.
+          </p>
+          <div>
+            <a class="amolih-button" href="/account/login">Sign in to Amolih</a>
+          </div>
         </div>
       {% else %}
         ${panelHtml}
+
+        <!-- Mobile Concierge & Sign-out Strip (Visible only on mobile) -->
+        <div class="amolih-mobile-footer-strip">
+          <div class="amolih-mobile-concierge-card">
+            <div>
+              <div class="amolih-concierge-title" style="font-size:1.1rem; margin-bottom:4px;">Jaipur Atelier Concierge</div>
+              <div class="amolih-concierge-desc" style="margin-bottom:0;">Bespoke jewelry sizing, customization & order care</div>
+            </div>
+            <a href="${escapeHtml(supportUrl)}" target="_blank" rel="noopener" class="amolih-concierge-btn" style="width:auto; padding:0.65rem 1.4rem;">
+              <span>💬</span> <span>Chat on WhatsApp</span>
+            </a>
+          </div>
+          <div style="text-align:center; padding:0.5rem 0 1rem;">
+            <a href="/account/logout" class="amolih-logout-link" style="justify-content:center;">
+              <span>🚪</span> <span>Sign out of account</span>
+            </a>
+          </div>
+        </div>
       {% endunless %}
-    </div>
+    </main>
   </div>
 </section>
 
 <script>
   (function() {
+    // 0. Horizontal Scroll & Gesture Containment (prevents whole screen from moving on swipe)
+    var track = document.querySelector(".amolih-nav-scroll-track");
+    if (track) {
+      var startX = 0;
+      var startY = 0;
+      track.addEventListener("touchstart", function(e) {
+        if (e.touches && e.touches.length === 1) {
+          startX = e.touches[0].clientX;
+          startY = e.touches[0].clientY;
+        }
+      }, { passive: true });
+
+      track.addEventListener("touchmove", function(e) {
+        if (e.touches && e.touches.length === 1) {
+          var dx = Math.abs(e.touches[0].clientX - startX);
+          var dy = Math.abs(e.touches[0].clientY - startY);
+          if (dx > dy && dx > 3) {
+            // Isolate horizontal swipe inside navbar, stopping screen navigation / drawer dragging
+            e.stopPropagation();
+          }
+        }
+      }, { passive: false });
+
+      // Mouse drag-to-scroll support for desktop / dev simulation
+      var isDown = false;
+      var mouseStartX = 0;
+      var scrollInitial = 0;
+      track.addEventListener("mousedown", function(e) {
+        isDown = true;
+        mouseStartX = e.pageX - track.offsetLeft;
+        scrollInitial = track.scrollLeft;
+      });
+      window.addEventListener("mouseup", function() { isDown = false; });
+      track.addEventListener("mousemove", function(e) {
+        if (!isDown) return;
+        e.preventDefault();
+        var x = e.pageX - track.offsetLeft;
+        var walk = (x - mouseStartX) * 1.5;
+        track.scrollLeft = scrollInitial - walk;
+      });
+    }
+
+    // Auto-center Active Menu Item in Horizontal Linear Nav (Mobile View)
+    var activeMenuItem = document.querySelector(".amolih-nav-scroll-track .amolih-menu-item.is-active");
+    if (activeMenuItem) {
+      setTimeout(function() {
+        activeMenuItem.scrollIntoView({ inline: "center", block: "nearest", behavior: "smooth" });
+      }, 150);
+    }
     // 1. Profile Edit Toggle
     var editProfBtn = document.getElementById("amolih-toggle-edit-profile");
     var cancelProfBtn = document.getElementById("amolih-cancel-edit-profile");
@@ -1141,17 +1840,30 @@ function renderPanelLiquid(
   circlePageUrl: string,
   pathPrefix: string,
 ) {
-  // 1. ORDERS HISTORY
+  // 1. ORDERS HISTORY (MODERN LUXURY VIEWS)
   if (activeTab === "orders") {
     return `<div class="amolih-panel">
-  <h2>Orders history</h2>
-  <p class="amolih-muted">{{ customer.orders.size }} {% if customer.orders.size == 1 %}order{% else %}orders{% endif %} recorded on this account.</p>
+  <div class="amolih-panel-header">
+    <div>
+      <h2 class="amolih-pane-title">Orders History</h2>
+      <p class="amolih-pane-subtitle">{{ customer.orders.size }} {% if customer.orders.size == 1 %}order{% else %}orders{% endif %} recorded in your Jaipur atelier archive.</p>
+    </div>
+    {% if customer.orders.size > 0 %}
+      <a href="/collections/all" class="amolih-button-secondary" style="font-size:0.84rem; padding:0.5rem 1rem;">
+        Explore New Arrivals ↗
+      </a>
+    {% endif %}
+  </div>
   <hr class="amolih-divider" />
+
   {% if customer.orders.size == 0 %}
-    <div style="text-align:center; padding:3rem 1rem;">
-      <div style="font-size:3rem; margin-bottom:0.75rem;">🛒</div>
-      <p class="amolih-muted">You have no orders yet.</p>
-      <a href="/collections/all" class="amolih-button" style="margin-top:0.5rem;">Explore Store Catalog</a>
+    <div style="text-align:center; padding:3.5rem 1.5rem; background:#FAF7F2; border:1px dashed var(--amolih-gold-border); border-radius:var(--amolih-radius);">
+      <div style="font-size:3rem; margin-bottom:0.75rem;">💎</div>
+      <h3 style="font-family:var(--amolih-heading-font); font-size:1.6rem; margin:0 0 0.5rem; font-weight:400;">Your Jewelry Box is Waiting</h3>
+      <p class="amolih-pane-subtitle" style="max-width:420px; margin:0 auto 1.5rem;">
+        Explore our latest Jaipur handcrafted solitaires, bespoke charms, and personalized fine jewelry.
+      </p>
+      <a href="/collections/all" class="amolih-button">Explore Atelier Collection</a>
     </div>
   {% else %}
     {% for order in customer.orders %}
@@ -1193,18 +1905,42 @@ function renderPanelLiquid(
       {% else %}
         {% assign order_total = order.total_price | money_without_currency %}
       {% endif %}
-      <article class="amolih-card" data-order-currency="{{ order_curr }}">
-        <div class="amolih-card-row">
-          <strong>{{ order.name | escape }}</strong>
-          <span class="amolih-badge">{{ order.fulfillment_status | default: "unfulfilled" | escape }}</span>
+
+      <article class="amolih-order-card" data-order-currency="{{ order_curr }}">
+        <div class="amolih-order-header">
+          <div>
+            <div class="amolih-order-name">{{ order.name | escape }}</div>
+            <div class="amolih-order-meta">
+              <span>Placed on {{ order.created_at | date: "%B %d, %Y" }}</span>
+              <span>&bull;</span>
+              <span>{{ order.line_items.size }} item{% if order.line_items.size != 1 %}s{% endif %}</span>
+            </div>
+          </div>
+          <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+            {% if order.financial_status == 'paid' %}
+              <span class="amolih-status-pill paid">● Paid</span>
+            {% else %}
+              <span class="amolih-status-pill unfulfilled">{{ order.financial_status | escape }}</span>
+            {% endif %}
+            {% if order.fulfillment_status == 'fulfilled' %}
+              <span class="amolih-status-pill fulfilled">● Fulfilled</span>
+            {% else %}
+              <span class="amolih-status-pill unfulfilled">● {{ order.fulfillment_status | default: "In Atelier" | escape }}</span>
+            {% endif %}
+          </div>
         </div>
-        <div class="amolih-order-total-price" style="font-size:1.1rem; font-weight:700; color:var(--amolih-primary);" data-currency="{{ order_curr }}" data-symbol="{{ curr_symbol }}" data-amount="{{ order_total }}">
-          {{ curr_symbol }}{{ order_total }}
+
+        <div style="display:flex; justify-content:space-between; align-items:center; margin:0.75rem 0 0.5rem; flex-wrap:wrap; gap:8px;">
+          <div style="font-size:0.78rem; text-transform:uppercase; letter-spacing:0.08em; color:var(--amolih-gold-dark); font-weight:600;">
+            Order Investment Total
+          </div>
+          <div class="amolih-order-total-price" style="font-family:var(--amolih-heading-font); font-size:1.45rem; font-weight:400; color:var(--amolih-primary);" data-currency="{{ order_curr }}" data-symbol="{{ curr_symbol }}" data-amount="{{ order_total }}">
+            {{ curr_symbol }}{{ order_total }}
+          </div>
         </div>
-        <div class="amolih-muted" style="font-size:0.85rem; margin-top:0.25rem;">
-          Placed on {{ order.created_at | date: "%b %d, %Y" }} &bull; Payment: {{ order.financial_status | escape }}
-        </div>
-        <div style="margin-top:0.75rem; padding-top:0.75rem; border-top:1px dashed #E2E8F0; font-size:0.9rem;">
+
+        <!-- Line items -->
+        <div class="amolih-order-items">
           {% for line in order.line_items limit: 50 %}
             {% if line.final_price_set.presentment_money.amount != blank %}
               {% assign line_price = line.final_price_set.presentment_money.amount %}
@@ -1217,30 +1953,47 @@ function renderPanelLiquid(
             {% else %}
               {% assign line_price = line.price | money_without_currency %}
             {% endif %}
-            <div style="display:flex; justify-content:space-between; padding:0.25rem 0;">
-              <span>{{ line.title | escape }} &times; {{ line.quantity }}</span>
-              <span class="amolih-line-price" style="font-weight:600;" data-currency="{{ order_curr }}" data-symbol="{{ curr_symbol }}" data-amount="{{ line_price }}">{{ curr_symbol }}{{ line_price }}</span>
+            <div class="amolih-line-item">
+              <div>
+                <span class="amolih-line-item-title">{{ line.title | escape }}</span>
+                <span style="font-size:0.78rem; color:var(--amolih-text-muted); margin-left:6px;">&times; {{ line.quantity }}</span>
+              </div>
+              <span class="amolih-line-price" style="font-weight:600; font-size:0.95rem;" data-currency="{{ order_curr }}" data-symbol="{{ curr_symbol }}" data-amount="{{ line_price }}">{{ curr_symbol }}{{ line_price }}</span>
             </div>
           {% endfor %}
         </div>
-        {% if order.order_status_url %}
-          <div style="margin-top:0.75rem;">
-            <a href="{{ order.order_status_url }}" target="_blank" rel="noopener" class="amolih-btn-sm">View Tracking & Invoice ↗</a>
+
+        <!-- Action Strip -->
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:1.25rem; padding-top:0.85rem; border-top:1px solid var(--amolih-border-light); flex-wrap:wrap; gap:10px;">
+          <div style="display:flex; gap:8px; flex-wrap:wrap;">
+            {% if order.order_status_url %}
+              <a href="{{ order.order_status_url }}" target="_blank" rel="noopener" class="amolih-btn-sm" style="font-weight:600;">
+                Track Shipment & Invoice ↗
+              </a>
+            {% endif %}
+            <a href="https://wa.me/918233905718?text=Hi+Amolih%2C+I+have+a+question+regarding+my+Order+{{ order.name | url_encode }}." target="_blank" rel="noopener" class="amolih-btn-sm">
+              💬 Inquire on WhatsApp
+            </a>
           </div>
-        {% endif %}
+          {% if order.shipping_address %}
+            <div style="font-size:0.8rem; color:var(--amolih-text-muted);">
+              Shipping to: {{ order.shipping_address.city | escape }}, {{ order.shipping_address.country | escape }}
+            </div>
+          {% endif %}
+        </div>
       </article>
     {% endfor %}
   {% endif %}
 </div>`;
   }
 
-  // 2. SAVED ADDRESSES (FULL CRUD)
+  // 2. SAVED ADDRESSES (MODERN LUXURY VIEWS)
   if (activeTab === "addresses") {
     return `<div class="amolih-panel">
-  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem; flex-wrap:wrap; gap:10px;">
+  <div class="amolih-panel-header">
     <div>
-      <h2 style="margin:0;">Saved addresses</h2>
-      <p class="amolih-muted" style="margin:0.25rem 0 0;">Delivery locations linked to your customer session.</p>
+      <h2 class="amolih-pane-title">Saved Delivery Locations</h2>
+      <p class="amolih-pane-subtitle">Manage your verified shipping destinations and primary delivery address.</p>
     </div>
     <button type="button" class="amolih-button" id="amolih-open-add-address-btn">
       + Add New Address
@@ -1249,30 +2002,30 @@ function renderPanelLiquid(
   <hr class="amolih-divider" />
 
   <!-- Add New Address Form -->
-  <div id="amolih-add-address-box" style="display:none; margin-bottom:1.5rem; padding:1.25rem; border:1px solid #CBD5E1; border-radius:10px; background:#F8FAFC;">
-    <h3 style="margin:0 0 1rem; font-size:1.15rem;">Add New Delivery Address</h3>
+  <div id="amolih-add-address-box" style="display:none; margin-bottom:2rem; padding:1.75rem; border:1px solid var(--amolih-gold-border); border-radius:var(--amolih-radius); background:#FAF7F2;">
+    <h3 style="margin:0 0 1.25rem; font-size:1.35rem; font-family:var(--amolih-heading-font);">Add Bespoke Delivery Location</h3>
     <form method="post" action="${pathPrefix}?tab=addresses" class="amolih-ajax-form">
       <input type="hidden" name="action_type" value="create_address" />
       <div class="amolih-form-grid">
         <div class="amolih-form-group">
           <label>First Name</label>
-          <input type="text" name="first_name" value="{{ customer.first_name | escape }}" class="amolih-input" placeholder="e.g. John" />
+          <input type="text" name="first_name" value="{{ customer.first_name | escape }}" class="amolih-input" placeholder="e.g. Sarah" />
         </div>
         <div class="amolih-form-group">
           <label>Last Name</label>
-          <input type="text" name="last_name" value="{{ customer.last_name | escape }}" class="amolih-input" placeholder="e.g. Doe" />
+          <input type="text" name="last_name" value="{{ customer.last_name | escape }}" class="amolih-input" placeholder="e.g. Jenkins" />
         </div>
         <div class="amolih-form-group amolih-span-2">
-          <label>Company (Optional)</label>
-          <input type="text" name="company" placeholder="Apartment / Suite / Business" class="amolih-input" />
+          <label>Company / Apartment Suite (Optional)</label>
+          <input type="text" name="company" placeholder="Apartment / Villa / Suite / Business" class="amolih-input" />
         </div>
         <div class="amolih-form-group amolih-span-2">
           <label>Street Address *</label>
-          <input type="text" name="address1" required placeholder="House number, flat, street name" class="amolih-input" />
+          <input type="text" name="address1" required placeholder="House/Flat number, road, area" class="amolih-input" />
         </div>
         <div class="amolih-form-group amolih-span-2">
           <label>Apartment, suite, unit (Optional)</label>
-          <input type="text" name="address2" placeholder="Floor, Landmark, etc." class="amolih-input" />
+          <input type="text" name="address2" placeholder="Floor, Landmark, Near..." class="amolih-input" />
         </div>
         <div class="amolih-form-group">
           <label>City *</label>
@@ -1291,65 +2044,74 @@ function renderPanelLiquid(
           <input type="text" name="country" value="India" required class="amolih-input" placeholder="Country" />
         </div>
         <div class="amolih-form-group amolih-span-2">
-          <label>Contact Phone</label>
+          <label>Recipient Contact Phone</label>
           <input type="tel" name="phone" placeholder="+91..." class="amolih-input" />
         </div>
         <div class="amolih-form-group amolih-span-2">
           <label style="display:flex; align-items:center; gap:8px; cursor:pointer;">
             <input type="checkbox" name="is_default" value="true" />
-            <span>Set as my default shipping address</span>
+            <span style="font-size:0.9rem;">Set as my primary delivery address for future fine jewelry orders</span>
           </label>
         </div>
       </div>
       <div class="amolih-form-actions">
-        <button type="submit" class="amolih-button">Save Address</button>
+        <button type="submit" class="amolih-button">Save Delivery Location</button>
         <button type="button" class="amolih-button-secondary" id="amolih-close-add-address-btn">Cancel</button>
       </div>
     </form>
   </div>
 
-  <!-- Address List -->
+  <!-- Address Cards Grid -->
   {% if customer.addresses.size == 0 %}
-    <div style="text-align:center; padding:3rem 1rem;">
+    <div style="text-align:center; padding:3.5rem 1.5rem; background:#FAF7F2; border:1px dashed var(--amolih-gold-border); border-radius:var(--amolih-radius);">
       <div style="font-size:3rem; margin-bottom:0.75rem;">📍</div>
-      <p class="amolih-muted">You have no saved addresses yet.</p>
+      <h3 style="font-family:var(--amolih-heading-font); font-size:1.6rem; margin:0 0 0.5rem; font-weight:400;">No Shipping Addresses Saved</h3>
+      <p class="amolih-pane-subtitle" style="max-width:420px; margin:0 auto 1.5rem;">
+        Add your delivery location to ensure swift, insured courier handling for your orders.
+      </p>
     </div>
   {% else %}
-    <div style="display:flex; flex-direction:column; gap:0.85rem;">
+    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:1.25rem;">
       {% for address in customer.addresses %}
-        <article class="amolih-card" id="addr-card-{{ address.id }}">
-          <div class="amolih-card-row">
-            <div style="display:flex; align-items:center; gap:8px;">
-              <strong>{{ address.name | default: "Delivery Location" | escape }}</strong>
+        <article class="amolih-order-card" id="addr-card-{{ address.id }}" style="margin-bottom:0; display:flex; flex-direction:column; justify-content:space-between;">
+          <div>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
+              <span style="font-family:var(--amolih-font-editorial); font-size:1.25rem; font-weight:600; color:var(--amolih-text);">
+                {{ address.name | default: "Delivery Location" | escape }}
+              </span>
               {% if address == customer.default_address %}
-                <span class="amolih-badge" style="background:#DCFCE7; color:#15803D;">Default</span>
+                <span class="amolih-status-pill fulfilled" style="font-size:0.7rem;">✦ Default</span>
               {% endif %}
             </div>
-            <div style="display:flex; gap:6px; flex-wrap:wrap;">
-              <button type="button" class="amolih-btn-sm amolih-btn-edit-addr" data-id="{{ address.id }}">✏️ Edit</button>
-              {% unless address == customer.default_address %}
-                <form method="post" action="${pathPrefix}?tab=addresses" style="display:inline;">
-                  <input type="hidden" name="action_type" value="set_default_address" />
-                  <input type="hidden" name="address_id" value="{{ address.id }}" />
-                  <button type="submit" class="amolih-btn-sm">Set Default</button>
-                </form>
-              {% endunless %}
-              <form method="post" action="${pathPrefix}?tab=addresses" style="display:inline;" onsubmit="return confirm('Delete this saved address?');">
-                <input type="hidden" name="action_type" value="delete_address" />
-                <input type="hidden" name="address_id" value="{{ address.id }}" />
-                <button type="submit" class="amolih-btn-sm amolih-btn-danger">Delete</button>
-              </form>
+
+            <div style="color:#475569; font-size:0.92rem; line-height:1.6; font-family:var(--amolih-font-modern);">
+              {{ address | format_address }}
+              {% if address.phone != blank %}
+                <div style="font-size:0.82rem; color:var(--amolih-text-muted); margin-top:6px;">
+                  📞 {{ address.phone | escape }}
+                </div>
+              {% endif %}
             </div>
           </div>
-          <div style="color:#475569; font-size:0.95rem; line-height:1.6; margin-top:0.4rem;">
-            {{ address | format_address }}
-            {% if address.phone != blank %}
-              <div style="font-size:0.85rem; color:#64748B; margin-top:4px;">📞 {{ address.phone | escape }}</div>
-            {% endif %}
+
+          <div style="display:flex; gap:6px; flex-wrap:wrap; margin-top:1.25rem; padding-top:0.85rem; border-top:1px solid var(--amolih-border-light);">
+            <button type="button" class="amolih-btn-sm amolih-btn-edit-addr" data-id="{{ address.id }}">✏️ Edit</button>
+            {% unless address == customer.default_address %}
+              <form method="post" action="${pathPrefix}?tab=addresses" style="display:inline;">
+                <input type="hidden" name="action_type" value="set_default_address" />
+                <input type="hidden" name="address_id" value="{{ address.id }}" />
+                <button type="submit" class="amolih-btn-sm">★ Make Default</button>
+              </form>
+            {% endunless %}
+            <form method="post" action="${pathPrefix}?tab=addresses" style="display:inline;" onsubmit="return confirm('Delete this saved location?');">
+              <input type="hidden" name="action_type" value="delete_address" />
+              <input type="hidden" name="address_id" value="{{ address.id }}" />
+              <button type="submit" class="amolih-btn-sm amolih-btn-danger">Delete</button>
+            </form>
           </div>
 
           <!-- Inline Edit Form -->
-          <div id="addr-edit-form-{{ address.id }}" style="display:none; margin-top:1rem; padding-top:1rem; border-top:1px dashed #CBD5E1;">
+          <div id="addr-edit-form-{{ address.id }}" style="display:none; margin-top:1rem; padding-top:1rem; border-top:1px dashed var(--amolih-gold-border);">
             <form method="post" action="${pathPrefix}?tab=addresses" class="amolih-ajax-form">
               <input type="hidden" name="action_type" value="update_address" />
               <input type="hidden" name="address_id" value="{{ address.id }}" />
@@ -1371,7 +2133,7 @@ function renderPanelLiquid(
                   <input type="text" name="address1" value="{{ address.address1 | escape }}" required class="amolih-input" />
                 </div>
                 <div class="amolih-form-group amolih-span-2">
-                  <label>Apartment, suite, unit (Optional)</label>
+                  <label>Apartment, suite (Optional)</label>
                   <input type="text" name="address2" value="{{ address.address2 | escape }}" class="amolih-input" />
                 </div>
                 <div class="amolih-form-group">
@@ -1383,7 +2145,7 @@ function renderPanelLiquid(
                   <input type="text" name="province" value="{{ address.province | escape }}" class="amolih-input" />
                 </div>
                 <div class="amolih-form-group">
-                  <label>Postal / ZIP Code *</label>
+                  <label>Postal / ZIP *</label>
                   <input type="text" name="zip" value="{{ address.zip | escape }}" required class="amolih-input" />
                 </div>
                 <div class="amolih-form-group">
@@ -1398,7 +2160,7 @@ function renderPanelLiquid(
                   <div class="amolih-form-group amolih-span-2">
                     <label style="display:flex; align-items:center; gap:8px; cursor:pointer;">
                       <input type="checkbox" name="is_default" value="true" />
-                      <span>Set as my default shipping address</span>
+                      <span style="font-size:0.85rem;">Set as my primary delivery address</span>
                     </label>
                   </div>
                 {% endunless %}
@@ -1429,22 +2191,45 @@ function renderPanelLiquid(
 
     return `<div class="amolih-panel">
   {% assign circle_page = pages['${escapeHtml(cleanHandle)}'] %}
-  <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:0.75rem;">
+  <div class="amolih-panel-header">
     <div>
-      <h2 style="margin:0;">
+      <h2 class="amolih-pane-title">
         {% if circle_page and circle_page.title != blank %}
           {{ circle_page.title | escape }}
         {% else %}
           ${circleTitle}
         {% endif %}
       </h2>
-      <p class="amolih-muted" style="margin:0.25rem 0 0;">/pages/${escapeHtml(cleanHandle)}</p>
+      <p class="amolih-pane-subtitle">Jaipur Heritage Loyalty Tier & Privileges &bull; /pages/${escapeHtml(cleanHandle)}</p>
     </div>
     <a href="${escapeHtml(targetUrl)}" target="_blank" rel="noopener" class="amolih-button-secondary" style="font-size:0.85rem; padding:0.45rem 0.85rem; text-decoration:none;">
       Open Full Page ↗
     </a>
   </div>
-  <hr class="amolih-divider" style="margin-bottom:1.25rem;" />
+  <hr class="amolih-divider" style="margin-bottom:1.5rem;" />
+
+  <!-- Modern Tier Tracker Card -->
+  <div class="amolih-loyalty-container">
+    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+      <div>
+        <div style="font-size:0.75rem; text-transform:uppercase; letter-spacing:0.12em; color:var(--amolih-gold-dark); font-weight:600;">Current Membership Tier</div>
+        <div style="font-family:var(--amolih-heading-font); font-size:1.85rem; color:var(--amolih-text); margin-top:2px;">Amolih Circle &bull; Tier 2 Privé</div>
+      </div>
+      <span class="amolih-status-pill fulfilled" style="font-size:0.82rem; padding:0.35rem 0.85rem;">
+        ✦ Active Privileges
+      </span>
+    </div>
+
+    <div class="amolih-progress-track">
+      <div class="amolih-progress-bar" style="width:65%;"></div>
+    </div>
+
+    <div class="amolih-tier-milestones">
+      <span>Tier 1: Silver Artisan</span>
+      <span>Tier 2: Royal Jaipur Privé</span>
+      <span>Tier 3: Imperial Heritage</span>
+    </div>
+  </div>
 
   <div id="amolih-circle-container" class="amolih-page-container">
     {% if circle_page and circle_page.content != blank %}
@@ -1460,7 +2245,7 @@ function renderPanelLiquid(
       <iframe
         id="amolih-circle-frame"
         src="${escapeHtml(targetUrl)}"
-        style="display:none; width:100%; min-height:650px; border:1px solid #E2E8F0; border-radius:8px;"
+        style="display:none; width:100%; min-height:650px; border:1px solid var(--amolih-border); border-radius:var(--amolih-radius);"
         loading="lazy"
       ></iframe>
     {% endif %}
@@ -1471,7 +2256,7 @@ function renderPanelLiquid(
       var loader = document.getElementById("amolih-circle-loader");
       var fetched = document.getElementById("amolih-circle-fetched-content");
       var frame = document.getElementById("amolih-circle-frame");
-      if (!loader) return; // Liquid already rendered circle_page.content directly!
+      if (!loader) return;
 
       fetch("${escapeHtml(targetUrl)}")
         .then(function(res) {
@@ -1482,7 +2267,6 @@ function renderPanelLiquid(
           var parser = new DOMParser();
           var doc = parser.parseFromString(html, "text/html");
 
-          // Extract main page content from storefront theme
           var selectors = [
             "#MainContent .rte",
             "main .rte",
@@ -1502,7 +2286,6 @@ function renderPanelLiquid(
           }
 
           if (extracted) {
-            // Remove store headers/footers/navbars if nested inside main
             var unwanted = extracted.querySelectorAll("header, footer, nav, .announcement-bar, #shopify-section-header, #shopify-section-footer, .header-wrapper, .footer");
             unwanted.forEach(function(u) { u.remove(); });
 
@@ -1514,7 +2297,6 @@ function renderPanelLiquid(
             }
           }
 
-          // If extraction is empty or relies on theme sections/scripts, embed responsive iframe
           loader.style.display = "none";
           if (frame) frame.style.display = "block";
         })
@@ -1527,13 +2309,13 @@ function renderPanelLiquid(
 </div>`;
   }
 
-  // 4. PROFILE DETAILS (EDITABLE FROM LIVE USER SESSION)
+  // 4. PROFILE DETAILS (MODERN LUXURY VIEWS)
   if (activeTab === "details") {
     return `<div class="amolih-panel">
-  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem; flex-wrap:wrap; gap:10px;">
+  <div class="amolih-panel-header">
     <div>
-      <h2 style="margin:0;">Profile details</h2>
-      <p class="amolih-muted" style="margin:0.25rem 0 0;">Your personal account information and primary contact details.</p>
+      <h2 class="amolih-pane-title">Client Profile & Bespoke Contact</h2>
+      <p class="amolih-pane-subtitle">Your registered client information, fine jewelry investment totals, and concierge details.</p>
     </div>
     <button type="button" class="amolih-button-secondary" id="amolih-toggle-edit-profile">
       ✏️ Edit Profile
@@ -1541,83 +2323,105 @@ function renderPanelLiquid(
   </div>
   <hr class="amolih-divider" />
 
+  <!-- 4 Quick-Stats Luxury Metric Cards -->
+  {% assign cust_curr = customer.orders.first.total_price_set.presentment_money.currency_code | default: customer.orders.first.currency %}
+  {% if cust_curr == blank or cust_curr == 'USD' %}
+    {% if customer.default_address.country_code == 'IN' or customer.default_address.country == 'India' %}
+      {% assign cust_curr = 'INR' %}
+    {% elsif customer.default_address.country_code == 'GB' or customer.default_address.country == 'United Kingdom' %}
+      {% assign cust_curr = 'GBP' %}
+    {% elsif customer.default_address.country_code == 'US' or customer.default_address.country == 'United States' %}
+      {% assign cust_curr = 'USD' %}
+    {% endif %}
+  {% endif %}
+  {% assign cust_curr = cust_curr | default: 'USD' | upcase %}
+  {% case cust_curr %}
+    {% when 'INR' %}
+      {% assign cust_symbol = '₹' %}
+    {% when 'GBP' %}
+      {% assign cust_symbol = '£' %}
+    {% when 'USD' %}
+      {% assign cust_symbol = '$' %}
+    {% when 'EUR' %}
+      {% assign cust_symbol = '€' %}
+    {% when 'CAD' %}
+      {% assign cust_symbol = 'CA$' %}
+    {% when 'AUD' %}
+      {% assign cust_symbol = 'AU$' %}
+    {% when 'JPY' %}
+      {% assign cust_symbol = '¥' %}
+    {% when 'AED' %}
+      {% assign cust_symbol = 'AED ' %}
+    {% when 'SAR' %}
+      {% assign cust_symbol = 'SAR ' %}
+    {% else %}
+      {% assign cust_symbol = cust_curr | append: ' ' %}
+  {% endcase %}
+  {% assign total_spent_calc = 0 %}
+  {% for ord in customer.orders %}
+    {% if ord.total_price_set.presentment_money.amount != blank %}
+      {% assign ord_amt = ord.total_price_set.presentment_money.amount | plus: 0 %}
+      {% assign total_spent_calc = total_spent_calc | plus: ord_amt %}
+    {% else %}
+      {% assign ord_amt = ord.total_price | money_without_currency | remove: ',' | plus: 0 %}
+      {% assign total_spent_calc = total_spent_calc | plus: ord_amt %}
+    {% endif %}
+  {% endfor %}
+
+  <div class="amolih-metrics-grid">
+    <div class="amolih-metric-card">
+      <div class="amolih-metric-label">Lifetime Investment</div>
+      <div class="amolih-metric-val amolih-total-spent-val" data-currency="{{ cust_curr }}" data-symbol="{{ cust_symbol }}" data-amount="{% if total_spent_calc > 0 %}{{ total_spent_calc }}{% elsif customer.total_spent > 0 %}{{ customer.total_spent | money_without_currency | remove: ',' }}{% else %}0.00{% endif %}">
+        {% if total_spent_calc > 0 %}
+          {{ cust_symbol }}{{ total_spent_calc | round: 2 }}
+        {% elsif customer.total_spent > 0 %}
+          {{ cust_symbol }}{{ customer.total_spent | money_without_currency }}
+        {% else %}
+          {{ cust_symbol }}0.00
+        {% endif %}
+      </div>
+      <div class="amolih-metric-sub">Fine jewelry acquired</div>
+    </div>
+
+    <div class="amolih-metric-card">
+      <div class="amolih-metric-label">Orders Placed</div>
+      <div class="amolih-metric-val">{{ customer.orders.size }}</div>
+      <div class="amolih-metric-sub">Bespoke & ready pieces</div>
+    </div>
+
+    <div class="amolih-metric-card">
+      <div class="amolih-metric-label">Privilege Status</div>
+      <div class="amolih-metric-val" style="font-size:1.45rem;">Tier 2 Privé</div>
+      <div class="amolih-metric-sub">Amolih Circle VIP Perks</div>
+    </div>
+
+    <div class="amolih-metric-card">
+      <div class="amolih-metric-label">Primary Destination</div>
+      <div class="amolih-metric-val" style="font-size:1.35rem; font-family:var(--amolih-font-modern);">
+        {{ customer.default_address.city | default: "Jaipur / Global" | escape }}
+      </div>
+      <div class="amolih-metric-sub">{{ customer.default_address.country | default: "Insured Courier" | escape }}</div>
+    </div>
+  </div>
+
   <!-- View Mode -->
   <div id="amolih-profile-view">
     <div class="amolih-fields">
       <div class="amolih-field-box">
-        <label>First name</label>
+        <label>First Name</label>
         <div class="amolih-field-val">{{ customer.first_name | default: "Not added" | escape }}</div>
       </div>
       <div class="amolih-field-box">
-        <label>Last name</label>
+        <label>Last Name</label>
         <div class="amolih-field-val">{{ customer.last_name | default: "Not added" | escape }}</div>
       </div>
       <div class="amolih-field-box amolih-span-2">
-        <label>Email address</label>
+        <label>Email Address</label>
         <div class="amolih-field-val">{{ customer.email | default: "Not added" | escape }}</div>
       </div>
       <div class="amolih-field-box amolih-span-2">
-        <label>Contact phone</label>
+        <label>Contact Phone</label>
         <div class="amolih-field-val">{{ customer.phone | default: "Not added" | escape }}</div>
-      </div>
-      <div class="amolih-field-box">
-        <label>Total Orders</label>
-        <div class="amolih-field-val">{{ customer.orders.size }} orders</div>
-      </div>
-      {% assign cust_curr = customer.orders.first.total_price_set.presentment_money.currency_code | default: customer.orders.first.currency %}
-      {% if cust_curr == blank or cust_curr == 'USD' %}
-        {% if customer.default_address.country_code == 'IN' or customer.default_address.country == 'India' %}
-          {% assign cust_curr = 'INR' %}
-        {% elsif customer.default_address.country_code == 'GB' or customer.default_address.country == 'United Kingdom' %}
-          {% assign cust_curr = 'GBP' %}
-        {% elsif customer.default_address.country_code == 'US' or customer.default_address.country == 'United States' %}
-          {% assign cust_curr = 'USD' %}
-        {% endif %}
-      {% endif %}
-      {% assign cust_curr = cust_curr | default: 'USD' | upcase %}
-      {% case cust_curr %}
-        {% when 'INR' %}
-          {% assign cust_symbol = '₹' %}
-        {% when 'GBP' %}
-          {% assign cust_symbol = '£' %}
-        {% when 'USD' %}
-          {% assign cust_symbol = '$' %}
-        {% when 'EUR' %}
-          {% assign cust_symbol = '€' %}
-        {% when 'CAD' %}
-          {% assign cust_symbol = 'CA$' %}
-        {% when 'AUD' %}
-          {% assign cust_symbol = 'AU$' %}
-        {% when 'JPY' %}
-          {% assign cust_symbol = '¥' %}
-        {% when 'AED' %}
-          {% assign cust_symbol = 'AED ' %}
-        {% when 'SAR' %}
-          {% assign cust_symbol = 'SAR ' %}
-        {% else %}
-          {% assign cust_symbol = cust_curr | append: ' ' %}
-      {% endcase %}
-      {% assign total_spent_calc = 0 %}
-      {% for ord in customer.orders %}
-        {% if ord.total_price_set.presentment_money.amount != blank %}
-          {% assign ord_amt = ord.total_price_set.presentment_money.amount | plus: 0 %}
-          {% assign total_spent_calc = total_spent_calc | plus: ord_amt %}
-        {% else %}
-          {% assign ord_amt = ord.total_price | money_without_currency | remove: ',' | plus: 0 %}
-          {% assign total_spent_calc = total_spent_calc | plus: ord_amt %}
-        {% endif %}
-      {% endfor %}
-      <div class="amolih-field-box">
-        <label>Total Spent</label>
-        <div class="amolih-field-val amolih-total-spent-val" style="font-weight:700; color:var(--amolih-primary);" data-currency="{{ cust_curr }}" data-symbol="{{ cust_symbol }}" data-amount="{% if total_spent_calc > 0 %}{{ total_spent_calc }}{% elsif customer.total_spent > 0 %}{{ customer.total_spent | money_without_currency | remove: ',' }}{% else %}0.00{% endif %}">
-          {% if total_spent_calc > 0 %}
-            {{ cust_symbol }}{{ total_spent_calc | round: 2 }}
-          {% elsif customer.total_spent > 0 %}
-            {{ cust_symbol }}{{ customer.total_spent | money_without_currency }}
-          {% else %}
-            {{ cust_symbol }}0.00
-          {% endif %}
-        </div>
       </div>
     </div>
   </div>
@@ -1638,12 +2442,12 @@ function renderPanelLiquid(
         <div class="amolih-form-group amolih-span-2">
           <label for="prof_email">Email Address *</label>
           <input type="email" id="prof_email" name="email" value="{{ customer.email | escape }}" required class="amolih-input" placeholder="customer@example.com" />
-          <small class="amolih-help-text">Primary contact for notifications and order receipts.</small>
+          <small class="amolih-help-text">Primary contact for order confirmations and atelier receipts.</small>
         </div>
         <div class="amolih-form-group amolih-span-2">
           <label for="prof_phone">Contact Phone</label>
           <input type="tel" id="prof_phone" name="phone" value="{{ customer.phone | escape }}" placeholder="+91 98765 43210" class="amolih-input" />
-          <small class="amolih-help-text">Include country code (e.g. +91...) for SMS order notifications.</small>
+          <small class="amolih-help-text">Include country code (e.g. +91...) for SMS courier & shipment tracking notifications.</small>
         </div>
       </div>
       <div class="amolih-form-actions">
@@ -1660,8 +2464,8 @@ function renderPanelLiquid(
     (entry) => (entry.destination || "").toLowerCase() === activeTab,
   );
   return `<div class="amolih-panel">
-  <h2>${escapeHtml(item?.label || "Account")}</h2>
-  <p class="amolih-muted">This menu item opens inside your account portal.</p>
+  <h2 class="amolih-pane-title">${escapeHtml(item?.label || "Account")}</h2>
+  <p class="amolih-pane-subtitle">This menu item opens inside your bespoke account portal.</p>
 </div>`;
 }
 

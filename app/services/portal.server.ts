@@ -116,7 +116,7 @@ export async function getPortalConfig(shop: string) {
           primaryColor: "#355E59",
           sidebarBgColor: "#FBF8F5",
           textColor: "#1A1A1A",
-          fontFamily: "inherit",
+          fontFamily: "amolih", // Default to Amolih Luxury Signature (Bellefair, Cormorant Garamond, Inter, Open Sans)
           supportUrl: "https://wa.me/918233905718?text=Hi+AMOLIH%21+I+have+a+question.",
           circleTierTitle: "Amolih Circle's Progress Bar",
           circlePageUrl: "amolih-circle-progress-bar",
@@ -144,7 +144,7 @@ export async function getPortalConfig(shop: string) {
       primaryColor: "#355E59",
       sidebarBgColor: "#FBF8F5",
       textColor: "#1A1A1A",
-      fontFamily: "inherit",
+      fontFamily: "amolih",
       supportUrl: "https://wa.me/918233905718?text=Hi+AMOLIH%21+I+have+a+question.",
       circleTierTitle: "Amolih Circle's Progress Bar",
       circlePageUrl: "amolih-circle-progress-bar",

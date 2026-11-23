@@ -103,6 +103,14 @@
         {% assign total_spent_calc = total_spent_calc | plus: ord_amt %}
       {% endif %}
     {% endfor %}
+    {% if total_spent_calc > 0 %}
+      {% assign final_spent = cust_symbol | append: total_spent_calc %}
+    {% elsif customer.total_spent > 0 %}
+      {% assign raw_spent = customer.total_spent | money_without_currency %}
+      {% assign final_spent = cust_symbol | append: raw_spent %}
+    {% else %}
+      {% assign final_spent = cust_symbol | append: "0.00" %}
+    {% endif %}
     <script id="amolih-customer-data" type="application/json">
       {
         "id": {{ customer.id | json }},
@@ -114,7 +122,7 @@
         "ordersCount": {{ customer.orders_count | default: 0 }},
         "currency": {{ cust_curr | json }},
         "currencySymbol": {{ cust_symbol | json }},
-        "totalSpent": {% if total_spent_calc > 0 %}{{ cust_symbol | append: total_spent_calc | json }}{% elsif customer.total_spent > 0 %}{{ cust_symbol | append: (customer.total_spent | money_without_currency) | json }}{% else %}{{ cust_symbol | append: "0.00" | json }}{% endif %},
+        "totalSpent": {{ final_spent | json }},
         "defaultAddress": {
           "address1": {{ customer.default_address.address1 | json }},
           "address2": {{ customer.default_address.address2 | json }},
