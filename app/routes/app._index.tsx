@@ -49,9 +49,10 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     const primaryColor = (formData.get("primaryColor") as string) || "#355E59";
     const sidebarBgColor = (formData.get("sidebarBgColor") as string) || "#FBF8F5";
     const textColor = (formData.get("textColor") as string) || "#1A1A1A";
-    const fontFamily = (formData.get("fontFamily") as string) || "Inter, -apple-system, sans-serif";
+    const fontFamily = (formData.get("fontFamily") as string) || "inherit";
     const supportUrl = (formData.get("supportUrl") as string) || "https://wa.me/918233905718";
     const circleTierTitle = (formData.get("circleTierTitle") as string) || "Amolih Circle's Progress Bar";
+    const circlePageUrl = (formData.get("circlePageUrl") as string) || "amolih-circle-progress-bar";
     const welcomeMessage = (formData.get("welcomeMessage") as string) || "Welcome back";
     
     const menuItemsJson = formData.get("menuItems") as string;
@@ -72,6 +73,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
         fontFamily,
         supportUrl,
         circleTierTitle,
+        circlePageUrl,
         welcomeMessage,
       },
       menuItems
@@ -101,7 +103,7 @@ const ICON_OPTIONS = [
 ];
 
 const LINK_TYPE_OPTIONS = [
-  { label: "Internal Account Page (details, orders, circle, addresses)", value: "INTERNAL_PAGE" },
+  { label: "Internal Account Page (details, orders, amolih-circle-progress-bar, addresses)", value: "INTERNAL_PAGE" },
   { label: "Shopify Storefront Link (/collections, /pages, etc.)", value: "SHOPIFY_STORE" },
   { label: "External Web Destination (https://...)", value: "EXTERNAL_URL" },
   { label: "Support / Concierge Action (WhatsApp, Email)", value: "SUPPORT_ACTION" },
@@ -127,9 +129,10 @@ export default function Index() {
   const [primaryColor, setPrimaryColor] = useState(config.primaryColor || "#355E59");
   const [sidebarBgColor, setSidebarBgColor] = useState(config.sidebarBgColor || "#FBF8F5");
   const [textColor, setTextColor] = useState(config.textColor || "#1A1A1A");
-  const [fontFamily, setFontFamily] = useState(config.fontFamily || "Inter, -apple-system, sans-serif");
+  const [fontFamily, setFontFamily] = useState(config.fontFamily || "inherit");
   const [supportUrl, setSupportUrl] = useState(config.supportUrl || "https://wa.me/918233905718");
   const [circleTierTitle, setCircleTierTitle] = useState(config.circleTierTitle || "Amolih Circle's Progress Bar");
+  const [circlePageUrl, setCirclePageUrl] = useState((config as any).circlePageUrl || "amolih-circle-progress-bar");
   const [welcomeMessage, setWelcomeMessage] = useState(config.welcomeMessage || "Welcome back");
 
   // Navigation Menus State
@@ -170,6 +173,7 @@ export default function Index() {
         fontFamily,
         supportUrl,
         circleTierTitle,
+        circlePageUrl,
         welcomeMessage,
         menuItems: JSON.stringify(menuItems),
       },
@@ -865,26 +869,39 @@ export default function Index() {
                           </div>
                         )}
 
-                        {simActiveTab === "circle" && (
+                        {(simActiveTab === "circle" || simActiveTab === "amolih-circle-progress-bar" || simActiveTab === circlePageUrl) && (
                           <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-                            <div>
-                              <h2 style={{ fontSize: "20px", fontWeight: 700, margin: "0 0 4px 0", color: textColor }}>
-                                {circleTierTitle}
-                              </h2>
-                              <p style={{ margin: 0, color: "#64748B", fontSize: "14px" }}>
-                                You are currently on <strong>Gold Tier</strong> (620 / 1,000 Points to Platinum).
-                              </p>
+                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "10px" }}>
+                              <div>
+                                <h2 style={{ fontSize: "20px", fontWeight: 700, margin: "0 0 4px 0", color: textColor }}>
+                                  {circleTierTitle}
+                                </h2>
+                                <p style={{ margin: 0, color: "#64748B", fontSize: "14px" }}>
+                                  /pages/{circlePageUrl.replace(/^https?:\/\/[^/]+/i, "").replace(/^\/?pages\//i, "").replace(/^\/+|\/+$/g, "") || "amolih-circle-progress-bar"}
+                                </p>
+                              </div>
+                              <span style={{ fontSize: "12px", padding: "4px 10px", borderRadius: "999px", background: "rgba(53,94,89,0.1)", color: primaryColor, fontWeight: 600 }}>
+                                Live Page Embed
+                              </span>
                             </div>
                             <div style={{ borderBottom: "1px solid #E2E8F0" }} />
 
-                            {/* Progress bar */}
-                            <div style={{ backgroundColor: "#E2E8F0", height: "12px", borderRadius: "999px", overflow: "hidden" }}>
-                              <div style={{ width: "62%", height: "100%", backgroundColor: primaryColor }} />
-                            </div>
-                            <div style={{ display: "flex", justifyContent: "space-between", fontSize: "12px", color: "#64748B" }}>
-                              <span>Silver Tier</span>
-                              <span>Gold (Current)</span>
-                              <span>Platinum (Next)</span>
+                            <div style={{ padding: "28px 16px", border: "1px dashed #CBD5E1", borderRadius: "8px", background: "#F8FAFC", textAlign: "center" }}>
+                              <div style={{ fontSize: "32px", marginBottom: "8px" }}>📄</div>
+                              <div style={{ fontWeight: 600, color: textColor, marginBottom: "4px", fontSize: "15px" }}>
+                                Live Storefront Page: /pages/{circlePageUrl.replace(/^https?:\/\/[^/]+/i, "").replace(/^\/?pages\//i, "").replace(/^\/+|\/+$/g, "") || "amolih-circle-progress-bar"}
+                              </div>
+                              <div style={{ fontSize: "13px", color: "#64748B", maxWidth: "480px", margin: "0 auto 16px auto", lineHeight: 1.5 }}>
+                                The customer dashboard directly renders the content of your store page <strong>pages/{circlePageUrl.replace(/^https?:\/\/[^/]+/i, "").replace(/^\/?pages\//i, "").replace(/^\/+|\/+$/g, "") || "amolih-circle-progress-bar"}</strong> inside this tab.
+                              </div>
+                              <a
+                                href={circlePageUrl.startsWith("/") ? circlePageUrl : `/pages/${circlePageUrl}`}
+                                target="_blank"
+                                rel="noreferrer"
+                                style={{ display: "inline-block", padding: "8px 14px", borderRadius: "6px", backgroundColor: primaryColor, color: "#fff", textDecoration: "none", fontSize: "13px", fontWeight: 600 }}
+                              >
+                                Open Full Page ↗
+                              </a>
                             </div>
                           </div>
                         )}
@@ -915,7 +932,7 @@ export default function Index() {
                           </div>
                         )}
 
-                        {!["details", "orders", "circle", "addresses"].includes(simActiveTab) && (
+                        {!["details", "orders", "circle", "addresses", "amolih-circle-progress-bar", circlePageUrl].includes(simActiveTab) && (
                           <div style={{ textAlign: "center", padding: "40px 20px" }}>
                             <div style={{ fontSize: "36px", marginBottom: "12px" }}>🔗</div>
                             <h3 style={{ fontSize: "18px", fontWeight: 600, color: textColor, margin: "0 0 8px 0" }}>
@@ -979,19 +996,31 @@ export default function Index() {
                           </Text>
                           <Divider />
                           <Select
-                            label="Portal Font Family"
+                            label="Portal Typography (Front End Theme Font)"
                             options={[
-                              { label: "Modern Sans-Serif (Inter / System)", value: "Inter, -apple-system, sans-serif" },
-                              { label: "Luxury Editorial Serif (Playfair / Georgia)", value: "Playfair Display, Georgia, serif" },
-                              { label: "Clean Geometric (Poppins / Circular)", value: "Poppins, -apple-system, sans-serif" },
+                              { label: "✨ Storefront Theme Typography (Inherit - Live Front End Font)", value: "inherit" },
+                              { label: "Modern Clean Sans (Inter / System)", value: "Inter, -apple-system, sans-serif" },
+                              { label: "Clean Geometric (Poppins)", value: "Poppins, -apple-system, sans-serif" },
+                              { label: "Luxury Editorial Serif (Playfair Display)", value: "Playfair Display, Georgia, serif" },
+                              { label: "Contemporary Modern (Montserrat)", value: "Montserrat, -apple-system, sans-serif" },
+                              { label: "Modern Neutral (Plus Jakarta Sans)", value: "Plus Jakarta Sans, sans-serif" },
+                              { label: "Classic Humanist (Open Sans)", value: "Open Sans, -apple-system, sans-serif" },
                             ]}
                             value={fontFamily}
                             onChange={setFontFamily}
+                            helpText="Choose 'Storefront Theme Typography' to seamlessly show your store's live front end fonts, or pick a Google web font."
                           />
                           <TextField
                             label="Loyalty Program Menu Title"
                             value={circleTierTitle}
                             onChange={setCircleTierTitle}
+                            autoComplete="off"
+                          />
+                          <TextField
+                            label="Amolih Circle Page URL / Slug"
+                            value={circlePageUrl}
+                            onChange={setCirclePageUrl}
+                            helpText="Assign the page URL or slug for Amolih Circle Progress Bar (e.g. 'amolih-circle-progress-bar' or '/pages/amolih-circle-progress-bar')."
                             autoComplete="off"
                           />
                           <TextField
@@ -1109,8 +1138,8 @@ export default function Index() {
               label="Destination Link / Target"
               value={modalDestination}
               onChange={setModalDestination}
-              placeholder="e.g. orders, details, circle, addresses, https://wa.me/..."
-              helpText="For Internal Pages: 'details', 'orders', 'circle', or 'addresses'. For External: full URL."
+              placeholder="e.g. details, orders, amolih-circle-progress-bar, addresses, https://wa.me/..."
+              helpText="For Internal Pages: 'details', 'orders', 'amolih-circle-progress-bar', or 'addresses'. For External: full URL."
               autoComplete="off"
             />
 
