@@ -1,0 +1,271 @@
+{% comment %}
+  Amolih Customer Account Portal Embed (Custlo Alternative)
+  Completely overrides default customer account layout on /account pages
+  or redirects to the App Proxy dashboard (/apps/customerdashboard)
+{% endcomment %}
+
+{% assign is_auth_action = false %}
+{% if request.path contains '/login' or request.path contains '/register' or request.path contains '/recover' or request.path contains '/reset' %}
+  {% assign is_auth_action = true %}
+{% endif %}
+
+{% assign is_account_page = false %}
+{% unless is_auth_action %}
+  {% if request.path == '/account' or request.path == '/account/' or template.name == 'account' or template.name == 'customers/account' or template.name == 'addresses' or template.name == 'customers/addresses' or template.name == 'order' or template.name == 'customers/order' %}
+    {% assign is_account_page = true %}
+  {% endif %}
+{% endunless %}
+
+{% assign proxy_path = block.settings.app_proxy_path | default: '/apps/customerdashboard' %}
+
+{% if is_account_page %}
+  {% if block.settings.portal_mode == 'redirect_to_proxy' %}
+    {% if customer %}
+      <script>
+        window.location.replace({{ proxy_path | json }});
+      </script>
+      <style>
+        body { visibility: hidden !important; }
+      </style>
+    {% else %}
+      <script>
+        window.location.replace('/account/login?return_to=' + encodeURIComponent({{ proxy_path | json }}));
+      </script>
+      <style>
+        body { visibility: hidden !important; }
+      </style>
+    {% endif %}
+  {% elsif block.settings.override_default_account %}
+    <style id="amolih-portal-anti-flicker">
+      /* Hide standard theme customer account elements instantly to avoid flicker */
+      .customer,
+      .shopify-section-main-account,
+      .shopify-section-main-addresses,
+      .shopify-section-main-order,
+      .account-page,
+      [data-template*="customers"],
+      main > .customer,
+      #MainContent > .customer {
+        display: none !important;
+      }
+    </style>
+  {% endif %}
+{% endif %}
+
+<div id="amolih-customer-portal-root"
+     data-shop="{{ shop.permanent_domain }}"
+     data-page="{{ template.name | default: 'account' }}"
+     data-logged-in="{% if customer %}true{% else %}false{% endif %}"
+     data-override="{% if block.settings.override_default_account %}true{% else %}false{% endif %}"
+     data-app-domain="{{ block.settings.app_domain | escape }}"
+     style="display: none;">
+  {% if customer %}
+    {% assign cust_curr = customer.orders.first.total_price_set.presentment_money.currency_code | default: customer.orders.first.currency %}
+    {% if cust_curr == blank or cust_curr == 'USD' %}
+      {% if customer.default_address.country_code == 'IN' or customer.default_address.country == 'India' %}
+        {% assign cust_curr = 'INR' %}
+      {% elsif customer.default_address.country_code == 'GB' or customer.default_address.country == 'United Kingdom' %}
+        {% assign cust_curr = 'GBP' %}
+      {% elsif customer.default_address.country_code == 'US' or customer.default_address.country == 'United States' %}
+        {% assign cust_curr = 'USD' %}
+      {% endif %}
+    {% endif %}
+    {% assign cust_curr = cust_curr | default: 'USD' | upcase %}
+    {% case cust_curr %}
+      {% when 'INR' %}
+        {% assign cust_symbol = '₹' %}
+      {% when 'GBP' %}
+        {% assign cust_symbol = '£' %}
+      {% when 'USD' %}
+        {% assign cust_symbol = '$' %}
+      {% when 'EUR' %}
+        {% assign cust_symbol = '€' %}
+      {% when 'CAD' %}
+        {% assign cust_symbol = 'CA$' %}
+      {% when 'AUD' %}
+        {% assign cust_symbol = 'AU$' %}
+      {% when 'JPY' %}
+        {% assign cust_symbol = '¥' %}
+      {% when 'AED' %}
+        {% assign cust_symbol = 'AED ' %}
+      {% when 'SAR' %}
+        {% assign cust_symbol = 'SAR ' %}
+      {% else %}
+        {% assign cust_symbol = cust_curr | append: ' ' %}
+    {% endcase %}
+    {% assign total_spent_calc = 0 %}
+    {% for ord in customer.orders %}
+      {% if ord.total_price_set.presentment_money.amount != blank %}
+        {% assign ord_amt = ord.total_price_set.presentment_money.amount | plus: 0 %}
+        {% assign total_spent_calc = total_spent_calc | plus: ord_amt %}
+      {% else %}
+        {% assign ord_amt = ord.total_price | money_without_currency | remove: ',' | plus: 0 %}
+        {% assign total_spent_calc = total_spent_calc | plus: ord_amt %}
+      {% endif %}
+    {% endfor %}
+    <script id="amolih-customer-data" type="application/json">
+      {
+        "id": {{ customer.id | json }},
+        "firstName": {{ customer.first_name | json }},
+        "lastName": {{ customer.last_name | json }},
+        "name": {{ customer.name | json }},
+        "email": {{ customer.email | json }},
+        "phone": {{ customer.phone | json }},
+        "ordersCount": {{ customer.orders_count | default: 0 }},
+        "currency": {{ cust_curr | json }},
+        "currencySymbol": {{ cust_symbol | json }},
+        "totalSpent": {% if total_spent_calc > 0 %}{{ cust_symbol | append: total_spent_calc | json }}{% elsif customer.total_spent > 0 %}{{ cust_symbol | append: (customer.total_spent | money_without_currency) | json }}{% else %}{{ cust_symbol | append: "0.00" | json }}{% endif %},
+        "defaultAddress": {
+          "address1": {{ customer.default_address.address1 | json }},
+          "address2": {{ customer.default_address.address2 | json }},
+          "city": {{ customer.default_address.city | json }},
+          "province": {{ customer.default_address.province | json }},
+          "zip": {{ customer.default_address.zip | json }},
+          "country": {{ customer.default_address.country | json }},
+          "phone": {{ customer.default_address.phone | json }}
+        },
+        "addresses": [
+          {% for address in customer.addresses %}
+            {
+              "id": {{ address.id | json }},
+              "address1": {{ address.address1 | json }},
+              "address2": {{ address.address2 | json }},
+              "city": {{ address.city | json }},
+              "province": {{ address.province | json }},
+              "zip": {{ address.zip | json }},
+              "country": {{ address.country | json }},
+              "phone": {{ address.phone | json }},
+              "isDefault": {% if address.id == customer.default_address.id %}true{% else %}false{% endif %}
+            }{% unless forloop.last %},{% endunless %}
+          {% endfor %}
+        ],
+        "orders": [
+          {% for order in customer.orders limit: 50 %}
+            {% assign order_curr = order.total_price_set.presentment_money.currency_code | default: order.currency %}
+            {% if order_curr == blank or order_curr == 'USD' %}
+              {% if order.shipping_address.country_code == 'IN' or order.billing_address.country_code == 'IN' or customer.default_address.country_code == 'IN' or customer.default_address.country == 'India' %}
+                {% assign order_curr = 'INR' %}
+              {% elsif order.shipping_address.country_code == 'GB' or order.billing_address.country_code == 'GB' or order.shipping_address.country_code == 'UK' or customer.default_address.country_code == 'GB' or customer.default_address.country == 'United Kingdom' %}
+                {% assign order_curr = 'GBP' %}
+              {% elsif order.shipping_address.country_code == 'US' or order.billing_address.country_code == 'US' or customer.default_address.country_code == 'US' or customer.default_address.country == 'United States' %}
+                {% assign order_curr = 'USD' %}
+              {% endif %}
+            {% endif %}
+            {% assign order_curr = order_curr | default: 'USD' | upcase %}
+            {% case order_curr %}
+              {% when 'INR' %}
+                {% assign curr_symbol = '₹' %}
+              {% when 'GBP' %}
+                {% assign curr_symbol = '£' %}
+              {% when 'USD' %}
+                {% assign curr_symbol = '$' %}
+              {% when 'EUR' %}
+                {% assign curr_symbol = '€' %}
+              {% when 'CAD' %}
+                {% assign curr_symbol = 'CA$' %}
+              {% when 'AUD' %}
+                {% assign curr_symbol = 'AU$' %}
+              {% when 'JPY' %}
+                {% assign curr_symbol = '¥' %}
+              {% when 'AED' %}
+                {% assign curr_symbol = 'AED ' %}
+              {% when 'SAR' %}
+                {% assign curr_symbol = 'SAR ' %}
+              {% else %}
+                {% assign curr_symbol = order_curr | append: ' ' %}
+            {% endcase %}
+            {% if order.total_price_set.presentment_money.amount != blank %}
+              {% assign order_total = order.total_price_set.presentment_money.amount %}
+            {% else %}
+              {% assign order_total = order.total_price | money_without_currency %}
+            {% endif %}
+            {
+              "id": {{ order.id | json }},
+              "name": {{ order.name | json }},
+              "orderNumber": {{ order.order_number | json }},
+              "createdAt": {{ order.created_at | date: "%d %b %Y" | json }},
+              "financialStatus": {{ order.financial_status_label | json }},
+              "fulfillmentStatus": {{ order.fulfillment_status_label | json }},
+              "currency": {{ order_curr | json }},
+              "currencySymbol": {{ curr_symbol | json }},
+              "totalPrice": {{ curr_symbol | append: order_total | json }},
+              "statusUrl": {{ order.status_url | json }},
+              "lineItemsCount": {{ order.line_items.size }},
+              "lineItems": [
+                {% for item in order.line_items limit: 50 %}
+                  {% if item.final_price_set.presentment_money.amount != blank %}
+                    {% assign item_price = item.final_price_set.presentment_money.amount %}
+                  {% elsif item.price_set.presentment_money.amount != blank %}
+                    {% assign item_price = item.price_set.presentment_money.amount %}
+                  {% elsif item.original_line_price_set.presentment_money.amount != blank %}
+                    {% assign item_price = item.original_line_price_set.presentment_money.amount %}
+                  {% elsif item.final_price != blank %}
+                    {% assign item_price = item.final_price | money_without_currency %}
+                  {% else %}
+                    {% assign item_price = item.price | money_without_currency %}
+                  {% endif %}
+                  {
+                    "title": {{ item.title | json }},
+                    "quantity": {{ item.quantity }},
+                    "price": {{ curr_symbol | append: item_price | json }}
+                  }{% unless forloop.last %},{% endunless %}
+                {% endfor %}
+              ]
+            }{% unless forloop.last %},{% endunless %}
+          {% endfor %}
+        ]
+      }
+    </script>
+  {% endif %}
+</div>
+
+{% # theme-check-disable AssetSizeAppBlockJavaScript %}
+{% schema %}
+{
+  "name": "Customer Portal Embed",
+  "target": "body",
+  "stylesheet": "portal-embed.css",
+  "javascript": "portal-embed.js",
+  "settings": [
+    {
+      "type": "select",
+      "id": "portal_mode",
+      "label": "Portal Display Method",
+      "options": [
+        {
+          "value": "redirect_to_proxy",
+          "label": "Redirect to App Proxy"
+        },
+        {
+          "value": "embed_account",
+          "label": "Embed directly on /account"
+        }
+      ],
+      "default": "redirect_to_proxy",
+      "info": "Route customers to App Proxy or embed in-place on /account."
+    },
+    {
+      "type": "text",
+      "id": "app_proxy_path",
+      "label": "App Proxy URL Path",
+      "default": "/apps/customerdashboard",
+      "info": "The URL subpath configured in shopify.app.toml"
+    },
+    {
+      "type": "checkbox",
+      "id": "override_default_account",
+      "label": "Override Account View",
+      "default": true,
+      "info": "Hides theme account elements when embed mode is active."
+    },
+    {
+      "type": "text",
+      "id": "app_domain",
+      "label": "App Server URL",
+      "info": "Optional custom production backend URL."
+    }
+  ]
+}
+{% endschema %}
+{% # theme-check-enable AssetSizeAppBlockJavaScript %}
+

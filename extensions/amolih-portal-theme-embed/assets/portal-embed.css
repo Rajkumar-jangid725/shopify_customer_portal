@@ -1,0 +1,412 @@
+/* ==============================================================
+   AMOLIH CUSTOMER ACCOUNT PORTAL - THEME APP EMBED (CUSTLO-STYLE)
+   ============================================================== */
+
+:root {
+  --amolih-primary: #355E59;
+  --amolih-sidebar-bg: #FBF8F5;
+  --amolih-text: #1A1A1A;
+  --amolih-font-family: var(--font-body-family, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif);
+  --amolih-heading-font: var(--font-heading-family, var(--amolih-font-family));
+  --amolih-font-size: 14px;
+  --amolih-border: #E2E8F0;
+  --amolih-card-bg: #FFFFFF;
+  --amolih-radius: 8px;
+  --amolih-muted: #64748B;
+}
+
+#amolih-portal-wrapper {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 1200px;
+  margin: 30px auto;
+  padding: 0 20px;
+  font-family: var(--amolih-font-family);
+  font-size: var(--amolih-font-size);
+  color: var(--amolih-text);
+  line-height: 1.5;
+}
+
+#amolih-portal-wrapper h1,
+#amolih-portal-wrapper h2,
+#amolih-portal-wrapper h3,
+#amolih-portal-wrapper h4,
+#amolih-portal-wrapper .amolih-pane-title {
+  font-family: var(--amolih-heading-font);
+  font-weight: var(--font-heading-weight, 700);
+}
+
+#amolih-portal-wrapper * {
+  box-sizing: border-box;
+}
+
+/* Main Grid Layout */
+.amolih-portal-layout {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 24px;
+  align-items: start;
+}
+
+/* Sidebar Styling */
+.amolih-sidebar {
+  background-color: var(--amolih-sidebar-bg);
+  border: 1px solid var(--amolih-border);
+  border-radius: var(--amolih-radius);
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.amolih-sidebar-header {
+  padding: 18px 20px;
+  border-bottom: 1px solid var(--amolih-border);
+  background: rgba(0, 0, 0, 0.02);
+}
+
+.amolih-user-email {
+  font-size: 13px;
+  color: var(--amolih-muted);
+  word-break: break-all;
+  font-weight: 500;
+}
+
+.amolih-user-name {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--amolih-text);
+  margin-bottom: 2px;
+}
+
+/* Navigation List */
+.amolih-nav-menu {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.amolih-nav-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--amolih-border);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  text-decoration: none;
+  color: var(--amolih-text);
+  user-select: none;
+}
+
+.amolih-nav-item:last-child {
+  border-bottom: none;
+}
+
+.amolih-nav-item:hover {
+  background-color: rgba(0, 0, 0, 0.03);
+}
+
+.amolih-nav-item.amolih-active {
+  background-color: var(--amolih-primary) !important;
+  color: #FFFFFF !important;
+  font-weight: 600;
+}
+
+.amolih-nav-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.amolih-nav-icon {
+  font-size: 18px;
+  line-height: 1;
+}
+
+.amolih-nav-label {
+  font-size: 14px;
+}
+
+.amolih-nav-badge {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 9999px;
+  line-height: 1.3;
+}
+
+.amolih-nav-badge.info {
+  background: #E0F2FE;
+  color: #0369A1;
+}
+
+.amolih-nav-badge.success {
+  background: #DCFCE7;
+  color: #15803D;
+}
+
+.amolih-nav-badge.attention {
+  background: #FEF3C7;
+  color: #B45309;
+}
+
+.amolih-nav-badge.warning {
+  background: #FEE2E2;
+  color: #B91C1C;
+}
+
+.amolih-nav-item.amolih-active .amolih-nav-badge {
+  background: rgba(255, 255, 255, 0.25) !important;
+  color: #FFFFFF !important;
+}
+
+/* Sidebar Footer / Logout */
+.amolih-sidebar-footer {
+  padding: 14px 20px;
+  border-top: 1px solid var(--amolih-border);
+  background: rgba(0, 0, 0, 0.02);
+}
+
+.amolih-logout-link {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: #EF4444;
+  text-decoration: none;
+  font-weight: 500;
+  transition: opacity 0.2s;
+}
+
+.amolih-logout-link:hover {
+  opacity: 0.8;
+  text-decoration: underline;
+}
+
+/* Main Content Area */
+.amolih-main-content {
+  background-color: var(--amolih-card-bg);
+  border: 1px solid var(--amolih-border);
+  border-radius: var(--amolih-radius);
+  padding: 28px;
+  min-height: 480px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.amolih-pane-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--amolih-text);
+  margin: 0 0 6px 0;
+}
+
+.amolih-pane-subtitle {
+  color: var(--amolih-muted);
+  font-size: 14px;
+  margin: 0 0 20px 0;
+}
+
+.amolih-divider {
+  border: 0;
+  border-bottom: 1px solid var(--amolih-border);
+  margin: 0 0 24px 0;
+}
+
+/* Profile Form Elements */
+.amolih-profile-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+}
+
+.amolih-field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.amolih-field-group.full-width {
+  grid-column: span 2;
+}
+
+.amolih-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--amolih-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.amolih-value-box {
+  padding: 12px 16px;
+  border: 1px solid var(--amolih-border);
+  border-radius: 6px;
+  background-color: #FAFAFA;
+  font-size: 14px;
+  color: var(--amolih-text);
+}
+
+/* Order Cards */
+.amolih-order-card {
+  border: 1px solid var(--amolih-border);
+  border-radius: 8px;
+  padding: 18px 20px;
+  margin-bottom: 14px;
+  transition: all 0.15s ease;
+}
+
+.amolih-order-card:hover {
+  border-color: #CBD5E1;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+
+.amolih-order-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.amolih-order-name {
+  font-weight: 700;
+  font-size: 15px;
+  color: var(--amolih-text);
+}
+
+.amolih-order-price {
+  font-weight: 700;
+  color: var(--amolih-primary);
+  font-size: 16px;
+}
+
+.amolih-order-meta {
+  font-size: 13px;
+  color: var(--amolih-muted);
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.amolih-status-pill {
+  padding: 3px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.amolih-status-pill.fulfilled {
+  background: #DCFCE7;
+  color: #166534;
+}
+
+.amolih-status-pill.unfulfilled {
+  background: #FEF3C7;
+  color: #92400E;
+}
+
+.amolih-order-items {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px dashed var(--amolih-border);
+  font-size: 13px;
+  color: var(--amolih-text);
+}
+
+.amolih-order-action {
+  margin-top: 14px;
+  display: inline-block;
+  padding: 8px 16px;
+  border-radius: 6px;
+  background-color: var(--amolih-primary);
+  color: #FFFFFF;
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+/* Loyalty / Circle Bar */
+.amolih-loyalty-card {
+  padding: 24px;
+  background: linear-gradient(135deg, rgba(53, 94, 89, 0.05) 0%, rgba(251, 248, 245, 0.5) 100%);
+  border: 1px solid var(--amolih-border);
+  border-radius: 8px;
+}
+
+.amolih-progress-track {
+  width: 100%;
+  height: 12px;
+  background: #E2E8F0;
+  border-radius: 9999px;
+  overflow: hidden;
+  margin: 16px 0 8px 0;
+}
+
+.amolih-progress-bar {
+  height: 100%;
+  background: var(--amolih-primary);
+  border-radius: 9999px;
+  transition: width 0.4s ease;
+}
+
+/* Addresses */
+.amolih-address-card {
+  border: 1px solid var(--amolih-border);
+  border-radius: 8px;
+  padding: 18px 20px;
+  margin-bottom: 14px;
+}
+
+.amolih-address-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+/* Responsive / Mobile */
+.amolih-mobile-toggle {
+  display: none;
+  width: 100%;
+  padding: 14px 18px;
+  background: var(--amolih-sidebar-bg);
+  border: 1px solid var(--amolih-border);
+  border-radius: 8px;
+  margin-bottom: 16px;
+  align-items: center;
+  justify-content: space-between;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+@media (max-width: 768px) {
+  .amolih-portal-layout {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .amolih-mobile-toggle {
+    display: flex;
+  }
+
+  .amolih-sidebar {
+    display: none;
+  }
+
+  .amolih-sidebar.mobile-open {
+    display: block;
+    margin-bottom: 16px;
+  }
+
+  .amolih-profile-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .amolih-field-group.full-width {
+    grid-column: span 1;
+  }
+
+  .amolih-main-content {
+    padding: 20px 16px;
+  }
+}
+
