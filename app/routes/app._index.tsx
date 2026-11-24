@@ -1328,43 +1328,21 @@ export default function Index() {
                                     color: textColor,
                                   }}
                                 >
-                                  {circleTierTitle}
+                                  Amolih Circle
                                 </h2>
                                 <p style={{ margin: 0, color: "#64748B", fontSize: "13px" }}>
-                                  Jaipur Heritage Loyalty Tier &bull; /pages/{circlePageUrl.replace(/^https?:\/\/[^/]+/i, "").replace(/^\/?pages\//i, "").replace(/^\/+|\/+$/g, "") || "amolih-circle-progress-bar"}
+                                  /pages/{circlePageUrl.replace(/^https?:\/\/[^/]+/i, "").replace(/^\/?pages\//i, "").replace(/^\/+|\/+$/g, "") || "amolih-circle-progress-bar"}
                                 </p>
                               </div>
-                              <span style={{ fontSize: "12px", padding: "4px 10px", borderRadius: "999px", background: "rgba(53,94,89,0.1)", color: primaryColor, fontWeight: 600 }}>
-                                ✦ Active Privileges
+                              <span style={{ fontSize: "12px", padding: "4px 10px", borderRadius: "8px", border: "1px solid #E2E8F0", color: "#475569", fontWeight: 500 }}>
+                                Open Full Page ↗
                               </span>
                             </div>
                             <div style={{ borderBottom: "1px solid #E2E8F0" }} />
-
-                            {/* Loyalty Progress Tracker */}
-                            <div
-                              style={{
-                                background: "linear-gradient(135deg, #FAF7F2 0%, #F5EFE6 100%)",
-                                border: "1px solid rgba(197, 168, 128, 0.4)",
-                                borderRadius: "10px",
-                                padding: "20px",
-                              }}
-                            >
-                              <div style={{ fontSize: "11px", textTransform: "uppercase", letterSpacing: "0.08em", color: "#A8895E", fontWeight: 700 }}>
-                                Current Membership Status
-                              </div>
-                              <div style={{ fontFamily: "'Bellefair', serif", fontSize: "22px", color: textColor, marginTop: "2px" }}>
-                                Amolih Circle &bull; Tier 2 Privé
-                              </div>
-
-                              <div style={{ width: "100%", height: "12px", background: "#E7DFD5", borderRadius: "999px", overflow: "hidden", margin: "14px 0 8px" }}>
-                                <div style={{ height: "100%", width: "65%", background: "linear-gradient(90deg, #355E59 0%, #C5A880 60%, #355E59 100%)", borderRadius: "999px" }} />
-                              </div>
-
-                              <div style={{ display: "flex", justifyContent: "space-between", fontSize: "11px", fontWeight: 600, color: "#A8895E" }}>
-                                <span>Tier 1: Silver Artisan</span>
-                                <span>Tier 2: Royal Jaipur Privé</span>
-                                <span>Tier 3: Imperial Heritage</span>
-                              </div>
+                            <div style={{ padding: "40px 20px", textAlign: "center", background: "#FAF7F2", border: "1px dashed rgba(197, 168, 128, 0.4)", borderRadius: "10px" }}>
+                              <p style={{ margin: 0, color: "#64748B", fontSize: "13px" }}>
+                                Content loads dynamically from /pages/{circlePageUrl.replace(/^https?:\/\/[^/]+/i, "").replace(/^\/?pages\//i, "").replace(/^\/+|\/+$/g, "") || "amolih-circle-progress-bar"}
+                              </p>
                             </div>
                           </div>
                         )}
@@ -1506,12 +1484,6 @@ export default function Index() {
                             value={fontFamily}
                             onChange={setFontFamily}
                             helpText="Choose 'Amolih Luxury Signature' to automatically apply Bellefair/Cormorant Garamond for luxury headings and Inter/Open Sans for modern body text."
-                          />
-                          <TextField
-                            label="Loyalty Program Menu Title"
-                            value={circleTierTitle}
-                            onChange={setCircleTierTitle}
-                            autoComplete="off"
                           />
                           <TextField
                             label="Amolih Circle Page URL / Slug"

@@ -1205,9 +1205,6 @@ ${googleFontLink}
     .amolih-order-price {
       font-size: 1.25rem !important;
     }
-    .amolih-tier-milestones {
-      font-size: 0.68rem;
-    }
   }
 
   @media (max-width: 380px) {
@@ -1839,36 +1836,19 @@ ${googleFontLink}
     color: #991B1B;
   }
 
-  /* Loyalty Progress Bar */
-  .amolih-loyalty-container {
-    background: linear-gradient(135deg, #FAF7F2 0%, #F5EFE6 100%);
-    border: 1px solid var(--amolih-gold-border);
-    border-radius: var(--amolih-radius);
-    padding: 1.75rem;
-    margin-bottom: 1.5rem;
+  /* Seamless Circle Content (no excessive top spacing) */
+  #amolih-circle-container,
+  #amolih-circle-container .rte,
+  #amolih-circle-fetched-content {
+    margin-top: 0 !important;
+    padding-top: 0 !important;
   }
-  .amolih-progress-track {
-    width: 100%;
-    height: 12px;
-    background: #E7DFD5;
-    border-radius: 999px;
-    overflow: hidden;
-    margin: 1.25rem 0 0.65rem 0;
-  }
-  .amolih-progress-bar {
-    height: 100%;
-    background: linear-gradient(90deg, var(--amolih-primary) 0%, var(--amolih-gold) 60%, var(--amolih-primary) 100%);
-    border-radius: 999px;
-    transition: width 0.6s ease;
-  }
-  .amolih-tier-milestones {
-    display: flex;
-    justify-content: space-between;
-    font-size: 0.78rem;
-    font-weight: 600;
-    color: var(--amolih-gold-dark);
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
+  #amolih-circle-container .rte > *:first-child,
+  #amolih-circle-fetched-content > *:first-child,
+  #amolih-circle-fetched-content .section:first-child,
+  #amolih-circle-fetched-content .shopify-section:first-child {
+    margin-top: 0 !important;
+    padding-top: 0 !important;
   }
 
   .amolih-spinner {
@@ -3381,47 +3361,23 @@ function renderPanelLiquid(
 
     return `<div class="amolih-panel">
   {% assign circle_page = pages['${escapeHtml(cleanHandle)}'] %}
-  <div class="amolih-panel-header">
-    <div>
-      <h2 class="amolih-pane-title">
+  <div class="amolih-panel-header" style="align-items: center;">
+    <div style="display: flex; align-items: center;">
+      <h2 class="amolih-pane-title" style="margin: 0; line-height: 1.2;">
         {% if circle_page and circle_page.title != blank %}
           {{ circle_page.title | escape }}
         {% else %}
           ${circleTitle}
         {% endif %}
       </h2>
-      <p class="amolih-pane-subtitle">Jaipur Heritage Loyalty Tier & Privileges &bull; /pages/${escapeHtml(cleanHandle)}</p>
     </div>
     <a href="{{ market_prefix }}${escapeHtml(targetUrl)}" target="_blank" rel="noopener" class="amolih-button-secondary" style="font-size:0.85rem; padding:0.45rem 0.85rem; text-decoration:none;">
       Open Full Page ↗
     </a>
   </div>
-  <hr class="amolih-divider" style="margin-bottom:1.5rem;" />
+  <hr class="amolih-divider" style="margin-top: 1rem; margin-bottom: 0;" />
 
-  <!-- Modern Tier Tracker Card -->
-  <div class="amolih-loyalty-container">
-    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
-      <div>
-        <div style="font-size:0.75rem; text-transform:uppercase; letter-spacing:0.12em; color:var(--amolih-gold-dark); font-weight:600;">Current Membership Tier</div>
-        <div style="font-family:var(--amolih-heading-font); font-size:1.85rem; color:var(--amolih-text); margin-top:2px;">Amolih Circle &bull; Tier 2 Privé</div>
-      </div>
-      <span class="amolih-status-pill fulfilled" style="font-size:0.82rem; padding:0.35rem 0.85rem;">
-        ✦ Active Privileges
-      </span>
-    </div>
-
-    <div class="amolih-progress-track">
-      <div class="amolih-progress-bar" style="width:65%;"></div>
-    </div>
-
-    <div class="amolih-tier-milestones">
-      <span>Tier 1: Silver Artisan</span>
-      <span>Tier 2: Royal Jaipur Privé</span>
-      <span>Tier 3: Imperial Heritage</span>
-    </div>
-  </div>
-
-  <div id="amolih-circle-container" class="amolih-page-container">
+  <div id="amolih-circle-container" class="amolih-page-container" style="margin-top: 0; padding-top: 0;">
     {% if circle_page and circle_page.content != blank %}
       <div class="amolih-page-rte rte">
         {{ circle_page.content }}
@@ -3483,6 +3439,11 @@ function renderPanelLiquid(
               fetched.innerHTML = extracted.innerHTML;
               loader.style.display = "none";
               fetched.style.display = "block";
+              var firstChild = fetched.firstElementChild;
+              if (firstChild) {
+                firstChild.style.setProperty("margin-top", "0", "important");
+                firstChild.style.setProperty("padding-top", "0", "important");
+              }
               return;
             }
           }

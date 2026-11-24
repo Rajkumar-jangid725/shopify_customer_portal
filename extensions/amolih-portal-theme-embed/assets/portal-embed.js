@@ -446,8 +446,8 @@
         });
       }, 50);
 
-      return '<div><div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;"><div><h2 class="amolih-pane-title">' + esc(portalConfig.circleTierTitle || "Amolih Circle's Progress Bar") + '</h2><p class="amolih-pane-subtitle">/pages/' + esc(cleanHandle) + '</p></div>' +
-        '<a href="' + esc(circleHref) + '" target="_blank" rel="noopener" class="amolih-order-action">Open Full Page ↗</a></div><hr class="amolih-divider" />' +
+      return '<div><div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;"><div><h2 class="amolih-pane-title">' + esc(portalConfig.circleTierTitle || "Amolih Circle") + '</h2></div>' +
+        '<a href="' + esc(circleHref) + '" target="_blank" rel="noopener" class="amolih-order-action">Open Full Page ↗</a></div><hr class="amolih-divider" style="margin-top:1rem;margin-bottom:0;" />' +
         '<div id="amolih-embed-circle-wrapper" style="min-height:250px;">' +
         '<div id="amolih-embed-circle-loading" style="text-align:center;padding:40px 20px;color:var(--amolih-muted);"><div style="font-size:28px;margin-bottom:8px;">⏳</div>Loading /pages/' + esc(cleanHandle) + '...</div>' +
         '<div id="amolih-embed-circle-content" class="rte" style="display:none;line-height:1.6;"></div>' +
