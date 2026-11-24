@@ -5,19 +5,29 @@
   var shop = rootEl.getAttribute("data-shop") || window.location.hostname;
   var shouldOverride = rootEl.getAttribute("data-override") === "true";
   var customAppDomain = rootEl.getAttribute("data-app-domain") || "";
+  var marketPrefix = rootEl.getAttribute("data-market-prefix") || "";
   var path = window.location.pathname;
 
+  if (!marketPrefix) {
+    var match = path.match(/^\/([a-z]{2}(?:-[a-z]{2})?)/i);
+    if (match) marketPrefix = match[0];
+  }
+  var cleanPath = path;
+  if (marketPrefix && cleanPath.startsWith(marketPrefix)) {
+    cleanPath = cleanPath.substring(marketPrefix.length);
+  }
+
   // Never run on auth/login/register/recover pages
-  if (path.indexOf("/login") !== -1 || path.indexOf("/register") !== -1 || path.indexOf("/recover") !== -1 || path.indexOf("/reset") !== -1) {
+  if (cleanPath.indexOf("/login") !== -1 || cleanPath.indexOf("/register") !== -1 || cleanPath.indexOf("/recover") !== -1 || cleanPath.indexOf("/reset") !== -1) {
     return;
   }
 
-  if (!shouldOverride || (!path.startsWith("/account") && !path.includes("/customers/"))) return;
+  if (!shouldOverride || (!cleanPath.startsWith("/account") && !cleanPath.includes("/customers/"))) return;
 
   var isLoggedIn = rootEl.getAttribute("data-logged-in") === "true";
   if (!isLoggedIn) {
     // If not logged in on /account, redirect to login
-    window.location.href = "/account/login?return_to=" + encodeURIComponent(window.location.pathname);
+    window.location.href = marketPrefix + "/account/login?return_to=" + encodeURIComponent(window.location.pathname);
     return;
   }
 
@@ -186,10 +196,10 @@
       }).join("") +
       '</ul>' +
 
-      '<div class="amolih-sidebar-footer"><a href="/account/logout" class="amolih-logout-link"><span>🚪</span><span>Sign out</span></a></div></div>' +
+      '<div class="amolih-sidebar-footer"><a href="' + marketPrefix + '/account/logout" class="amolih-logout-link"><span>🚪</span><span>Sign out</span></a></div></div>' +
       '<div class="amolih-main-content" id="amolih-main-pane">' + renderTab() +
       '<div class="amolih-mobile-footer-actions">' +
-      '<div style="text-align:center; padding:6px 0;"><a href="/account/logout" class="amolih-logout-link" style="justify-content:center;"><span>🚪</span><span>Sign out of account</span></a></div>' +
+      '<div style="text-align:center; padding:6px 0;"><a href="' + marketPrefix + '/account/logout" class="amolih-logout-link" style="justify-content:center;"><span>🚪</span><span>Sign out of account</span></a></div>' +
       '</div>' +
       '</div></div>';
 
@@ -201,11 +211,29 @@
       var defaultCity = (customerData.defaultAddress && customerData.defaultAddress.city) ? customerData.defaultAddress.city : "No address saved";
       var defaultCountry = (customerData.defaultAddress && customerData.defaultAddress.country) ? customerData.defaultAddress.country : "Default address";
 
+      var pillsHtml = "";
+      if (customerData.multiCurrency && customerData.currencyBreakdown && customerData.currencyBreakdown.length > 1) {
+        pillsHtml = '<div class="amolih-market-pills" style="display:flex;flex-wrap:wrap;gap:5px;margin:6px 0 4px;">';
+        customerData.currencyBreakdown.forEach(function (b) {
+          var isActive = b.currency === customerData.currency;
+          var flag = b.currency === "INR" ? "🇮🇳 " : b.currency === "USD" ? "🇺🇸 " : b.currency === "GBP" ? "🇬🇧 " : b.currency === "EUR" ? "🇪🇺 " : b.currency === "CAD" ? "🇨🇦 " : b.currency === "AUD" ? "🇦🇺 " : "";
+          pillsHtml += '<button type="button" class="amolih-curr-pill ' + (isActive ? 'active' : '') + '" data-currency="' + esc(b.currency) + '" data-symbol="' + esc(b.symbol) + '" data-amount="' + b.amount + '" data-label="' + esc(b.label || b.currency) + '" style="cursor:pointer;border-radius:12px;font-size:11px;font-weight:600;padding:2px 8px;border:1px solid ' + (isActive ? 'var(--amolih-primary)' : 'var(--amolih-border)') + ';background:' + (isActive ? 'var(--amolih-primary)' : '#F8FAFC') + ';color:' + (isActive ? '#FFFFFF' : 'var(--amolih-text)') + ';transition:all 0.15s ease;">' + flag + esc(b.symbol) + formatOrderPrice(b.amount, b.currency, b.symbol) + '</button>';
+        });
+        pillsHtml += '</div>';
+      }
+
       return '<div><div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:6px;">' +
         '<div style="display:flex;align-items:center;"><h2 class="amolih-pane-title" style="margin:0;line-height:1.2;position:relative;top:3px;">Profile Details</h2></div>' +
-        '<a href="/account/addresses" class="amolih-order-action" style="margin:0;font-size:12px;padding:6px 14px;display:inline-flex;align-items:center;line-height:1;">Manage Locations</a></div><hr class="amolih-divider" />' +
+        '<a href="' + marketPrefix + '/account/addresses" class="amolih-order-action" style="margin:0;font-size:12px;padding:6px 14px;display:inline-flex;align-items:center;line-height:1;">Manage Locations</a></div><hr class="amolih-divider" />' +
         '<div class="amolih-metrics-grid">' +
-        '<div class="amolih-metric-card"><div class="amolih-metric-label">Lifetime Investment</div><div class="amolih-metric-val">' + formatOrderPrice(customerData.totalSpent, customerData.currency, customerData.currencySymbol) + '</div><div class="amolih-metric-sub">Total spent</div></div>' +
+        '<div class="amolih-metric-card" id="amolih-embed-lifetime-card" style="display:flex;flex-direction:column;justify-content:space-between;">' +
+        '<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;">' +
+        '<div class="amolih-metric-label">Lifetime Investment</div>' +
+        (customerData.multiCurrency ? '<span class="amolih-status-pill" style="font-size:10px;padding:2px 7px;background:#F5EFE6;color:#8C6D3B;border:1px solid #DFD0BA;font-weight:700;border-radius:10px;">🌍 Multi-Market (' + customerData.currenciesCount + ')</span>' : '') +
+        '</div>' +
+        '<div class="amolih-metric-val amolih-total-spent-val" style="margin:4px 0 2px;">' + formatOrderPrice(customerData.totalSpent, customerData.currency, customerData.currencySymbol) + '</div>' +
+        pillsHtml +
+        '<div class="amolih-metric-sub" id="amolih-embed-spent-sub">' + (customerData.multiCurrency ? 'Total spent across ' + customerData.currenciesCount + ' markets' : 'Total spent') + '</div></div>' +
         '<div class="amolih-metric-card"><div class="amolih-metric-label">Orders Placed</div><div class="amolih-metric-val">' + customerData.ordersCount + '</div><div class="amolih-metric-sub">Total orders</div></div>' +
         '<div class="amolih-metric-card"><div class="amolih-metric-label">Primary Destination</div><div class="amolih-metric-val" style="font-size:20px;font-family:var(--amolih-font-modern);">' + esc(defaultCity) + '</div><div class="amolih-metric-sub">' + esc(defaultCountry) + '</div></div>' +
         '</div>' +
@@ -224,7 +252,7 @@
           '<div style="font-size:42px;margin-bottom:12px;">💎</div>' +
           '<h3 style="font-family:var(--amolih-heading-font);font-size:24px;margin:0 0 8px;font-weight:400;">Your Jewelry Box is Waiting</h3>' +
           '<p style="color:var(--amolih-muted);max-width:400px;margin:0 auto 18px;font-family:var(--amolih-font-modern);">Discover our latest Jaipur handcrafted solitaires, bespoke charms, and customizable fine jewelry.</p>' +
-          '<a href="/collections/all" class="amolih-order-action">Explore Atelier Collection</a></div></div>';
+          '<a href="' + marketPrefix + '/collections/all" class="amolih-order-action">Explore Atelier Collection</a></div></div>';
       }
 
       // Check if viewing specific invoice
@@ -362,7 +390,7 @@
       }
 
       return '<div><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;"><div><h2 class="amolih-pane-title">Orders History</h2><p class="amolih-pane-subtitle">' + orders.length + ' fine jewelry order' + (orders.length > 1 ? "s" : "") + ' recorded in your account.</p></div>' +
-        '<a href="/collections/all" class="amolih-order-action" style="margin-top:0;font-size:12px;padding:6px 14px;">Explore New Arrivals ↗</a></div><hr class="amolih-divider" />' +
+        '<a href="' + marketPrefix + '/collections/all" class="amolih-order-action" style="margin-top:0;font-size:12px;padding:6px 14px;">Explore New Arrivals ↗</a></div><hr class="amolih-divider" />' +
         orders.map(function (o) {
           var fPill = o.fulfillmentStatus === "Fulfilled" ? "fulfilled" : "unfulfilled";
           var orderPrice = formatOrderPrice(o.totalPrice, o.currency, o.currencySymbol);
@@ -390,7 +418,7 @@
     if (isCircle) {
       var rawTarget = portalConfig.circlePageUrl || "amolih-circle-progress-bar";
       var cleanHandle = rawTarget.replace(/^https?:\/\/[^/]+/i, "").replace(/^\/?pages\//i, "").replace(/^\/+|\/+$/g, "").split("?")[0].split("#")[0] || "amolih-circle-progress-bar";
-      var circleHref = "/pages/" + cleanHandle;
+      var circleHref = marketPrefix + "/pages/" + cleanHandle;
       setTimeout(function () {
         var container = document.getElementById("amolih-embed-circle-content");
         var loader = document.getElementById("amolih-embed-circle-loading");
@@ -428,7 +456,7 @@
     }
     if (activeTab === "addresses") {
       var addrs = customerData.addresses || [];
-      return '<div><div style="display:flex;justify-content:space-between;align-items:center;"><div><h2 class="amolih-pane-title">Saved Addresses</h2><p class="amolih-pane-subtitle">' + addrs.length + ' address' + (addrs.length > 1 ? "es" : "") + ' on file.</p></div><a href="/account/addresses" class="amolih-order-action">+ Manage Addresses</a></div><hr class="amolih-divider" />' +
+      return '<div><div style="display:flex;justify-content:space-between;align-items:center;"><div><h2 class="amolih-pane-title">Saved Addresses</h2><p class="amolih-pane-subtitle">' + addrs.length + ' address' + (addrs.length > 1 ? "es" : "") + ' on file.</p></div><a href="' + marketPrefix + '/account/addresses" class="amolih-order-action">+ Manage Addresses</a></div><hr class="amolih-divider" />' +
         (!addrs.length ? '<div style="text-align:center;padding:40px 20px;"><div style="font-size:40px;margin-bottom:12px;">📍</div><p style="color:var(--amolih-muted);">No shipping addresses saved yet.</p></div>' : addrs.map(function (a) {
           return '<div class="amolih-address-card"><div class="amolih-address-header"><strong>' + (a.isDefault ? "Default Address" : "Address") + '</strong>' + (a.isDefault ? '<span class="amolih-nav-badge success">Default</span>' : '') + '</div>' +
             '<div style="font-size:14px;line-height:1.6;">' + (a.address1 ? esc(a.address1) + '<br/>' : '') + (a.address2 ? esc(a.address2) + '<br/>' : '') + esc(a.city || "") + ', ' + esc(a.province || "") + ' ' + esc(a.zip || "") + '<br/>' + esc(a.country || "") + '</div></div>';
@@ -552,6 +580,39 @@
 
   // Global Delegated Listeners for Invoice Navigation & Print (Never lost on re-renders)
   document.addEventListener("click", function (e) {
+    var pillBtn = e.target.closest(".amolih-curr-pill");
+    if (pillBtn) {
+      e.preventDefault();
+      e.stopPropagation();
+      var card = pillBtn.closest(".amolih-metric-card");
+      if (!card) return;
+      card.querySelectorAll(".amolih-curr-pill").forEach(function(p) {
+        p.classList.remove("active");
+        p.style.borderColor = "var(--amolih-border)";
+        p.style.backgroundColor = "#F8FAFC";
+        p.style.color = "var(--amolih-text)";
+      });
+      pillBtn.classList.add("active");
+      pillBtn.style.borderColor = "var(--amolih-primary)";
+      pillBtn.style.backgroundColor = "var(--amolih-primary)";
+      pillBtn.style.color = "#FFFFFF";
+
+      var amt = pillBtn.getAttribute("data-amount");
+      var curr = pillBtn.getAttribute("data-currency");
+      var sym = pillBtn.getAttribute("data-symbol");
+      var label = pillBtn.getAttribute("data-label") || curr;
+
+      var displayEl = card.querySelector(".amolih-metric-val");
+      if (displayEl && amt && curr && sym) {
+        displayEl.textContent = formatOrderPrice(amt, curr, sym);
+      }
+      var subEl = card.querySelector("#amolih-embed-spent-sub");
+      if (subEl) {
+        subEl.textContent = "Total spent in " + label;
+      }
+      return;
+    }
+
     var viewBtn = e.target.closest(".amolih-embed-view-invoice, .amolih-btn-view-invoice");
     if (viewBtn) {
       e.preventDefault();

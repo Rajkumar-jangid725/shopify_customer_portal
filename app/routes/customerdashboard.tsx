@@ -44,8 +44,23 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     session?.shop ||
     url.searchParams.get("shop") ||
     "dev-amolih.myshopify.com";
-  const pathPrefix =
+  const rawPathPrefix =
     url.searchParams.get("path_prefix") || "/apps/customerdashboard";
+  let pathPrefix = rawPathPrefix;
+  const referer = request.headers.get("referer");
+  if (referer) {
+    try {
+      const refUrl = new URL(referer);
+      const match = refUrl.pathname.match(/^\/([a-z]{2}(?:-[a-z]{2})?)/i);
+      if (match && !pathPrefix.startsWith(match[0])) {
+        pathPrefix = match[0] + (pathPrefix.startsWith("/") ? pathPrefix : "/" + pathPrefix);
+      }
+    } catch (e) {}
+  }
+  const urlMatch = url.pathname.match(/^\/([a-z]{2}(?:-[a-z]{2})?)/i);
+  if (urlMatch && !pathPrefix.startsWith(urlMatch[0])) {
+    pathPrefix = urlMatch[0] + (pathPrefix.startsWith("/") ? pathPrefix : "/" + pathPrefix);
+  }
   const loggedInCustomerId = url.searchParams.get("logged_in_customer_id");
   const tab = (url.searchParams.get("tab") || "details").toLowerCase();
 
@@ -639,9 +654,7 @@ function renderDashboardHtml({
 
       const href = external
         ? escapeHtml(resolveExternalHref(item, supportUrl))
-        : escapeHtml(
-          `${pathPrefix}?tab=${encodeURIComponent(item.destination || "details")}`,
-        );
+        : `{{ localized_proxy_path }}?tab=${encodeURIComponent(item.destination || "details")}`;
       const target = item.openInNewTab ? ' target="_blank" rel="noopener"' : "";
       const badge = renderMenuBadge(destination, item.badgeText);
 
@@ -661,6 +674,24 @@ function renderDashboardHtml({
   );
 
   return `
+{% assign market_prefix = routes.root_url %}
+{% if market_prefix == '/' or market_prefix == blank %}
+  {% assign detected_country = localization.country.iso_code %}
+  {% if detected_country == blank and customer.default_address.country_code != blank %}
+    {% assign detected_country = customer.default_address.country_code %}
+  {% endif %}
+  {% case detected_country %}
+    {% when 'IN' %}{% assign market_prefix = '/en-in' %}
+    {% when 'GB' %}{% assign market_prefix = '/en-gb' %}
+    {% when 'CA' %}{% assign market_prefix = '/en-ca' %}
+    {% when 'AU' %}{% assign market_prefix = '/en-au' %}
+    {% else %}{% assign market_prefix = '' %}
+  {% endcase %}
+{% endif %}
+{% if market_prefix == '/' %}
+  {% assign market_prefix = '' %}
+{% endif %}
+{% assign localized_proxy_path = market_prefix | append: '${pathPrefix}' %}
 ${googleFontLink}
 <style>
   :root {
@@ -1900,7 +1931,7 @@ ${googleFontLink}
       </div>
 
       <div class="amolih-sidebar-logout">
-        <a href="/account/logout" class="amolih-logout-link">
+        <a href="{{ market_prefix }}/account/logout" class="amolih-logout-link">
           <span>🚪</span> <span>Sign out of account</span>
         </a>
       </div>
@@ -1916,7 +1947,7 @@ ${googleFontLink}
             Please sign in to access your bespoke Jaipur fine jewelry orders, saved shipping locations, and VIP privileges.
           </p>
           <div>
-            <a class="amolih-button" href="/account/login">Sign in to Amolih</a>
+            <a class="amolih-button" href="{{ market_prefix }}/account/login?return_to={{ localized_proxy_path | url_encode }}">Sign in to Amolih</a>
           </div>
         </div>
       {% else %}
@@ -1925,7 +1956,7 @@ ${googleFontLink}
         <!-- Mobile Concierge & Sign-out Strip (Visible only on mobile) -->
         <div class="amolih-mobile-footer-strip">
           <div style="text-align:center; padding:0.5rem 0 1rem;">
-            <a href="/account/logout" class="amolih-logout-link" style="justify-content:center;">
+            <a href="{{ market_prefix }}/account/logout" class="amolih-logout-link" style="justify-content:center;">
               <span>🚪</span> <span>Sign out of account</span>
             </a>
           </div>
@@ -1937,6 +1968,55 @@ ${googleFontLink}
 
 <script>
   (function() {
+    // 0. Market Localization Persistence & History Management
+    var serverMarketPrefix = {{ market_prefix | json }} || "";
+    var serverCountry = {{ localization.country.iso_code | default: "" | json }};
+    if (serverMarketPrefix) {
+      try { sessionStorage.setItem("amolih_market_prefix", serverMarketPrefix); } catch(e) {}
+    } else if (serverCountry === "US") {
+      try { sessionStorage.removeItem("amolih_market_prefix"); } catch(e) {}
+    }
+    var activeMarketPrefix = serverMarketPrefix;
+    if (!activeMarketPrefix && serverCountry !== "US") {
+      try {
+        var stored = sessionStorage.getItem("amolih_market_prefix");
+        if (stored) activeMarketPrefix = stored;
+      } catch(e) {}
+    }
+
+    function checkAndMaintainMarketUrl() {
+      if (!activeMarketPrefix) return;
+      var curPath = window.location.pathname;
+      if (!curPath.startsWith(activeMarketPrefix)) {
+        var newPath = activeMarketPrefix + (curPath.startsWith("/") ? curPath : "/" + curPath);
+        var targetUrl = newPath + window.location.search + window.location.hash;
+        window.location.replace(targetUrl);
+      }
+    }
+
+    // Run check immediately on load
+    checkAndMaintainMarketUrl();
+
+    // Prevent losing market prefix on browser Back/Forward (bfcache and popstate)
+    window.addEventListener("pageshow", function(evt) {
+      checkAndMaintainMarketUrl();
+    });
+    window.addEventListener("popstate", function() {
+      checkAndMaintainMarketUrl();
+    });
+
+    // Capture and ensure all internal anchor links retain the market prefix
+    document.addEventListener("click", function(evt) {
+      var a = evt.target && evt.target.closest ? evt.target.closest("a") : null;
+      if (!a) return;
+      var href = a.getAttribute("href");
+      if (!href || href.startsWith("#") || href.startsWith("javascript:") || href.startsWith("tel:") || href.startsWith("mailto:") || href.startsWith("https://wa.me") || a.target === "_blank") {
+        return;
+      }
+      if (activeMarketPrefix && href.startsWith("/") && !href.startsWith(activeMarketPrefix)) {
+        a.setAttribute("href", activeMarketPrefix + href);
+      }
+    }, true);
     // 0. Horizontal Scroll & Gesture Containment (prevents whole screen from moving on swipe)
     var track = document.querySelector(".amolih-nav-scroll-track");
     if (track) {
@@ -2079,6 +2159,44 @@ ${googleFontLink}
         var formattedNum = formatMoneyNumber(rawAmt, curr);
         el.textContent = sym + formattedNum;
       }
+    });
+
+    // Multi-Market Currency Pill Click Handler for Lifetime Investment
+    document.querySelectorAll(".amolih-curr-pill").forEach(function(pill) {
+      pill.addEventListener("click", function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        var card = pill.closest(".amolih-metric-card") || document.getElementById("amolih-lifetime-card");
+        if (!card) return;
+        card.querySelectorAll(".amolih-curr-pill").forEach(function(p) {
+          p.classList.remove("active");
+          p.style.borderColor = "var(--amolih-border)";
+          p.style.backgroundColor = "#F8FAFC";
+          p.style.color = "var(--amolih-text)";
+        });
+        pill.classList.add("active");
+        pill.style.borderColor = "var(--amolih-primary)";
+        pill.style.backgroundColor = "var(--amolih-primary)";
+        pill.style.color = "#FFFFFF";
+
+        var amt = pill.getAttribute("data-amount");
+        var curr = pill.getAttribute("data-currency");
+        var sym = pill.getAttribute("data-symbol");
+        var label = pill.getAttribute("data-label") || curr;
+
+        var displayEl = card.querySelector(".amolih-total-spent-val");
+        if (displayEl && amt && curr && sym) {
+          var formatted = formatMoneyNumber(amt, curr);
+          displayEl.textContent = sym + formatted;
+          displayEl.setAttribute("data-currency", curr);
+          displayEl.setAttribute("data-symbol", sym);
+          displayEl.setAttribute("data-amount", amt);
+        }
+        var subEl = card.querySelector("#amolih-total-spent-sub");
+        if (subEl) {
+          subEl.textContent = "Total spent in " + label;
+        }
+      });
     });
 
     // 6. Custlo-Style In-App Invoice Navigation & Print Logic (Robust Delegated Architecture)
@@ -2605,7 +2723,7 @@ function renderPanelLiquid(
       <p class="amolih-pane-subtitle">{{ customer.orders.size }} {% if customer.orders.size == 1 %}order{% else %}orders{% endif %} recorded in your account.</p>
     </div>
     {% if customer.orders.size > 0 %}
-      <a href="/collections/all" class="amolih-button-secondary" style="font-size:0.84rem; padding:0.5rem 1rem;">
+      <a href="{{ market_prefix }}/collections/all" class="amolih-button-secondary" style="font-size:0.84rem; padding:0.5rem 1rem;">
         Explore New Arrivals ↗
       </a>
     {% endif %}
@@ -2619,19 +2737,21 @@ function renderPanelLiquid(
       <p class="amolih-pane-subtitle" style="max-width:420px; margin:0 auto 1.5rem;">
         Explore our latest handcrafted fine jewelry, bespoke charms, and personalized pieces.
       </p>
-      <a href="/collections/all" class="amolih-button">Explore Collection</a>
+      <a href="{{ market_prefix }}/collections/all" class="amolih-button">Explore Collection</a>
     </div>
   {% else %}
     <div id="amolih-orders-list-view">
       {% for order in customer.orders %}
         {% assign order_curr = order.total_price_set.presentment_money.currency_code | default: order.currency %}
-        {% if order_curr == blank or order_curr == 'USD' %}
-          {% if order.shipping_address.country_code == 'IN' or order.billing_address.country_code == 'IN' or customer.default_address.country_code == 'IN' or customer.default_address.country == 'India' %}
+        {% if order_curr == blank %}
+          {% if order.shipping_address.country_code == 'IN' or order.billing_address.country_code == 'IN' %}
             {% assign order_curr = 'INR' %}
-          {% elsif order.shipping_address.country_code == 'GB' or order.billing_address.country_code == 'GB' or order.shipping_address.country_code == 'UK' or customer.default_address.country_code == 'GB' or customer.default_address.country == 'United Kingdom' %}
+          {% elsif order.shipping_address.country_code == 'GB' or order.billing_address.country_code == 'GB' or order.shipping_address.country_code == 'UK' %}
             {% assign order_curr = 'GBP' %}
-          {% elsif order.shipping_address.country_code == 'US' or order.billing_address.country_code == 'US' or customer.default_address.country_code == 'US' or customer.default_address.country == 'United States' %}
+          {% elsif order.shipping_address.country_code == 'US' or order.billing_address.country_code == 'US' %}
             {% assign order_curr = 'USD' %}
+          {% else %}
+            {% assign order_curr = shop.currency | default: 'USD' %}
           {% endif %}
         {% endif %}
         {% assign order_curr = order_curr | default: 'USD' | upcase %}
@@ -2743,13 +2863,15 @@ function renderPanelLiquid(
           </div>
         </article>
       {% assign order_curr = order.total_price_set.presentment_money.currency_code | default: order.currency %}
-      {% if order_curr == blank or order_curr == 'USD' %}
-        {% if order.shipping_address.country_code == 'IN' or order.billing_address.country_code == 'IN' or customer.default_address.country_code == 'IN' or customer.default_address.country == 'India' %}
+      {% if order_curr == blank %}
+        {% if order.shipping_address.country_code == 'IN' or order.billing_address.country_code == 'IN' %}
           {% assign order_curr = 'INR' %}
-        {% elsif order.shipping_address.country_code == 'GB' or order.billing_address.country_code == 'GB' or order.shipping_address.country_code == 'UK' or customer.default_address.country_code == 'GB' or customer.default_address.country == 'United Kingdom' %}
+        {% elsif order.shipping_address.country_code == 'GB' or order.billing_address.country_code == 'GB' or order.shipping_address.country_code == 'UK' %}
           {% assign order_curr = 'GBP' %}
-        {% elsif order.shipping_address.country_code == 'US' or order.billing_address.country_code == 'US' or customer.default_address.country_code == 'US' or customer.default_address.country == 'United States' %}
+        {% elsif order.shipping_address.country_code == 'US' or order.billing_address.country_code == 'US' %}
           {% assign order_curr = 'USD' %}
+        {% else %}
+          {% assign order_curr = shop.currency | default: 'USD' %}
         {% endif %}
       {% endif %}
       {% assign order_curr = order_curr | default: 'USD' | upcase %}
@@ -3058,7 +3180,7 @@ function renderPanelLiquid(
   <!-- Add New Address Form -->
   <div id="amolih-add-address-box" style="display:none; margin-bottom:2rem; padding:1.75rem; border:1px solid var(--amolih-gold-border); border-radius:var(--amolih-radius); background:#FAF7F2;">
     <h3 style="margin:0 0 1.25rem; font-size:1.35rem; font-family:var(--amolih-heading-font);">Add Bespoke Delivery Location</h3>
-    <form method="post" action="${pathPrefix}?tab=addresses" class="amolih-ajax-form">
+    <form method="post" action="{{ localized_proxy_path }}?tab=addresses" class="amolih-ajax-form">
       <input type="hidden" name="action_type" value="create_address" />
       <div class="amolih-form-grid">
         <div class="amolih-form-group">
@@ -3151,13 +3273,13 @@ function renderPanelLiquid(
           <div style="display:flex; gap:6px; flex-wrap:wrap; margin-top:1.25rem; padding-top:0.85rem; border-top:1px solid var(--amolih-border-light);">
             <button type="button" class="amolih-btn-sm amolih-btn-edit-addr" data-id="{{ address.id }}">✏️ Edit</button>
             {% unless address == customer.default_address %}
-              <form method="post" action="${pathPrefix}?tab=addresses" style="display:inline;">
+              <form method="post" action="{{ localized_proxy_path }}?tab=addresses" style="display:inline;">
                 <input type="hidden" name="action_type" value="set_default_address" />
                 <input type="hidden" name="address_id" value="{{ address.id }}" />
                 <button type="submit" class="amolih-btn-sm">★ Make Default</button>
               </form>
             {% endunless %}
-            <form method="post" action="${pathPrefix}?tab=addresses" style="display:inline;" onsubmit="return confirm('Delete this saved location?');">
+            <form method="post" action="{{ localized_proxy_path }}?tab=addresses" style="display:inline;" onsubmit="return confirm('Delete this saved location?');">
               <input type="hidden" name="action_type" value="delete_address" />
               <input type="hidden" name="address_id" value="{{ address.id }}" />
               <button type="submit" class="amolih-btn-sm amolih-btn-danger">Delete</button>
@@ -3166,7 +3288,7 @@ function renderPanelLiquid(
 
           <!-- Inline Edit Form -->
           <div id="addr-edit-form-{{ address.id }}" style="display:none; margin-top:1rem; padding-top:1rem; border-top:1px dashed var(--amolih-gold-border);">
-            <form method="post" action="${pathPrefix}?tab=addresses" class="amolih-ajax-form">
+            <form method="post" action="{{ localized_proxy_path }}?tab=addresses" class="amolih-ajax-form">
               <input type="hidden" name="action_type" value="update_address" />
               <input type="hidden" name="address_id" value="{{ address.id }}" />
               <div class="amolih-form-grid">
@@ -3256,7 +3378,7 @@ function renderPanelLiquid(
       </h2>
       <p class="amolih-pane-subtitle">Jaipur Heritage Loyalty Tier & Privileges &bull; /pages/${escapeHtml(cleanHandle)}</p>
     </div>
-    <a href="${escapeHtml(targetUrl)}" target="_blank" rel="noopener" class="amolih-button-secondary" style="font-size:0.85rem; padding:0.45rem 0.85rem; text-decoration:none;">
+    <a href="{{ market_prefix }}${escapeHtml(targetUrl)}" target="_blank" rel="noopener" class="amolih-button-secondary" style="font-size:0.85rem; padding:0.45rem 0.85rem; text-decoration:none;">
       Open Full Page ↗
     </a>
   </div>
@@ -3298,7 +3420,7 @@ function renderPanelLiquid(
       <div id="amolih-circle-fetched-content" class="amolih-page-rte rte" style="display:none;"></div>
       <iframe
         id="amolih-circle-frame"
-        src="${escapeHtml(targetUrl)}"
+        src="{{ market_prefix }}${escapeHtml(targetUrl)}"
         style="display:none; width:100%; min-height:650px; border:1px solid var(--amolih-border); border-radius:var(--amolih-radius);"
         loading="lazy"
       ></iframe>
@@ -3312,7 +3434,7 @@ function renderPanelLiquid(
       var frame = document.getElementById("amolih-circle-frame");
       if (!loader) return;
 
-      fetch("${escapeHtml(targetUrl)}")
+      fetch("{{ market_prefix }}${escapeHtml(targetUrl)}")
         .then(function(res) {
           if (!res.ok) throw new Error("HTTP " + res.status);
           return res.text();
@@ -3376,64 +3498,246 @@ function renderPanelLiquid(
   </div>
   <hr class="amolih-divider" />
 
-  <!-- 3 Quick-Stats Luxury Metric Cards -->
-  {% assign cust_curr = customer.orders.first.total_price_set.presentment_money.currency_code | default: customer.orders.first.currency %}
-  {% if cust_curr == blank or cust_curr == 'USD' %}
-    {% if customer.default_address.country_code == 'IN' or customer.default_address.country == 'India' %}
-      {% assign cust_curr = 'INR' %}
-    {% elsif customer.default_address.country_code == 'GB' or customer.default_address.country == 'United Kingdom' %}
-      {% assign cust_curr = 'GBP' %}
-    {% elsif customer.default_address.country_code == 'US' or customer.default_address.country == 'United States' %}
-      {% assign cust_curr = 'USD' %}
+  <!-- Multi-Market Currency Aggregation & Calculation -->
+  {% assign active_market_curr = cart.currency.iso_code | default: localization.country.currency.iso_code %}
+  {% if active_market_curr == blank or active_market_curr == 'USD' %}
+    {% if market_prefix == '/en-in' %}
+      {% assign active_market_curr = 'INR' %}
+    {% elsif market_prefix == '/en-gb' %}
+      {% assign active_market_curr = 'GBP' %}
+    {% elsif market_prefix == '/en-ca' %}
+      {% assign active_market_curr = 'CAD' %}
+    {% elsif market_prefix == '/en-au' %}
+      {% assign active_market_curr = 'AUD' %}
+    {% else %}
+      {% assign active_market_curr = shop.currency | default: 'USD' %}
     {% endif %}
   {% endif %}
-  {% assign cust_curr = cust_curr | default: 'USD' | upcase %}
-  {% case cust_curr %}
-    {% when 'INR' %}
-      {% assign cust_symbol = '₹' %}
-    {% when 'GBP' %}
-      {% assign cust_symbol = '£' %}
-    {% when 'USD' %}
-      {% assign cust_symbol = '$' %}
-    {% when 'EUR' %}
-      {% assign cust_symbol = '€' %}
-    {% when 'CAD' %}
-      {% assign cust_symbol = 'CA$' %}
-    {% when 'AUD' %}
-      {% assign cust_symbol = 'AU$' %}
-    {% when 'JPY' %}
-      {% assign cust_symbol = '¥' %}
-    {% when 'AED' %}
-      {% assign cust_symbol = 'AED ' %}
-    {% when 'SAR' %}
-      {% assign cust_symbol = 'SAR ' %}
-    {% else %}
-      {% assign cust_symbol = cust_curr | append: ' ' %}
+  {% assign active_market_curr = active_market_curr | upcase %}
+  {% assign shop_curr = shop.currency | default: 'USD' | upcase %}
+  {% case shop_curr %}
+    {% when 'INR' %}{% assign shop_sym = '₹' %}
+    {% when 'GBP' %}{% assign shop_sym = '£' %}
+    {% when 'USD' %}{% assign shop_sym = '$' %}
+    {% when 'EUR' %}{% assign shop_sym = '€' %}
+    {% when 'CAD' %}{% assign shop_sym = 'CA$' %}
+    {% when 'AUD' %}{% assign shop_sym = 'AU$' %}
+    {% when 'JPY' %}{% assign shop_sym = '¥' %}
+    {% when 'AED' %}{% assign shop_sym = 'AED ' %}
+    {% when 'SAR' %}{% assign shop_sym = 'SAR ' %}
+    {% else %}{% assign shop_sym = shop_curr | append: ' ' %}
   {% endcase %}
-  {% assign total_spent_calc = 0 %}
+
+  {% assign inr_total = 0 %}
+  {% assign inr_count = 0 %}
+  {% assign usd_total = 0 %}
+  {% assign usd_count = 0 %}
+  {% assign gbp_total = 0 %}
+  {% assign gbp_count = 0 %}
+  {% assign eur_total = 0 %}
+  {% assign eur_count = 0 %}
+  {% assign cad_total = 0 %}
+  {% assign cad_count = 0 %}
+  {% assign aud_total = 0 %}
+  {% assign aud_count = 0 %}
+  {% assign aed_total = 0 %}
+  {% assign aed_count = 0 %}
+  {% assign other_total = 0 %}
+  {% assign other_count = 0 %}
+  {% assign other_curr_code = '' %}
+
+  {% assign shop_total_cents = customer.total_spent | default: 0 %}
+  {% assign shop_total_calc = 0 %}
+  {% assign num_currencies = 0 %}
+  {% assign seen_currencies = '' %}
+
   {% for ord in customer.orders %}
-    {% if ord.total_price_set.presentment_money.amount != blank %}
-      {% assign ord_amt = ord.total_price_set.presentment_money.amount | plus: 0 %}
-      {% assign total_spent_calc = total_spent_calc | plus: ord_amt %}
-    {% else %}
-      {% assign ord_amt = ord.total_price | money_without_currency | remove: ',' | plus: 0 %}
-      {% assign total_spent_calc = total_spent_calc | plus: ord_amt %}
+    {% assign o_curr = ord.total_price_set.presentment_money.currency_code | default: ord.currency %}
+    {% if o_curr == blank %}
+      {% if ord.shipping_address.country_code == 'IN' or ord.billing_address.country_code == 'IN' %}
+        {% assign o_curr = 'INR' %}
+      {% elsif ord.shipping_address.country_code == 'GB' or ord.billing_address.country_code == 'GB' or ord.shipping_address.country_code == 'UK' %}
+        {% assign o_curr = 'GBP' %}
+      {% elsif ord.shipping_address.country_code == 'US' or ord.billing_address.country_code == 'US' %}
+        {% assign o_curr = 'USD' %}
+      {% else %}
+        {% assign o_curr = shop_curr %}
+      {% endif %}
     {% endif %}
+    {% assign o_curr = o_curr | upcase %}
+
+    {% if ord.total_price_set.presentment_money.amount != blank %}
+      {% assign o_amt = ord.total_price_set.presentment_money.amount | plus: 0 %}
+    {% else %}
+      {% assign o_amt = ord.total_price | money_without_currency | remove: ',' | plus: 0 %}
+    {% endif %}
+
+    {% if ord.total_price_set.shop_money.amount != blank %}
+      {% assign o_shop_amt = ord.total_price_set.shop_money.amount | plus: 0 %}
+      {% assign shop_total_calc = shop_total_calc | plus: o_shop_amt %}
+    {% endif %}
+
+    {% unless seen_currencies contains o_curr %}
+      {% assign seen_currencies = seen_currencies | append: o_curr | append: ',' %}
+      {% assign num_currencies = num_currencies | plus: 1 %}
+    {% endunless %}
+
+    {% case o_curr %}
+      {% when 'INR' %}
+        {% assign inr_total = inr_total | plus: o_amt %}
+        {% assign inr_count = inr_count | plus: 1 %}
+      {% when 'USD' %}
+        {% assign usd_total = usd_total | plus: o_amt %}
+        {% assign usd_count = usd_count | plus: 1 %}
+      {% when 'GBP' %}
+        {% assign gbp_total = gbp_total | plus: o_amt %}
+        {% assign gbp_count = gbp_count | plus: 1 %}
+      {% when 'EUR' %}
+        {% assign eur_total = eur_total | plus: o_amt %}
+        {% assign eur_count = eur_count | plus: 1 %}
+      {% when 'CAD' %}
+        {% assign cad_total = cad_total | plus: o_amt %}
+        {% assign cad_count = cad_count | plus: 1 %}
+      {% when 'AUD' %}
+        {% assign aud_total = aud_total | plus: o_amt %}
+        {% assign aud_count = aud_count | plus: 1 %}
+      {% when 'AED' %}
+        {% assign aed_total = aed_total | plus: o_amt %}
+        {% assign aed_count = aed_count | plus: 1 %}
+      {% else %}
+        {% assign other_total = other_total | plus: o_amt %}
+        {% assign other_count = other_count | plus: 1 %}
+        {% assign other_curr_code = o_curr %}
+    {% endcase %}
   {% endfor %}
 
+  {% if shop_total_calc > 0 %}
+    {% assign unified_shop_amt = shop_total_calc %}
+  {% elsif shop_total_cents > 0 %}
+    {% assign unified_shop_amt = shop_total_cents | money_without_currency | remove: ',' | plus: 0 %}
+  {% else %}
+    {% assign unified_shop_amt = 0 %}
+  {% endif %}
+
+  <!-- Determine Active Display Currency & Amount -->
+  {% assign disp_curr = active_market_curr %}
+  {% assign disp_amt = 0 %}
+  {% assign disp_sym = '$' %}
+  {% assign disp_sub = 'Total spent' %}
+
+  {% if num_currencies == 0 %}
+    {% assign disp_curr = active_market_curr %}
+    {% assign disp_amt = 0 %}
+    {% case disp_curr %}
+      {% when 'INR' %}{% assign disp_sym = '₹' %}
+      {% when 'GBP' %}{% assign disp_sym = '£' %}
+      {% when 'USD' %}{% assign disp_sym = '$' %}
+      {% when 'EUR' %}{% assign disp_sym = '€' %}
+      {% else %}{% assign disp_sym = disp_curr | append: ' ' %}
+    {% endcase %}
+    {% assign disp_sub = 'No orders yet' %}
+
+  {% elsif num_currencies == 1 %}
+    {% if inr_count > 0 %}
+      {% assign disp_curr = 'INR' %}{% assign disp_sym = '₹' %}{% assign disp_amt = inr_total %}
+    {% elsif usd_count > 0 %}
+      {% assign disp_curr = 'USD' %}{% assign disp_sym = '$' %}{% assign disp_amt = usd_total %}
+    {% elsif gbp_count > 0 %}
+      {% assign disp_curr = 'GBP' %}{% assign disp_sym = '£' %}{% assign disp_amt = gbp_total %}
+    {% elsif eur_count > 0 %}
+      {% assign disp_curr = 'EUR' %}{% assign disp_sym = '€' %}{% assign disp_amt = eur_total %}
+    {% elsif cad_count > 0 %}
+      {% assign disp_curr = 'CAD' %}{% assign disp_sym = 'CA$' %}{% assign disp_amt = cad_total %}
+    {% elsif aud_count > 0 %}
+      {% assign disp_curr = 'AUD' %}{% assign disp_sym = 'AU$' %}{% assign disp_amt = aud_total %}
+    {% elsif aed_count > 0 %}
+      {% assign disp_curr = 'AED' %}{% assign disp_sym = 'AED ' %}{% assign disp_amt = aed_total %}
+    {% else %}
+      {% assign disp_curr = other_curr_code %}{% assign disp_sym = other_curr_code | append: ' ' %}{% assign disp_amt = other_total %}
+    {% endif %}
+    {% assign disp_sub = 'Total spent across ' | append: customer.orders.size | append: ' order' %}
+    {% if customer.orders.size != 1 %}{% assign disp_sub = disp_sub | append: 's' %}{% endif %}
+
+  {% else %}
+    <!-- Multi-Currency User (orders across multiple markets) -->
+    {% if active_market_curr == 'INR' and inr_count > 0 %}
+      {% assign disp_curr = 'INR' %}{% assign disp_sym = '₹' %}{% assign disp_amt = inr_total %}
+      {% assign disp_sub = 'India Market (' | append: inr_count | append: ' order' %}{% if inr_count != 1 %}{% assign disp_sub = disp_sub | append: 's' %}{% endif %}{% assign disp_sub = disp_sub | append: ') • Click pills below for other markets' %}
+    {% elsif active_market_curr == 'USD' and usd_count > 0 %}
+      {% assign disp_curr = 'USD' %}{% assign disp_sym = '$' %}{% assign disp_amt = usd_total %}
+      {% assign disp_sub = 'US Market (' | append: usd_count | append: ' order' %}{% if usd_count != 1 %}{% assign disp_sub = disp_sub | append: 's' %}{% endif %}{% assign disp_sub = disp_sub | append: ') • Click pills below for other markets' %}
+    {% elsif active_market_curr == 'GBP' and gbp_count > 0 %}
+      {% assign disp_curr = 'GBP' %}{% assign disp_sym = '£' %}{% assign disp_amt = gbp_total %}
+      {% assign disp_sub = 'UK Market (' | append: gbp_count | append: ' order' %}{% if gbp_count != 1 %}{% assign disp_sub = disp_sub | append: 's' %}{% endif %}{% assign disp_sub = disp_sub | append: ') • Click pills below for other markets' %}
+    {% elsif inr_count > 0 %}
+      {% assign disp_curr = 'INR' %}{% assign disp_sym = '₹' %}{% assign disp_amt = inr_total %}
+      {% assign disp_sub = 'India Market (' | append: inr_count | append: ' order' %}{% if inr_count != 1 %}{% assign disp_sub = disp_sub | append: 's' %}{% endif %}{% assign disp_sub = disp_sub | append: ') • Click pills below for other markets' %}
+    {% elsif usd_count > 0 %}
+      {% assign disp_curr = 'USD' %}{% assign disp_sym = '$' %}{% assign disp_amt = usd_total %}
+      {% assign disp_sub = 'US Market (' | append: usd_count | append: ' order' %}{% if usd_count != 1 %}{% assign disp_sub = disp_sub | append: 's' %}{% endif %}{% assign disp_sub = disp_sub | append: ') • Click pills below for other markets' %}
+    {% else %}
+      {% assign disp_curr = shop_curr %}{% assign disp_sym = shop_sym %}{% assign disp_amt = unified_shop_amt %}
+      {% assign disp_sub = 'Combined across ' | append: num_currencies | append: ' markets' %}
+    {% endif %}
+  {% endif %}
+
   <div class="amolih-metrics-grid">
-    <div class="amolih-metric-card">
-      <div class="amolih-metric-label">Lifetime Investment</div>
-      <div class="amolih-metric-val amolih-total-spent-val" data-currency="{{ cust_curr }}" data-symbol="{{ cust_symbol }}" data-amount="{% if total_spent_calc > 0 %}{{ total_spent_calc }}{% elsif customer.total_spent > 0 %}{{ customer.total_spent | money_without_currency | remove: ',' }}{% else %}0.00{% endif %}">
-        {% if total_spent_calc > 0 %}
-          {{ cust_symbol }}{{ total_spent_calc | round: 2 }}
-        {% elsif customer.total_spent > 0 %}
-          {{ cust_symbol }}{{ customer.total_spent | money_without_currency }}
-        {% else %}
-          {{ cust_symbol }}0.00
+    <div class="amolih-metric-card" id="amolih-lifetime-card" style="position:relative; display:flex; flex-direction:column; justify-content:space-between;">
+      <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:8px;">
+        <div class="amolih-metric-label">Lifetime Investment</div>
+        {% if num_currencies > 1 %}
+          <span class="amolih-status-pill" style="font-size:0.65rem; padding:2px 7px; background:#F5EFE6; color:#8C6D3B; border:1px solid #DFD0BA; font-weight:700; letter-spacing:0.04em; white-space:nowrap; border-radius:10px;">
+            🌍 Multi-Market ({{ num_currencies }})
+          </span>
         {% endif %}
       </div>
-      <div class="amolih-metric-sub">Total spent</div>
+
+      <div class="amolih-metric-val amolih-total-spent-val" id="amolih-total-spent-display" data-currency="{{ disp_curr }}" data-symbol="{{ disp_sym }}" data-amount="{{ disp_amt }}" style="margin:4px 0 2px;">
+        {{ disp_sym }}{{ disp_amt | round: 2 }}
+      </div>
+
+      {% if num_currencies > 1 %}
+        <!-- Interactive Multi-Market Breakdown Switcher -->
+        <div class="amolih-market-pills" style="display:flex; flex-wrap:wrap; gap:5px; margin:6px 0 4px;">
+          {% if inr_count > 0 %}
+            <button type="button" class="amolih-curr-pill {% if disp_curr == 'INR' %}active{% endif %}" data-currency="INR" data-symbol="₹" data-amount="{{ inr_total }}" data-label="India Market ({{ inr_count }} order{% if inr_count != 1 %}s{% endif %})" style="cursor:pointer; border-radius:12px; font-size:0.73rem; font-weight:600; padding:2px 8px; border:1px solid {% if disp_curr == 'INR' %}var(--amolih-primary){% else %}var(--amolih-border){% endif %}; background:{% if disp_curr == 'INR' %}var(--amolih-primary){% else %}#F8FAFC{% endif %}; color:{% if disp_curr == 'INR' %}#FFFFFF{% else %}var(--amolih-text){% endif %}; transition:all 0.15s ease;">
+              🇮🇳 ₹{{ inr_total | round: 2 }}
+            </button>
+          {% endif %}
+          {% if usd_count > 0 %}
+            <button type="button" class="amolih-curr-pill {% if disp_curr == 'USD' %}active{% endif %}" data-currency="USD" data-symbol="$" data-amount="{{ usd_total }}" data-label="US Market ({{ usd_count }} order{% if usd_count != 1 %}s{% endif %})" style="cursor:pointer; border-radius:12px; font-size:0.73rem; font-weight:600; padding:2px 8px; border:1px solid {% if disp_curr == 'USD' %}var(--amolih-primary){% else %}var(--amolih-border){% endif %}; background:{% if disp_curr == 'USD' %}var(--amolih-primary){% else %}#F8FAFC{% endif %}; color:{% if disp_curr == 'USD' %}#FFFFFF{% else %}var(--amolih-text){% endif %}; transition:all 0.15s ease;">
+              🇺🇸 \${{ usd_total | round: 2 }}
+            </button>
+          {% endif %}
+          {% if gbp_count > 0 %}
+            <button type="button" class="amolih-curr-pill {% if disp_curr == 'GBP' %}active{% endif %}" data-currency="GBP" data-symbol="£" data-amount="{{ gbp_total }}" data-label="UK Market ({{ gbp_count }} order{% if gbp_count != 1 %}s{% endif %})" style="cursor:pointer; border-radius:12px; font-size:0.73rem; font-weight:600; padding:2px 8px; border:1px solid {% if disp_curr == 'GBP' %}var(--amolih-primary){% else %}var(--amolih-border){% endif %}; background:{% if disp_curr == 'GBP' %}var(--amolih-primary){% else %}#F8FAFC{% endif %}; color:{% if disp_curr == 'GBP' %}#FFFFFF{% else %}var(--amolih-text){% endif %}; transition:all 0.15s ease;">
+              🇬🇧 £{{ gbp_total | round: 2 }}
+            </button>
+          {% endif %}
+          {% if eur_count > 0 %}
+            <button type="button" class="amolih-curr-pill {% if disp_curr == 'EUR' %}active{% endif %}" data-currency="EUR" data-symbol="€" data-amount="{{ eur_total }}" data-label="EU Market ({{ eur_count }} order{% if eur_count != 1 %}s{% endif %})" style="cursor:pointer; border-radius:12px; font-size:0.73rem; font-weight:600; padding:2px 8px; border:1px solid {% if disp_curr == 'EUR' %}var(--amolih-primary){% else %}var(--amolih-border){% endif %}; background:{% if disp_curr == 'EUR' %}var(--amolih-primary){% else %}#F8FAFC{% endif %}; color:{% if disp_curr == 'EUR' %}#FFFFFF{% else %}var(--amolih-text){% endif %}; transition:all 0.15s ease;">
+              🇪🇺 €{{ eur_total | round: 2 }}
+            </button>
+          {% endif %}
+          {% if cad_count > 0 %}
+            <button type="button" class="amolih-curr-pill {% if disp_curr == 'CAD' %}active{% endif %}" data-currency="CAD" data-symbol="CA$" data-amount="{{ cad_total }}" data-label="Canada Market ({{ cad_count }} order{% if cad_count != 1 %}s{% endif %})" style="cursor:pointer; border-radius:12px; font-size:0.73rem; font-weight:600; padding:2px 8px; border:1px solid {% if disp_curr == 'CAD' %}var(--amolih-primary){% else %}var(--amolih-border){% endif %}; background:{% if disp_curr == 'CAD' %}var(--amolih-primary){% else %}#F8FAFC{% endif %}; color:{% if disp_curr == 'CAD' %}#FFFFFF{% else %}var(--amolih-text){% endif %}; transition:all 0.15s ease;">
+              🇨🇦 CA\${{ cad_total | round: 2 }}
+            </button>
+          {% endif %}
+          {% if aud_count > 0 %}
+            <button type="button" class="amolih-curr-pill {% if disp_curr == 'AUD' %}active{% endif %}" data-currency="AUD" data-symbol="AU$" data-amount="{{ aud_total }}" data-label="Australia Market ({{ aud_count }} order{% if aud_count != 1 %}s{% endif %})" style="cursor:pointer; border-radius:12px; font-size:0.73rem; font-weight:600; padding:2px 8px; border:1px solid {% if disp_curr == 'AUD' %}var(--amolih-primary){% else %}var(--amolih-border){% endif %}; background:{% if disp_curr == 'AUD' %}var(--amolih-primary){% else %}#F8FAFC{% endif %}; color:{% if disp_curr == 'AUD' %}#FFFFFF{% else %}var(--amolih-text){% endif %}; transition:all 0.15s ease;">
+              🇦🇺 AU\${{ aud_total | round: 2 }}
+            </button>
+          {% endif %}
+          {% if unified_shop_amt > 0 %}
+            <button type="button" class="amolih-curr-pill" data-currency="{{ shop_curr }}" data-symbol="{{ shop_sym }}" data-amount="{{ unified_shop_amt }}" data-label="Combined Base Total ({{ customer.orders.size }} orders)" style="cursor:pointer; border-radius:12px; font-size:0.73rem; font-weight:600; padding:2px 8px; border:1px solid var(--amolih-border); background:#F8FAFC; color:var(--amolih-text); transition:all 0.15s ease;" title="Combined value converted to store base currency ({{ shop_curr }})">
+              🌐 Combined (~{{ shop_sym }}{{ unified_shop_amt | round: 2 }})
+            </button>
+          {% endif %}
+        </div>
+      {% endif %}
+
+      <div class="amolih-metric-sub" id="amolih-total-spent-sub">{{ disp_sub }}</div>
     </div>
 
     <div class="amolih-metric-card">
@@ -3475,7 +3779,7 @@ function renderPanelLiquid(
 
   <!-- Edit Mode Form -->
   <div id="amolih-profile-edit" style="display:none; margin-top:0.5rem;">
-    <form method="post" action="${pathPrefix}?tab=details" id="amolih-profile-form" class="amolih-ajax-form">
+    <form method="post" action="{{ localized_proxy_path }}?tab=details" id="amolih-profile-form" class="amolih-ajax-form">
       <input type="hidden" name="action_type" value="update_profile" />
       <div class="amolih-form-grid">
         <div class="amolih-form-group">

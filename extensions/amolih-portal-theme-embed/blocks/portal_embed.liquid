@@ -16,20 +16,51 @@
   {% endif %}
 {% endunless %}
 
+{% assign market_prefix = routes.root_url %}
+{% if market_prefix == '/' or market_prefix == blank %}
+  {% assign detected_country = localization.country.iso_code %}
+  {% if detected_country == blank and customer.default_address.country_code != blank %}
+    {% assign detected_country = customer.default_address.country_code %}
+  {% endif %}
+  {% case detected_country %}
+    {% when 'IN' %}{% assign market_prefix = '/en-in' %}
+    {% when 'GB' %}{% assign market_prefix = '/en-gb' %}
+    {% when 'CA' %}{% assign market_prefix = '/en-ca' %}
+    {% when 'AU' %}{% assign market_prefix = '/en-au' %}
+    {% else %}{% assign market_prefix = '' %}
+  {% endcase %}
+{% endif %}
+{% if market_prefix == '/' %}
+  {% assign market_prefix = '' %}
+{% endif %}
+
 {% assign proxy_path = block.settings.app_proxy_path | default: '/apps/customerdashboard' %}
+{% assign localized_proxy_path = market_prefix | append: proxy_path %}
 
 {% if is_account_page %}
   {% if block.settings.portal_mode == 'redirect_to_proxy' %}
     {% if customer %}
       <script>
-        window.location.replace({{ proxy_path | json }});
+        (function() {
+          var targetPath = {{ localized_proxy_path | json }};
+          var currentQuery = window.location.search || "";
+          var currentHash = window.location.hash || "";
+          window.location.replace(targetPath + currentQuery + currentHash);
+        })();
       </script>
       <style>
         body { visibility: hidden !important; }
       </style>
     {% else %}
+      {% assign login_url = market_prefix | append: '/account/login' %}
       <script>
-        window.location.replace('/account/login?return_to=' + encodeURIComponent({{ proxy_path | json }}));
+        (function() {
+          var loginPath = {{ login_url | json }};
+          var targetPath = {{ localized_proxy_path | json }};
+          var currentQuery = window.location.search || "";
+          var currentHash = window.location.hash || "";
+          window.location.replace(loginPath + "?return_to=" + encodeURIComponent(targetPath + currentQuery + currentHash));
+        })();
       </script>
       <style>
         body { visibility: hidden !important; }
@@ -58,59 +89,180 @@
      data-logged-in="{% if customer %}true{% else %}false{% endif %}"
      data-override="{% if block.settings.override_default_account %}true{% else %}false{% endif %}"
      data-app-domain="{{ block.settings.app_domain | escape }}"
+     data-market-prefix="{{ market_prefix | escape }}"
+     data-proxy-path="{{ localized_proxy_path | escape }}"
      style="display: none;">
   {% if customer %}
-    {% assign cust_curr = customer.orders.first.total_price_set.presentment_money.currency_code | default: customer.orders.first.currency %}
-    {% if cust_curr == blank or cust_curr == 'USD' %}
-      {% if customer.default_address.country_code == 'IN' or customer.default_address.country == 'India' %}
-        {% assign cust_curr = 'INR' %}
-      {% elsif customer.default_address.country_code == 'GB' or customer.default_address.country == 'United Kingdom' %}
-        {% assign cust_curr = 'GBP' %}
-      {% elsif customer.default_address.country_code == 'US' or customer.default_address.country == 'United States' %}
-        {% assign cust_curr = 'USD' %}
-      {% endif %}
-    {% endif %}
-    {% assign cust_curr = cust_curr | default: 'USD' | upcase %}
-    {% case cust_curr %}
-      {% when 'INR' %}
-        {% assign cust_symbol = '₹' %}
-      {% when 'GBP' %}
-        {% assign cust_symbol = '£' %}
-      {% when 'USD' %}
-        {% assign cust_symbol = '$' %}
-      {% when 'EUR' %}
-        {% assign cust_symbol = '€' %}
-      {% when 'CAD' %}
-        {% assign cust_symbol = 'CA$' %}
-      {% when 'AUD' %}
-        {% assign cust_symbol = 'AU$' %}
-      {% when 'JPY' %}
-        {% assign cust_symbol = '¥' %}
-      {% when 'AED' %}
-        {% assign cust_symbol = 'AED ' %}
-      {% when 'SAR' %}
-        {% assign cust_symbol = 'SAR ' %}
-      {% else %}
-        {% assign cust_symbol = cust_curr | append: ' ' %}
+    <!-- Multi-Market Currency Aggregation & Calculation -->
+    {% assign active_market_curr = cart.currency.iso_code | default: localization.country.currency.iso_code | default: shop.currency | default: 'USD' | upcase %}
+    {% assign shop_curr = shop.currency | default: 'USD' | upcase %}
+    {% case shop_curr %}
+      {% when 'INR' %}{% assign shop_sym = '₹' %}
+      {% when 'GBP' %}{% assign shop_sym = '£' %}
+      {% when 'USD' %}{% assign shop_sym = '$' %}
+      {% when 'EUR' %}{% assign shop_sym = '€' %}
+      {% when 'CAD' %}{% assign shop_sym = 'CA$' %}
+      {% when 'AUD' %}{% assign shop_sym = 'AU$' %}
+      {% when 'JPY' %}{% assign shop_sym = '¥' %}
+      {% when 'AED' %}{% assign shop_sym = 'AED ' %}
+      {% when 'SAR' %}{% assign shop_sym = 'SAR ' %}
+      {% else %}{% assign shop_sym = shop_curr | append: ' ' %}
     {% endcase %}
-    {% assign total_spent_calc = 0 %}
+
+    {% assign inr_total = 0 %}
+    {% assign inr_count = 0 %}
+    {% assign usd_total = 0 %}
+    {% assign usd_count = 0 %}
+    {% assign gbp_total = 0 %}
+    {% assign gbp_count = 0 %}
+    {% assign eur_total = 0 %}
+    {% assign eur_count = 0 %}
+    {% assign cad_total = 0 %}
+    {% assign cad_count = 0 %}
+    {% assign aud_total = 0 %}
+    {% assign aud_count = 0 %}
+    {% assign aed_total = 0 %}
+    {% assign aed_count = 0 %}
+    {% assign other_total = 0 %}
+    {% assign other_count = 0 %}
+    {% assign other_curr_code = '' %}
+
+    {% assign shop_total_cents = customer.total_spent | default: 0 %}
+    {% assign shop_total_calc = 0 %}
+    {% assign num_currencies = 0 %}
+    {% assign seen_currencies = '' %}
+
     {% for ord in customer.orders %}
-      {% if ord.total_price_set.presentment_money.amount != blank %}
-        {% assign ord_amt = ord.total_price_set.presentment_money.amount | plus: 0 %}
-        {% assign total_spent_calc = total_spent_calc | plus: ord_amt %}
-      {% else %}
-        {% assign ord_amt = ord.total_price | money_without_currency | remove: ',' | plus: 0 %}
-        {% assign total_spent_calc = total_spent_calc | plus: ord_amt %}
+      {% assign o_curr = ord.total_price_set.presentment_money.currency_code | default: ord.currency %}
+      {% if o_curr == blank %}
+        {% if ord.shipping_address.country_code == 'IN' or ord.billing_address.country_code == 'IN' %}
+          {% assign o_curr = 'INR' %}
+        {% elsif ord.shipping_address.country_code == 'GB' or ord.billing_address.country_code == 'GB' or ord.shipping_address.country_code == 'UK' %}
+          {% assign o_curr = 'GBP' %}
+        {% elsif ord.shipping_address.country_code == 'US' or ord.billing_address.country_code == 'US' %}
+          {% assign o_curr = 'USD' %}
+        {% else %}
+          {% assign o_curr = shop_curr %}
+        {% endif %}
       {% endif %}
+      {% assign o_curr = o_curr | upcase %}
+
+      {% if ord.total_price_set.presentment_money.amount != blank %}
+        {% assign o_amt = ord.total_price_set.presentment_money.amount | plus: 0 %}
+      {% else %}
+        {% assign o_amt = ord.total_price | money_without_currency | remove: ',' | plus: 0 %}
+      {% endif %}
+
+      {% if ord.total_price_set.shop_money.amount != blank %}
+        {% assign o_shop_amt = ord.total_price_set.shop_money.amount | plus: 0 %}
+        {% assign shop_total_calc = shop_total_calc | plus: o_shop_amt %}
+      {% endif %}
+
+      {% unless seen_currencies contains o_curr %}
+        {% assign seen_currencies = seen_currencies | append: o_curr | append: ',' %}
+        {% assign num_currencies = num_currencies | plus: 1 %}
+      {% endunless %}
+
+      {% case o_curr %}
+        {% when 'INR' %}
+          {% assign inr_total = inr_total | plus: o_amt %}
+          {% assign inr_count = inr_count | plus: 1 %}
+        {% when 'USD' %}
+          {% assign usd_total = usd_total | plus: o_amt %}
+          {% assign usd_count = usd_count | plus: 1 %}
+        {% when 'GBP' %}
+          {% assign gbp_total = gbp_total | plus: o_amt %}
+          {% assign gbp_count = gbp_count | plus: 1 %}
+        {% when 'EUR' %}
+          {% assign eur_total = eur_total | plus: o_amt %}
+          {% assign eur_count = eur_count | plus: 1 %}
+        {% when 'CAD' %}
+          {% assign cad_total = cad_total | plus: o_amt %}
+          {% assign cad_count = cad_count | plus: 1 %}
+        {% when 'AUD' %}
+          {% assign aud_total = aud_total | plus: o_amt %}
+          {% assign aud_count = aud_count | plus: 1 %}
+        {% when 'AED' %}
+          {% assign aed_total = aed_total | plus: o_amt %}
+          {% assign aed_count = aed_count | plus: 1 %}
+        {% else %}
+          {% assign other_total = other_total | plus: o_amt %}
+          {% assign other_count = other_count | plus: 1 %}
+          {% assign other_curr_code = o_curr %}
+      {% endcase %}
     {% endfor %}
-    {% if total_spent_calc > 0 %}
-      {% assign final_spent = cust_symbol | append: total_spent_calc %}
-    {% elsif customer.total_spent > 0 %}
-      {% assign raw_spent = customer.total_spent | money_without_currency %}
-      {% assign final_spent = cust_symbol | append: raw_spent %}
+
+    {% if shop_total_calc > 0 %}
+      {% assign unified_shop_amt = shop_total_calc %}
+    {% elsif shop_total_cents > 0 %}
+      {% assign unified_shop_amt = shop_total_cents | money_without_currency | remove: ',' | plus: 0 %}
     {% else %}
-      {% assign final_spent = cust_symbol | append: "0.00" %}
+      {% assign unified_shop_amt = 0 %}
     {% endif %}
+
+    <!-- Determine Active Display Currency & Amount -->
+    {% assign disp_curr = active_market_curr %}
+    {% assign disp_amt = 0 %}
+    {% assign disp_sym = '$' %}
+    {% assign disp_sub = 'Total spent' %}
+
+    {% if num_currencies == 0 %}
+      {% assign disp_curr = active_market_curr %}
+      {% assign disp_amt = 0 %}
+      {% case disp_curr %}
+        {% when 'INR' %}{% assign disp_sym = '₹' %}
+        {% when 'GBP' %}{% assign disp_sym = '£' %}
+        {% when 'USD' %}{% assign disp_sym = '$' %}
+        {% when 'EUR' %}{% assign disp_sym = '€' %}
+        {% else %}{% assign disp_sym = disp_curr | append: ' ' %}
+      {% endcase %}
+      {% assign disp_sub = 'No orders yet' %}
+
+    {% elsif num_currencies == 1 %}
+      {% if inr_count > 0 %}
+        {% assign disp_curr = 'INR' %}{% assign disp_sym = '₹' %}{% assign disp_amt = inr_total %}
+      {% elsif usd_count > 0 %}
+        {% assign disp_curr = 'USD' %}{% assign disp_sym = '$' %}{% assign disp_amt = usd_total %}
+      {% elsif gbp_count > 0 %}
+        {% assign disp_curr = 'GBP' %}{% assign disp_sym = '£' %}{% assign disp_amt = gbp_total %}
+      {% elsif eur_count > 0 %}
+        {% assign disp_curr = 'EUR' %}{% assign disp_sym = '€' %}{% assign disp_amt = eur_total %}
+      {% elsif cad_count > 0 %}
+        {% assign disp_curr = 'CAD' %}{% assign disp_sym = 'CA$' %}{% assign disp_amt = cad_total %}
+      {% elsif aud_count > 0 %}
+        {% assign disp_curr = 'AUD' %}{% assign disp_sym = 'AU$' %}{% assign disp_amt = aud_total %}
+      {% elsif aed_count > 0 %}
+        {% assign disp_curr = 'AED' %}{% assign disp_sym = 'AED ' %}{% assign disp_amt = aed_total %}
+      {% else %}
+        {% assign disp_curr = other_curr_code %}{% assign disp_sym = other_curr_code | append: ' ' %}{% assign disp_amt = other_total %}
+      {% endif %}
+      {% assign disp_sub = 'Total spent' %}
+
+    {% else %}
+      <!-- Multi-Currency User -->
+      {% if active_market_curr == 'INR' and inr_count > 0 %}
+        {% assign disp_curr = 'INR' %}{% assign disp_sym = '₹' %}{% assign disp_amt = inr_total %}
+        {% assign disp_sub = 'India Market (' | append: inr_count | append: ' orders)' %}
+      {% elsif active_market_curr == 'USD' and usd_count > 0 %}
+        {% assign disp_curr = 'USD' %}{% assign disp_sym = '$' %}{% assign disp_amt = usd_total %}
+        {% assign disp_sub = 'US Market (' | append: usd_count | append: ' orders)' %}
+      {% elsif active_market_curr == 'GBP' and gbp_count > 0 %}
+        {% assign disp_curr = 'GBP' %}{% assign disp_sym = '£' %}{% assign disp_amt = gbp_total %}
+        {% assign disp_sub = 'UK Market (' | append: gbp_count | append: ' orders)' %}
+      {% elsif inr_count > 0 %}
+        {% assign disp_curr = 'INR' %}{% assign disp_sym = '₹' %}{% assign disp_amt = inr_total %}
+        {% assign disp_sub = 'India Market (' | append: inr_count | append: ' orders)' %}
+      {% elsif usd_count > 0 %}
+        {% assign disp_curr = 'USD' %}{% assign disp_sym = '$' %}{% assign disp_amt = usd_total %}
+        {% assign disp_sub = 'US Market (' | append: usd_count | append: ' orders)' %}
+      {% else %}
+        {% assign disp_curr = shop_curr %}{% assign disp_sym = shop_sym %}{% assign disp_amt = unified_shop_amt %}
+        {% assign disp_sub = 'Combined (' | append: num_currencies | append: ' markets)' %}
+      {% endif %}
+    {% endif %}
+
+    {% assign final_spent = disp_sym | append: disp_amt %}
+
     <script id="amolih-customer-data" type="application/json">
       {
         "id": {{ customer.id | json }},
@@ -120,9 +272,48 @@
         "email": {{ customer.email | json }},
         "phone": {{ customer.phone | json }},
         "ordersCount": {{ customer.orders_count | default: 0 }},
-        "currency": {{ cust_curr | json }},
-        "currencySymbol": {{ cust_symbol | json }},
+        "currency": {{ disp_curr | json }},
+        "currencySymbol": {{ disp_sym | json }},
         "totalSpent": {{ final_spent | json }},
+        "rawTotalSpent": {{ disp_amt | json }},
+        "multiCurrency": {% if num_currencies > 1 %}true{% else %}false{% endif %},
+        "currenciesCount": {{ num_currencies }},
+        "currencyBreakdown": [
+          {% assign comma_needed = false %}
+          {% if inr_count > 0 %}
+            { "currency": "INR", "symbol": "₹", "amount": {{ inr_total }}, "count": {{ inr_count }}, "label": "India (INR)" }
+            {% assign comma_needed = true %}
+          {% endif %}
+          {% if usd_count > 0 %}
+            {% if comma_needed %},{% endif %}
+            { "currency": "USD", "symbol": "$", "amount": {{ usd_total }}, "count": {{ usd_count }}, "label": "United States (USD)" }
+            {% assign comma_needed = true %}
+          {% endif %}
+          {% if gbp_count > 0 %}
+            {% if comma_needed %},{% endif %}
+            { "currency": "GBP", "symbol": "£", "amount": {{ gbp_total }}, "count": {{ gbp_count }}, "label": "United Kingdom (GBP)" }
+            {% assign comma_needed = true %}
+          {% endif %}
+          {% if eur_count > 0 %}
+            {% if comma_needed %},{% endif %}
+            { "currency": "EUR", "symbol": "€", "amount": {{ eur_total }}, "count": {{ eur_count }}, "label": "Europe (EUR)" }
+            {% assign comma_needed = true %}
+          {% endif %}
+          {% if cad_count > 0 %}
+            {% if comma_needed %},{% endif %}
+            { "currency": "CAD", "symbol": "CA$", "amount": {{ cad_total }}, "count": {{ cad_count }}, "label": "Canada (CAD)" }
+            {% assign comma_needed = true %}
+          {% endif %}
+          {% if aud_count > 0 %}
+            {% if comma_needed %},{% endif %}
+            { "currency": "AUD", "symbol": "AU$", "amount": {{ aud_total }}, "count": {{ aud_count }}, "label": "Australia (AUD)" }
+            {% assign comma_needed = true %}
+          {% endif %}
+          {% if aed_count > 0 %}
+            {% if comma_needed %},{% endif %}
+            { "currency": "AED", "symbol": "AED ", "amount": {{ aed_total }}, "count": {{ aed_count }}, "label": "UAE (AED)" }
+          {% endif %}
+        ],
         "defaultAddress": {
           "address1": {{ customer.default_address.address1 | json }},
           "address2": {{ customer.default_address.address2 | json }},
@@ -150,13 +341,15 @@
         "orders": [
           {% for order in customer.orders limit: 50 %}
             {% assign order_curr = order.total_price_set.presentment_money.currency_code | default: order.currency %}
-            {% if order_curr == blank or order_curr == 'USD' %}
-              {% if order.shipping_address.country_code == 'IN' or order.billing_address.country_code == 'IN' or customer.default_address.country_code == 'IN' or customer.default_address.country == 'India' %}
+            {% if order_curr == blank %}
+              {% if order.shipping_address.country_code == 'IN' or order.billing_address.country_code == 'IN' %}
                 {% assign order_curr = 'INR' %}
-              {% elsif order.shipping_address.country_code == 'GB' or order.billing_address.country_code == 'GB' or order.shipping_address.country_code == 'UK' or customer.default_address.country_code == 'GB' or customer.default_address.country == 'United Kingdom' %}
+              {% elsif order.shipping_address.country_code == 'GB' or order.billing_address.country_code == 'GB' or order.shipping_address.country_code == 'UK' %}
                 {% assign order_curr = 'GBP' %}
-              {% elsif order.shipping_address.country_code == 'US' or order.billing_address.country_code == 'US' or customer.default_address.country_code == 'US' or customer.default_address.country == 'United States' %}
+              {% elsif order.shipping_address.country_code == 'US' or order.billing_address.country_code == 'US' %}
                 {% assign order_curr = 'USD' %}
+              {% else %}
+                {% assign order_curr = shop.currency | default: 'USD' %}
               {% endif %}
             {% endif %}
             {% assign order_curr = order_curr | default: 'USD' | upcase %}
