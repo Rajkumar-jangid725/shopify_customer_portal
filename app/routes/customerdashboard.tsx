@@ -640,8 +640,8 @@ function renderDashboardHtml({
       const href = external
         ? escapeHtml(resolveExternalHref(item, supportUrl))
         : escapeHtml(
-            `${pathPrefix}?tab=${encodeURIComponent(item.destination || "details")}`,
-          );
+          `${pathPrefix}?tab=${encodeURIComponent(item.destination || "details")}`,
+        );
       const target = item.openInNewTab ? ' target="_blank" rel="noopener"' : "";
       const badge = renderMenuBadge(destination, item.badgeText);
 
@@ -1396,6 +1396,255 @@ ${googleFontLink}
     font-weight: 500;
   }
 
+  /* In-App Invoice View (Custlo Reference Standard) */
+  .amolih-order-invoice-detail {
+    margin-top: 0.5rem;
+    display: none;
+  }
+  .amolih-order-invoice-detail.is-active {
+    display: block !important;
+  }
+  .amolih-invoice-nav-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.25rem;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .amolih-invoice-paper {
+    background: #FFFFFF;
+    border: 1px solid var(--amolih-border);
+    border-radius: var(--amolih-radius);
+    padding: 2.25rem;
+    box-shadow: var(--amolih-shadow);
+    color: var(--amolih-text);
+    position: relative;
+  }
+  @media (max-width: 640px) {
+    .amolih-invoice-paper {
+      padding: 1.25rem 1rem;
+    }
+  }
+  .amolih-invoice-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 1.25rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--amolih-gold-border);
+  }
+  .amolih-invoice-brand {
+    font-family: var(--amolih-heading-font);
+    font-size: 2.2rem;
+    font-weight: 400;
+    color: var(--amolih-primary);
+    letter-spacing: 0.06em;
+    line-height: 1.1;
+  }
+  .amolih-invoice-brand-sub {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--amolih-gold-dark);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    margin-top: 3px;
+  }
+  .amolih-invoice-meta-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+    gap: 1.25rem;
+    margin: 1.5rem 0;
+    padding: 1.25rem;
+    background: #FAF7F2;
+    border: 1px solid var(--amolih-border);
+    border-radius: var(--amolih-radius-sm);
+  }
+  .amolih-invoice-meta-title {
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--amolih-gold-dark);
+    margin-bottom: 0.45rem;
+    font-family: var(--amolih-font-modern);
+  }
+  .amolih-invoice-meta-body {
+    font-size: 0.86rem;
+    color: var(--amolih-text);
+    line-height: 1.5;
+  }
+  .amolih-invoice-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+    margin: 1.5rem 0;
+  }
+  .amolih-invoice-table th {
+    background: #FAF7F2;
+    border-top: 1px solid var(--amolih-border);
+    border-bottom: 1px solid var(--amolih-border);
+    padding: 0.75rem 0.85rem;
+    font-size: 0.74rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--amolih-gold-dark);
+    font-family: var(--amolih-font-modern);
+  }
+  .amolih-invoice-table td {
+    padding: 0.95rem 0.85rem;
+    border-bottom: 1px solid var(--amolih-border-light);
+    font-size: 0.9rem;
+    vertical-align: middle;
+  }
+  .amolih-invoice-calc-box {
+    width: 100%;
+    max-width: 380px;
+    background: #FAF7F2;
+    border: 1px solid var(--amolih-border);
+    border-radius: var(--amolih-radius-sm);
+    padding: 1.25rem;
+  }
+  .amolih-invoice-calc-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.86rem;
+    color: var(--amolih-text-muted);
+    margin-bottom: 0.5rem;
+  }
+  .amolih-invoice-calc-total {
+    border-top: 1px solid var(--amolih-gold-border);
+    padding-top: 0.65rem;
+    margin-top: 0.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+  }
+
+  @media print {
+    @page {
+      size: portrait;
+      margin: 10mm 12mm;
+    }
+    html, body {
+      background: #FFFFFF !important;
+      color: #000000 !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      height: auto !important;
+      min-height: 0 !important;
+    }
+    /* Hide ALL theme and page elements */
+    header, footer, nav, aside,
+    .header, .footer, .announcement-bar,
+    #shopify-section-header, #shopify-section-footer, .shopify-section,
+    .amolih-sidebar, #amolih-sidebar,
+    .amolih-hero-banner,
+    .amolih-nav-menu,
+    .amolih-nav-scroll-wrapper,
+    .amolih-sidebar-profile,
+    .amolih-sidebar-logout,
+    .amolih-mobile-nav,
+    .amolih-mobile-footer-strip,
+    .amolih-panel-header,
+    .amolih-divider,
+    #amolih-orders-list-view,
+    .amolih-invoice-nav-bar,
+    .amolih-btn-sm,
+    .amolih-button,
+    .amolih-button-secondary {
+      display: none !important;
+    }
+    #amolih-portal-container,
+    .amolih-dashboard,
+    .amolih-layout,
+    .amolih-main-pane,
+    .amolih-main-content,
+    .amolih-panel {
+      display: block !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      border: none !important;
+      background: transparent !important;
+      box-shadow: none !important;
+      max-width: 100% !important;
+      width: 100% !important;
+    }
+    .amolih-order-invoice-detail {
+      display: none !important;
+    }
+    .amolih-order-invoice-detail.is-active {
+      display: block !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      width: 100% !important;
+    }
+    .amolih-invoice-paper {
+      box-shadow: none !important;
+      border: 1px solid #D1D5DB !important;
+      border-radius: 6px !important;
+      padding: 16px 18px !important;
+      margin: 0 !important;
+      width: 100% !important;
+      max-width: 100% !important;
+      page-break-inside: avoid;
+    }
+    .amolih-invoice-header {
+      padding-bottom: 10px !important;
+    }
+    .amolih-invoice-brand {
+      font-size: 24px !important;
+    }
+    .amolih-invoice-meta-grid {
+      margin: 10px 0 !important;
+      padding: 8px 12px !important;
+      gap: 10px !important;
+      background: #F9FAFB !important;
+      border: 1px solid #E5E7EB !important;
+    }
+    .amolih-invoice-meta-title {
+      font-size: 9px !important;
+      margin-bottom: 2px !important;
+    }
+    .amolih-invoice-meta-body {
+      font-size: 11px !important;
+      line-height: 1.35 !important;
+    }
+    .amolih-invoice-table {
+      margin: 10px 0 !important;
+    }
+    .amolih-invoice-table th {
+      padding: 6px 8px !important;
+      font-size: 10px !important;
+      background: #F3F4F6 !important;
+    }
+    .amolih-invoice-table td {
+      padding: 6px 8px !important;
+      font-size: 11px !important;
+    }
+    .amolih-invoice-calc-box {
+      padding: 8px 12px !important;
+      max-width: 290px !important;
+      background: #F9FAFB !important;
+      border: 1px solid #E5E7EB !important;
+    }
+    .amolih-invoice-calc-row {
+      margin-bottom: 3px !important;
+      font-size: 11px !important;
+    }
+    .amolih-invoice-calc-total {
+      padding-top: 4px !important;
+      margin-top: 3px !important;
+    }
+    .amolih-invoice-footer-strip {
+      margin-top: 10px !important;
+      padding-top: 8px !important;
+    }
+  }
+
   /* Luxury Buttons */
   .amolih-button {
     display: inline-flex;
@@ -1809,6 +2058,297 @@ ${googleFontLink}
         el.textContent = sym + formattedNum;
       }
     });
+
+    // 6. Custlo-Style In-App Invoice Navigation & Print Logic (Robust Delegated Architecture)
+    function findInvoiceElement(orderId, orderName, orderIndex, clickedBtn) {
+      var cleanId = (orderId || "").toString().trim();
+      var cleanName = (orderName || "").toString().trim();
+      var cleanIdx = (orderIndex || "").toString().trim();
+      var digitsTarget = cleanId.replace(/\D/g, "");
+
+      var target = null;
+
+      // 1. If clicked button is passed, directly grab sibling invoice view
+      if (clickedBtn && clickedBtn.closest) {
+        var card = clickedBtn.closest(".amolih-order-card");
+        if (card) {
+          var next = card.nextElementSibling;
+          while (next) {
+            if (next.classList && next.classList.contains("amolih-order-invoice-detail")) {
+              target = next;
+              break;
+            }
+            next = next.nextElementSibling;
+          }
+        }
+      }
+
+      // 2. Direct ID or data attribute lookup
+      if (!target && cleanId) {
+        target = document.getElementById("amolih-invoice-view-" + cleanId) ||
+                 document.querySelector('.amolih-order-invoice-detail[data-order-id="' + cleanId + '"]') ||
+                 document.querySelector('.amolih-order-invoice-detail[id*="' + cleanId + '"]');
+      }
+      if (!target && digitsTarget) {
+        target = document.querySelector('.amolih-order-invoice-detail[data-order-number="' + digitsTarget + '"]') ||
+                 document.querySelector('.amolih-order-invoice-detail[data-order-name*="' + digitsTarget + '"]');
+      }
+      if (!target && cleanName) {
+        target = document.querySelector('.amolih-order-invoice-detail[data-order-name="' + cleanName + '"]');
+      }
+      if (!target && cleanIdx) {
+        target = document.querySelector('.amolih-order-invoice-detail[data-order-index="' + cleanIdx + '"]');
+      }
+      if (!target) {
+        var allInvoices = document.querySelectorAll(".amolih-order-invoice-detail");
+        if (allInvoices.length === 1) {
+          target = allInvoices[0];
+        } else if (cleanIdx) {
+          var num = parseInt(cleanIdx, 10);
+          if (!isNaN(num) && allInvoices[num - 1]) target = allInvoices[num - 1];
+        }
+      }
+      if (!target && clickedBtn) {
+        var allBtns = Array.prototype.slice.call(document.querySelectorAll(".amolih-btn-view-invoice"));
+        var btnIdx = allBtns.indexOf(clickedBtn);
+        var allInv = document.querySelectorAll(".amolih-order-invoice-detail");
+        if (btnIdx >= 0 && allInv[btnIdx]) target = allInv[btnIdx];
+      }
+      if (!target) {
+        target = document.querySelector(".amolih-order-invoice-detail");
+      }
+      return target;
+    }
+
+    function showInvoiceDetail(orderId, orderName, orderIndex, clickedBtn) {
+      var target = findInvoiceElement(orderId, orderName, orderIndex, clickedBtn);
+
+      if (target) {
+        // Hide all order cards so only the invoice is displayed
+        document.querySelectorAll(".amolih-order-card").forEach(function(card) {
+          card.style.setProperty("display", "none", "important");
+        });
+        // Hide any other active invoices
+        document.querySelectorAll(".amolih-order-invoice-detail").forEach(function(el) {
+          el.style.setProperty("display", "none", "important");
+          el.classList.remove("is-active");
+        });
+        // Display the selected invoice
+        target.style.setProperty("display", "block", "important");
+        target.classList.add("is-active");
+
+        var ordersContainer = document.getElementById("amolih-orders-container") || document.getElementById("amolih-orders-list-view");
+        if (ordersContainer) ordersContainer.classList.add("in-invoice-mode");
+
+        window.scrollTo({ top: target.offsetTop - 30, behavior: "smooth" });
+
+        var ref = (orderId || orderName || orderIndex || "").toString().trim();
+        if (ref) {
+          try {
+            history.pushState({ invoiceOrderId: ref }, "", "#invoice-" + encodeURIComponent(ref));
+          } catch(e) {}
+        }
+      }
+    }
+
+    function hideInvoiceDetail() {
+      // Hide all invoices
+      document.querySelectorAll(".amolih-order-invoice-detail").forEach(function(el) {
+        el.style.setProperty("display", "none", "important");
+        el.classList.remove("is-active");
+      });
+      // Restore all order cards
+      document.querySelectorAll(".amolih-order-card").forEach(function(card) {
+        card.style.setProperty("display", "block", "important");
+      });
+
+      var ordersContainer = document.getElementById("amolih-orders-container") || document.getElementById("amolih-orders-list-view");
+      if (ordersContainer) ordersContainer.classList.remove("in-invoice-mode");
+
+      window.scrollTo({ top: 0, behavior: "smooth" });
+
+      try {
+        var cleanUrl = window.location.pathname + window.location.search.replace(/[?&]invoice=[^&]*/g, "");
+        history.pushState(null, "", cleanUrl);
+      } catch(e) {}
+    }
+
+    function printOrderInvoice(orderId, orderIndex) {
+      var cleanId = (orderId || "").toString().trim();
+      var cleanIdx = (orderIndex || "").toString().trim();
+      var docEl = null;
+
+      if (cleanId) {
+        docEl = document.getElementById("amolih-invoice-doc-" + cleanId) ||
+                document.querySelector('.amolih-invoice-paper[data-order-id="' + cleanId + '"]');
+      }
+      if (!docEl && cleanIdx) {
+        docEl = document.querySelector('.amolih-invoice-paper[data-order-index="' + cleanIdx + '"]');
+      }
+      if (!docEl) {
+        docEl = document.querySelector(".amolih-order-invoice-detail.is-active .amolih-invoice-paper") ||
+                document.querySelector(".amolih-invoice-paper");
+      }
+
+      if (!docEl) {
+        window.print();
+        return;
+      }
+
+      var orderName = docEl.getAttribute("data-order-name") || ("#" + (cleanId || "Invoice"));
+      var iframe = document.getElementById("amolih-print-iframe");
+      if (!iframe) {
+        iframe = document.createElement("iframe");
+        iframe.id = "amolih-print-iframe";
+        iframe.style.position = "fixed";
+        iframe.style.top = "-9999px";
+        iframe.style.left = "-9999px";
+        iframe.style.width = "0px";
+        iframe.style.height = "0px";
+        iframe.style.border = "none";
+        document.body.appendChild(iframe);
+      }
+      var iframeDoc = iframe.contentWindow || iframe.contentDocument;
+      if (iframeDoc.document) iframeDoc = iframeDoc.document;
+
+      var printStyles = "" +
+        "@page { size: portrait; margin: 10mm 12mm; }\n" +
+        "* { box-sizing: border-box; -webkit-print-color-adjust: exact; print-color-adjust: exact; }\n" +
+        "html, body { margin: 0; padding: 0; background: #FFFFFF !important; color: #1A1A1A; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 11px; line-height: 1.35; }\n" +
+        ".amolih-invoice-paper { box-sizing: border-box; border: 1px solid #D5C7B2 !important; border-radius: 6px !important; padding: 16px 20px !important; background: #FFFFFF !important; max-width: 100% !important; width: 100% !important; margin: 0 !important; box-shadow: none !important; }\n" +
+        ".amolih-invoice-header { display: flex; justify-content: space-between; align-items: flex-start; padding-bottom: 10px !important; border-bottom: 1px solid rgba(197, 168, 128, 0.4) !important; margin-bottom: 10px !important; }\n" +
+        ".amolih-invoice-brand { font-family: 'Bellefair', Georgia, serif; font-size: 24px !important; color: #355E59 !important; letter-spacing: 0.05em; line-height: 1.1; }\n" +
+        ".amolih-invoice-meta-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px !important; margin: 10px 0 !important; padding: 8px 12px !important; background: #FAF7F2 !important; border: 1px solid #E8E3DD !important; border-radius: 6px !important; }\n" +
+        ".amolih-invoice-meta-title { font-size: 9px !important; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: #A8895E !important; margin-bottom: 2px !important; }\n" +
+        ".amolih-invoice-meta-body { font-size: 10.5px !important; line-height: 1.35 !important; color: #475569 !important; }\n" +
+        ".amolih-invoice-table { width: 100%; border-collapse: collapse; margin: 10px 0 !important; }\n" +
+        ".amolih-invoice-table th { background: #FAF7F2 !important; border-top: 1px solid #E8E3DD !important; border-bottom: 1px solid #E8E3DD !important; padding: 5px 8px !important; font-size: 9.5px !important; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #A8895E !important; }\n" +
+        ".amolih-invoice-table td { padding: 5px 8px !important; border-bottom: 1px solid #F1EDE8 !important; font-size: 10.5px !important; vertical-align: middle; }\n" +
+        ".amolih-status-pill { display: inline-block; padding: 2px 7px; border-radius: 999px; font-size: 9px; font-weight: 600; line-height: 1.3; }\n" +
+        ".amolih-status-pill.paid, .amolih-status-pill.fulfilled { background: #EBF8F1 !important; color: #14532D !important; border: 1px solid #BBF7D0 !important; }\n" +
+        ".amolih-status-pill.unfulfilled { background: #FEF9EE !important; color: #854D0E !important; border: 1px solid #FDE68A !important; }\n" +
+        ".amolih-invoice-calc-box { width: 100%; max-width: 290px; background: #FAF7F2 !important; border: 1px solid #E8E3DD !important; border-radius: 6px !important; padding: 8px 12px !important; page-break-inside: avoid; break-inside: avoid; }\n" +
+        ".amolih-invoice-calc-row { display: flex; justify-content: space-between; font-size: 10.5px; color: #475569; margin-bottom: 3px; }\n" +
+        ".amolih-invoice-calc-total { border-top: 1px solid rgba(197, 168, 128, 0.4); padding-top: 4px; margin-top: 3px; display: flex; justify-content: space-between; align-items: baseline; }\n" +
+        ".amolih-invoice-footer-strip { border-top: 1px dashed rgba(197, 168, 128, 0.4); padding-top: 8px !important; margin-top: 10px !important; display: flex; justify-content: space-between; align-items: center; font-size: 9.5px; color: #64748B; page-break-inside: avoid; break-inside: avoid; }\n";
+
+      iframeDoc.open();
+      iframeDoc.write('<!DOCTYPE html><html><head><meta charset="utf-8"/><title>Invoice - ' + orderName + ' - Amolih</title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Bellefair&family=Cormorant+Garamond:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"><style>' + printStyles + '</style></head><body>' + docEl.outerHTML + '</body></html>');
+      iframeDoc.close();
+
+      setTimeout(function() {
+        try {
+          iframe.contentWindow.focus();
+          iframe.contentWindow.print();
+        } catch(err) {
+          window.print();
+        }
+      }, 300);
+    }
+
+    // Expose functions globally for direct inline onclick invocations
+    window.showInvoiceDetail = showInvoiceDetail;
+    window.hideInvoiceDetail = hideInvoiceDetail;
+    window.printOrderInvoice = printOrderInvoice;
+
+    // Direct button listener binder
+    function amolihBindButtons() {
+      document.querySelectorAll(".amolih-btn-view-invoice").forEach(function(btn) {
+        btn.onclick = function(e) {
+          if (e) { e.preventDefault(); e.stopPropagation(); }
+          var orderId = this.getAttribute("data-order-id");
+          var orderName = this.getAttribute("data-order-name");
+          var orderIndex = this.getAttribute("data-order-index");
+          showInvoiceDetail(orderId, orderName, orderIndex, this);
+          return false;
+        };
+      });
+      document.querySelectorAll(".amolih-btn-back-to-orders").forEach(function(btn) {
+        btn.onclick = function(e) {
+          if (e) { e.preventDefault(); e.stopPropagation(); }
+          hideInvoiceDetail();
+          return false;
+        };
+      });
+      document.querySelectorAll(".amolih-btn-print-invoice").forEach(function(btn) {
+        btn.onclick = function(e) {
+          if (e) { e.preventDefault(); e.stopPropagation(); }
+          var orderId = this.getAttribute("data-order-id");
+          var orderIndex = this.getAttribute("data-order-index");
+          printOrderInvoice(orderId, orderIndex);
+          return false;
+        };
+      });
+    }
+
+    amolihBindButtons();
+    document.addEventListener("DOMContentLoaded", amolihBindButtons);
+    setTimeout(amolihBindButtons, 100);
+    setTimeout(amolihBindButtons, 500);
+
+    // Delegated Global Event Listeners in CAPTURE phase (prevents theme scripts from blocking click)
+    document.addEventListener("click", function(e) {
+      var el = e.target;
+      if (el && el.nodeType === 3) el = el.parentElement;
+      if (!el || !el.closest) return;
+
+      var viewBtn = el.closest(".amolih-btn-view-invoice");
+      if (viewBtn) {
+        if (e.preventDefault) e.preventDefault();
+        if (e.stopPropagation) e.stopPropagation();
+        var orderId = viewBtn.getAttribute("data-order-id");
+        var orderName = viewBtn.getAttribute("data-order-name");
+        var orderIndex = viewBtn.getAttribute("data-order-index");
+        showInvoiceDetail(orderId, orderName, orderIndex, viewBtn);
+        return false;
+      }
+
+      var backBtn = el.closest(".amolih-btn-back-to-orders");
+      if (backBtn) {
+        if (e.preventDefault) e.preventDefault();
+        if (e.stopPropagation) e.stopPropagation();
+        hideInvoiceDetail();
+        return false;
+      }
+
+      var printBtn = el.closest(".amolih-btn-print-invoice");
+      if (printBtn) {
+        if (e.preventDefault) e.preventDefault();
+        if (e.stopPropagation) e.stopPropagation();
+        var orderId = printBtn.getAttribute("data-order-id");
+        var orderIndex = printBtn.getAttribute("data-order-index");
+        printOrderInvoice(orderId, orderIndex);
+        return false;
+      }
+    }, true);
+
+    function checkInvoiceHash() {
+      if (window.location.hash && window.location.hash.indexOf("#invoice-") === 0) {
+        var hashVal = decodeURIComponent(window.location.hash.replace("#invoice-", "")).trim();
+        showInvoiceDetail(hashVal, hashVal, hashVal);
+      } else {
+        var urlParams = new URLSearchParams(window.location.search);
+        var qOrderId = urlParams.get("order_id") || urlParams.get("invoice");
+        if (qOrderId) {
+          showInvoiceDetail(qOrderId, qOrderId, qOrderId);
+        }
+      }
+    }
+
+    window.addEventListener("hashchange", checkInvoiceHash);
+    window.addEventListener("popstate", function() {
+      if (window.location.hash && window.location.hash.indexOf("#invoice-") === 0) {
+        checkInvoiceHash();
+      } else {
+        hideInvoiceDetail();
+      }
+    });
+
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", checkInvoiceHash);
+    } else {
+      setTimeout(checkInvoiceHash, 60);
+    }
   })();
 </script>`;
 }
@@ -1823,10 +2363,179 @@ function renderPanelLiquid(
   // 1. ORDERS HISTORY (MODERN LUXURY VIEWS)
   if (activeTab === "orders") {
     return `<div class="amolih-panel">
+  <script>
+    (function() {
+      window.showInvoiceDetail = function(orderId, orderName, orderIndex, clickedBtn) {
+        var cleanId = (orderId || "").toString().trim();
+        var cleanName = (orderName || "").toString().trim();
+        var cleanIdx = (orderIndex || "").toString().trim();
+        var digitsTarget = cleanId.replace(/\\D/g, "") || cleanName.replace(/\\D/g, "");
+
+        var target = null;
+
+        // 1. Sibling traversal from button
+        if (clickedBtn && clickedBtn.closest) {
+          var card = clickedBtn.closest(".amolih-order-card");
+          if (card) {
+            var next = card.nextElementSibling;
+            while (next) {
+              if (next.classList && next.classList.contains("amolih-order-invoice-detail")) {
+                target = next;
+                break;
+              }
+              next = next.nextElementSibling;
+            }
+          }
+        }
+
+        // 2. Direct ID or data attribute lookup
+        if (!target && cleanId) {
+          target = document.getElementById("amolih-invoice-view-" + cleanId) ||
+                   document.querySelector('.amolih-order-invoice-detail[data-order-id="' + cleanId + '"]') ||
+                   document.querySelector('.amolih-order-invoice-detail[id*="' + cleanId + '"]');
+        }
+        if (!target && digitsTarget) {
+          target = document.querySelector('.amolih-order-invoice-detail[data-order-number="' + digitsTarget + '"]') ||
+                   document.querySelector('.amolih-order-invoice-detail[data-order-name*="' + digitsTarget + '"]') ||
+                   document.querySelector('.amolih-order-invoice-detail[id*="' + digitsTarget + '"]');
+        }
+        if (!target && cleanName) {
+          target = document.querySelector('.amolih-order-invoice-detail[data-order-name="' + cleanName + '"]');
+        }
+        if (!target && cleanIdx) {
+          target = document.querySelector('.amolih-order-invoice-detail[data-order-index="' + cleanIdx + '"]');
+        }
+        if (!target) {
+          var allInvoices = document.querySelectorAll(".amolih-order-invoice-detail");
+          if (allInvoices.length === 1) {
+            target = allInvoices[0];
+          } else if (cleanIdx) {
+            var num = parseInt(cleanIdx, 10);
+            if (!isNaN(num) && allInvoices[num - 1]) target = allInvoices[num - 1];
+          }
+        }
+        if (!target && clickedBtn) {
+          var allBtns = Array.prototype.slice.call(document.querySelectorAll(".amolih-btn-view-invoice"));
+          var bIdx = allBtns.indexOf(clickedBtn);
+          var allInv = document.querySelectorAll(".amolih-order-invoice-detail");
+          if (bIdx >= 0 && allInv[bIdx]) target = allInv[bIdx];
+        }
+        if (!target) {
+          target = document.querySelector(".amolih-order-invoice-detail");
+        }
+
+        if (target) {
+          // Hide all order cards so only the invoice is displayed
+          document.querySelectorAll(".amolih-order-card").forEach(function(c) {
+            c.style.setProperty("display", "none", "important");
+          });
+          // Hide any other active invoices
+          document.querySelectorAll(".amolih-order-invoice-detail").forEach(function(el) {
+            el.style.setProperty("display", "none", "important");
+            el.classList.remove("is-active");
+          });
+          // Display the selected invoice
+          target.style.setProperty("display", "block", "important");
+          target.classList.add("is-active");
+
+          window.scrollTo({ top: target.offsetTop - 30, behavior: "smooth" });
+
+          var ref = (cleanName || digitsTarget || cleanId || cleanIdx).toString().trim();
+          if (ref) {
+            try { history.pushState({ invoiceOrderId: ref }, "", "#invoice-" + encodeURIComponent(ref)); } catch(e) {}
+          }
+        }
+      };
+
+      window.hideInvoiceDetail = function() {
+        document.querySelectorAll(".amolih-order-invoice-detail").forEach(function(el) {
+          el.style.setProperty("display", "none", "important");
+          el.classList.remove("is-active");
+        });
+        document.querySelectorAll(".amolih-order-card").forEach(function(c) {
+          c.style.setProperty("display", "block", "important");
+        });
+        window.scrollTo({ top: 0, behavior: "smooth" });
+        try {
+          var cleanUrl = window.location.pathname + window.location.search.replace(/[?&]invoice=[^&]*/g, "");
+          history.pushState(null, "", cleanUrl);
+        } catch(e) {}
+      };
+
+      function amolihBindOrderButtons() {
+        document.querySelectorAll(".amolih-btn-view-invoice").forEach(function(btn) {
+          btn.onclick = function(e) {
+            if (e) { e.preventDefault(); e.stopPropagation(); }
+            var oId = this.getAttribute("data-order-id");
+            var oName = this.getAttribute("data-order-name");
+            var oIdx = this.getAttribute("data-order-index");
+            window.showInvoiceDetail(oId, oName, oIdx, this);
+            return false;
+          };
+        });
+        document.querySelectorAll(".amolih-btn-back-to-orders").forEach(function(btn) {
+          btn.onclick = function(e) {
+            if (e) { e.preventDefault(); e.stopPropagation(); }
+            window.hideInvoiceDetail();
+            return false;
+          };
+        });
+        document.querySelectorAll(".amolih-btn-print-invoice").forEach(function(btn) {
+          btn.onclick = function(e) {
+            if (e) { e.preventDefault(); e.stopPropagation(); }
+            var oId = this.getAttribute("data-order-id");
+            var oIdx = this.getAttribute("data-order-index");
+            if (window.printOrderInvoice) window.printOrderInvoice(oId, oIdx);
+            return false;
+          };
+        });
+      }
+
+      amolihBindOrderButtons();
+      document.addEventListener("DOMContentLoaded", amolihBindOrderButtons);
+      setTimeout(amolihBindOrderButtons, 100);
+      setTimeout(amolihBindOrderButtons, 400);
+
+      document.addEventListener("click", function(e) {
+        var el = e.target;
+        if (el && el.nodeType === 3) el = el.parentElement;
+        if (!el || !el.closest) return;
+
+        var vBtn = el.closest(".amolih-btn-view-invoice");
+        if (vBtn) {
+          if (e.preventDefault) e.preventDefault();
+          if (e.stopPropagation) e.stopPropagation();
+          var oId = vBtn.getAttribute("data-order-id");
+          var oName = vBtn.getAttribute("data-order-name");
+          var oIdx = vBtn.getAttribute("data-order-index");
+          window.showInvoiceDetail(oId, oName, oIdx, vBtn);
+          return false;
+        }
+
+        var bBtn = el.closest(".amolih-btn-back-to-orders");
+        if (bBtn) {
+          if (e.preventDefault) e.preventDefault();
+          if (e.stopPropagation) e.stopPropagation();
+          window.hideInvoiceDetail();
+          return false;
+        }
+
+        var pBtn = el.closest(".amolih-btn-print-invoice");
+        if (pBtn) {
+          if (e.preventDefault) e.preventDefault();
+          if (e.stopPropagation) e.stopPropagation();
+          var oId = pBtn.getAttribute("data-order-id");
+          var oIdx = pBtn.getAttribute("data-order-index");
+          if (window.printOrderInvoice) window.printOrderInvoice(oId, oIdx);
+          return false;
+        }
+      }, true);
+    })();
+  </script>
   <div class="amolih-panel-header">
     <div>
       <h2 class="amolih-pane-title">Orders History</h2>
-      <p class="amolih-pane-subtitle">{{ customer.orders.size }} {% if customer.orders.size == 1 %}order{% else %}orders{% endif %} recorded in your Jaipur atelier archive.</p>
+      <p class="amolih-pane-subtitle">{{ customer.orders.size }} {% if customer.orders.size == 1 %}order{% else %}orders{% endif %} recorded in your account.</p>
     </div>
     {% if customer.orders.size > 0 %}
       <a href="/collections/all" class="amolih-button-secondary" style="font-size:0.84rem; padding:0.5rem 1rem;">
@@ -1841,12 +2550,131 @@ function renderPanelLiquid(
       <div style="font-size:3rem; margin-bottom:0.75rem;">💎</div>
       <h3 style="font-family:var(--amolih-heading-font); font-size:1.6rem; margin:0 0 0.5rem; font-weight:400;">Your Jewelry Box is Waiting</h3>
       <p class="amolih-pane-subtitle" style="max-width:420px; margin:0 auto 1.5rem;">
-        Explore our latest Jaipur handcrafted solitaires, bespoke charms, and personalized fine jewelry.
+        Explore our latest handcrafted fine jewelry, bespoke charms, and personalized pieces.
       </p>
-      <a href="/collections/all" class="amolih-button">Explore Atelier Collection</a>
+      <a href="/collections/all" class="amolih-button">Explore Collection</a>
     </div>
   {% else %}
-    {% for order in customer.orders %}
+    <div id="amolih-orders-list-view">
+      {% for order in customer.orders %}
+        {% assign order_curr = order.total_price_set.presentment_money.currency_code | default: order.currency %}
+        {% if order_curr == blank or order_curr == 'USD' %}
+          {% if order.shipping_address.country_code == 'IN' or order.billing_address.country_code == 'IN' or customer.default_address.country_code == 'IN' or customer.default_address.country == 'India' %}
+            {% assign order_curr = 'INR' %}
+          {% elsif order.shipping_address.country_code == 'GB' or order.billing_address.country_code == 'GB' or order.shipping_address.country_code == 'UK' or customer.default_address.country_code == 'GB' or customer.default_address.country == 'United Kingdom' %}
+            {% assign order_curr = 'GBP' %}
+          {% elsif order.shipping_address.country_code == 'US' or order.billing_address.country_code == 'US' or customer.default_address.country_code == 'US' or customer.default_address.country == 'United States' %}
+            {% assign order_curr = 'USD' %}
+          {% endif %}
+        {% endif %}
+        {% assign order_curr = order_curr | default: 'USD' | upcase %}
+        {% case order_curr %}
+          {% when 'INR' %}
+            {% assign curr_symbol = '₹' %}
+          {% when 'GBP' %}
+            {% assign curr_symbol = '£' %}
+          {% when 'USD' %}
+            {% assign curr_symbol = '$' %}
+          {% when 'EUR' %}
+            {% assign curr_symbol = '€' %}
+          {% when 'CAD' %}
+            {% assign curr_symbol = 'CA$' %}
+          {% when 'AUD' %}
+            {% assign curr_symbol = 'AU$' %}
+          {% when 'JPY' %}
+            {% assign curr_symbol = '¥' %}
+          {% when 'AED' %}
+            {% assign curr_symbol = 'AED ' %}
+          {% when 'SAR' %}
+            {% assign curr_symbol = 'SAR ' %}
+          {% else %}
+            {% assign curr_symbol = order_curr | append: ' ' %}
+        {% endcase %}
+        {% if order.total_price_set.presentment_money.amount != blank %}
+          {% assign order_total = order.total_price_set.presentment_money.amount %}
+        {% else %}
+          {% assign order_total = order.total_price | money_without_currency %}
+        {% endif %}
+
+        <article class="amolih-order-card" id="amolih-order-card-{{ order.id }}" data-order-id="{{ order.id }}" data-order-name="{{ order.name | escape }}" data-order-number="{{ order.order_number }}" data-order-index="{{ forloop.index }}" data-order-currency="{{ order_curr }}">
+          <div class="amolih-order-header">
+            <div>
+              <div class="amolih-order-name">{{ order.name | escape }}</div>
+              <div class="amolih-order-meta">
+                <span>Placed on {{ order.created_at | date: "%B %d, %Y" }}</span>
+                <span>&bull;</span>
+                <span>{{ order.line_items.size }} item{% if order.line_items.size != 1 %}s{% endif %}</span>
+              </div>
+            </div>
+            <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+              {% if order.financial_status == 'paid' %}
+                <span class="amolih-status-pill paid">● Paid</span>
+              {% else %}
+                <span class="amolih-status-pill unfulfilled">{{ order.financial_status | escape }}</span>
+              {% endif %}
+              {% if order.fulfillment_status == 'fulfilled' %}
+                <span class="amolih-status-pill fulfilled">● Fulfilled</span>
+              {% else %}
+                <span class="amolih-status-pill unfulfilled">● {{ order.fulfillment_status | default: "Processing" | escape }}</span>
+              {% endif %}
+            </div>
+          </div>
+
+          <div style="display:flex; justify-content:space-between; align-items:center; margin:0.75rem 0 0.5rem; flex-wrap:wrap; gap:8px;">
+            <div style="font-size:0.78rem; text-transform:uppercase; letter-spacing:0.08em; color:var(--amolih-gold-dark); font-weight:600;">
+              Order Investment Total
+            </div>
+            <div class="amolih-order-total-price" style="font-family:var(--amolih-heading-font); font-size:1.45rem; font-weight:400; color:var(--amolih-primary);" data-currency="{{ order_curr }}" data-symbol="{{ curr_symbol }}" data-amount="{{ order_total }}">
+              {{ curr_symbol }}{{ order_total }}
+            </div>
+          </div>
+
+          <!-- Line items -->
+          <div class="amolih-order-items">
+            {% for line in order.line_items limit: 50 %}
+              {% if line.final_price_set.presentment_money.amount != blank %}
+                {% assign line_price = line.final_price_set.presentment_money.amount %}
+              {% elsif line.price_set.presentment_money.amount != blank %}
+                {% assign line_price = line.price_set.presentment_money.amount %}
+              {% elsif line.original_line_price_set.presentment_money.amount != blank %}
+                {% assign line_price = line.original_line_price_set.presentment_money.amount %}
+              {% elsif line.final_price != blank %}
+                {% assign line_price = line.final_price | money_without_currency %}
+              {% else %}
+                {% assign line_price = line.price | money_without_currency %}
+              {% endif %}
+              <div class="amolih-line-item">
+                <div>
+                  <span class="amolih-line-item-title">{{ line.title | escape }}</span>
+                  <span style="font-size:0.78rem; color:var(--amolih-text-muted); margin-left:6px;">&times; {{ line.quantity }}</span>
+                </div>
+                <span class="amolih-line-price" style="font-weight:600; font-size:0.95rem;" data-currency="{{ order_curr }}" data-symbol="{{ curr_symbol }}" data-amount="{{ line_price }}">{{ curr_symbol }}{{ line_price }}</span>
+              </div>
+            {% endfor %}
+          </div>
+
+          <!-- Action Strip -->
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-top:1.25rem; padding-top:0.85rem; border-top:1px solid var(--amolih-border-light); flex-wrap:wrap; gap:10px;">
+            <div style="display:flex; gap:8px; flex-wrap:wrap;">
+              <button type="button" class="amolih-button amolih-btn-view-invoice" onclick="window.showInvoiceDetail && window.showInvoiceDetail('{{ order.id }}', '{{ order.name | escape }}', '{{ forloop.index }}', this); return false;" data-order-id="{{ order.id }}" data-order-name="{{ order.name | escape }}" data-order-number="{{ order.order_number }}" data-order-index="{{ forloop.index }}" style="font-size:0.82rem; padding:0.45rem 0.95rem; font-weight:600; cursor:pointer;">
+                📄 View Invoice & Details
+              </button>
+              {% if order.order_status_url %}
+                <a href="{{ order.order_status_url }}" target="_blank" rel="noopener" class="amolih-button-secondary" style="font-size:0.82rem; padding:0.45rem 0.85rem;">
+                  🚚 Track Courier ↗
+                </a>
+              {% endif %}
+              <a href="https://wa.me/918233905718?text=Hi+Amolih%2C+I+have+a+question+regarding+my+Order+{{ order.name | url_encode }}." target="_blank" rel="noopener" class="amolih-button-secondary" style="font-size:0.82rem; padding:0.45rem 0.85rem;">
+                💬 Inquire on WhatsApp
+              </a>
+            </div>
+            {% if order.shipping_address %}
+              <div style="font-size:0.8rem; color:var(--amolih-text-muted);">
+                Shipping to: {{ order.shipping_address.city | escape }}, {{ order.shipping_address.country | escape }}
+              </div>
+            {% endif %}
+          </div>
+        </article>
       {% assign order_curr = order.total_price_set.presentment_money.currency_code | default: order.currency %}
       {% if order_curr == blank or order_curr == 'USD' %}
         {% if order.shipping_address.country_code == 'IN' or order.billing_address.country_code == 'IN' or customer.default_address.country_code == 'IN' or customer.default_address.country == 'India' %}
@@ -1885,84 +2713,263 @@ function renderPanelLiquid(
       {% else %}
         {% assign order_total = order.total_price | money_without_currency %}
       {% endif %}
+      {% if order.subtotal_price_set.presentment_money.amount != blank %}
+        {% assign calc_subtotal = order.subtotal_price_set.presentment_money.amount %}
+      {% elsif order.subtotal_price != blank %}
+        {% assign calc_subtotal = order.subtotal_price | money_without_currency %}
+      {% else %}
+        {% assign calc_subtotal = order_total %}
+      {% endif %}
+      {% if order.total_discounts_set.presentment_money.amount != blank %}
+        {% assign calc_discounts = order.total_discounts_set.presentment_money.amount %}
+      {% elsif order.total_discounts != blank %}
+        {% assign calc_discounts = order.total_discounts | money_without_currency %}
+      {% else %}
+        {% assign calc_discounts = "0.00" %}
+      {% endif %}
+      {% if order.shipping_price != blank %}
+        {% assign calc_shipping = order.shipping_price | money_without_currency %}
+      {% else %}
+        {% assign calc_shipping = "0.00" %}
+      {% endif %}
+      {% if order.tax_price != blank %}
+        {% assign calc_tax = order.tax_price | money_without_currency %}
+      {% else %}
+        {% assign calc_tax = "0.00" %}
+      {% endif %}
 
-      <article class="amolih-order-card" data-order-currency="{{ order_curr }}">
-        <div class="amolih-order-header">
-          <div>
-            <div class="amolih-order-name">{{ order.name | escape }}</div>
-            <div class="amolih-order-meta">
-              <span>Placed on {{ order.created_at | date: "%B %d, %Y" }}</span>
-              <span>&bull;</span>
-              <span>{{ order.line_items.size }} item{% if order.line_items.size != 1 %}s{% endif %}</span>
-            </div>
-          </div>
-          <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
-            {% if order.financial_status == 'paid' %}
-              <span class="amolih-status-pill paid">● Paid</span>
-            {% else %}
-              <span class="amolih-status-pill unfulfilled">{{ order.financial_status | escape }}</span>
-            {% endif %}
-            {% if order.fulfillment_status == 'fulfilled' %}
-              <span class="amolih-status-pill fulfilled">● Fulfilled</span>
-            {% else %}
-              <span class="amolih-status-pill unfulfilled">● {{ order.fulfillment_status | default: "In Atelier" | escape }}</span>
-            {% endif %}
-          </div>
-        </div>
-
-        <div style="display:flex; justify-content:space-between; align-items:center; margin:0.75rem 0 0.5rem; flex-wrap:wrap; gap:8px;">
-          <div style="font-size:0.78rem; text-transform:uppercase; letter-spacing:0.08em; color:var(--amolih-gold-dark); font-weight:600;">
-            Order Investment Total
-          </div>
-          <div class="amolih-order-total-price" style="font-family:var(--amolih-heading-font); font-size:1.45rem; font-weight:400; color:var(--amolih-primary);" data-currency="{{ order_curr }}" data-symbol="{{ curr_symbol }}" data-amount="{{ order_total }}">
-            {{ curr_symbol }}{{ order_total }}
-          </div>
-        </div>
-
-        <!-- Line items -->
-        <div class="amolih-order-items">
-          {% for line in order.line_items limit: 50 %}
-            {% if line.final_price_set.presentment_money.amount != blank %}
-              {% assign line_price = line.final_price_set.presentment_money.amount %}
-            {% elsif line.price_set.presentment_money.amount != blank %}
-              {% assign line_price = line.price_set.presentment_money.amount %}
-            {% elsif line.original_line_price_set.presentment_money.amount != blank %}
-              {% assign line_price = line.original_line_price_set.presentment_money.amount %}
-            {% elsif line.final_price != blank %}
-              {% assign line_price = line.final_price | money_without_currency %}
-            {% else %}
-              {% assign line_price = line.price | money_without_currency %}
-            {% endif %}
-            <div class="amolih-line-item">
-              <div>
-                <span class="amolih-line-item-title">{{ line.title | escape }}</span>
-                <span style="font-size:0.78rem; color:var(--amolih-text-muted); margin-left:6px;">&times; {{ line.quantity }}</span>
-              </div>
-              <span class="amolih-line-price" style="font-weight:600; font-size:0.95rem;" data-currency="{{ order_curr }}" data-symbol="{{ curr_symbol }}" data-amount="{{ line_price }}">{{ curr_symbol }}{{ line_price }}</span>
-            </div>
-          {% endfor %}
-        </div>
-
-        <!-- Action Strip -->
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:1.25rem; padding-top:0.85rem; border-top:1px solid var(--amolih-border-light); flex-wrap:wrap; gap:10px;">
+      <div id="amolih-invoice-view-{{ order.id }}" data-order-id="{{ order.id }}" data-order-name="{{ order.name | escape }}" data-order-number="{{ order.order_number }}" data-order-index="{{ forloop.index }}" class="amolih-order-invoice-detail" style="display:none;">
+        <!-- Top Navigation / Action Bar -->
+        <div class="amolih-invoice-nav-bar">
+          <button type="button" class="amolih-button-secondary amolih-btn-back-to-orders" onclick="window.hideInvoiceDetail && window.hideInvoiceDetail(); return false;" style="font-weight:600; font-size:0.86rem; padding:0.55rem 1.15rem; gap:6px; cursor:pointer;">
+            ← Back to All Orders
+          </button>
           <div style="display:flex; gap:8px; flex-wrap:wrap;">
+            <button type="button" class="amolih-button amolih-btn-print-invoice" onclick="window.printOrderInvoice && window.printOrderInvoice('{{ order.id }}', '{{ forloop.index }}'); return false;" data-order-id="{{ order.id }}" data-order-name="{{ order.name | escape }}" data-order-index="{{ forloop.index }}" style="font-size:0.85rem; padding:0.55rem 1.15rem; gap:6px; cursor:pointer;">
+              🖨️ Download / Print Invoice
+            </button>
             {% if order.order_status_url %}
-              <a href="{{ order.order_status_url }}" target="_blank" rel="noopener" class="amolih-btn-sm" style="font-weight:600;">
-                Track Shipment & Invoice ↗
+              <a href="{{ order.order_status_url }}" target="_blank" rel="noopener" class="amolih-button-secondary" style="font-size:0.85rem; padding:0.55rem 1rem;">
+                🚚 Track Courier ↗
               </a>
             {% endif %}
-            <a href="https://wa.me/918233905718?text=Hi+Amolih%2C+I+have+a+question+regarding+my+Order+{{ order.name | url_encode }}." target="_blank" rel="noopener" class="amolih-btn-sm">
-              💬 Inquire on WhatsApp
-            </a>
           </div>
-          {% if order.shipping_address %}
-            <div style="font-size:0.8rem; color:var(--amolih-text-muted);">
-              Shipping to: {{ order.shipping_address.city | escape }}, {{ order.shipping_address.country | escape }}
-            </div>
-          {% endif %}
         </div>
-      </article>
+
+        <!-- Branded Printable Invoice Sheet -->
+        <div class="amolih-invoice-paper" id="amolih-invoice-doc-{{ order.id }}" data-order-id="{{ order.id }}" data-order-name="{{ order.name | escape }}" data-order-index="{{ forloop.index }}">
+          <!-- Header -->
+          <div class="amolih-invoice-header">
+            <div>
+              <div class="amolih-invoice-brand">AMOLIH</div>
+              <div style="font-size:0.82rem; color:var(--amolih-text-muted); margin-top:4px; font-weight:500;">
+                Official Tax Invoice & Order Receipt
+              </div>
+            </div>
+            <div style="text-align:right;">
+              <div style="display:inline-block; background:#FAF7F2; border:1px solid var(--amolih-gold-border); padding:0.35rem 0.75rem; border-radius:6px; font-size:0.75rem; font-weight:700; color:var(--amolih-gold-dark); text-transform:uppercase; letter-spacing:0.08em; margin-bottom:6px;">
+                Tax Invoice
+              </div>
+              <div style="font-family:var(--amolih-heading-font); font-size:1.75rem; font-weight:400; color:var(--amolih-text); line-height:1.15;">
+                {{ order.name | escape }}
+              </div>
+              <div style="font-size:0.82rem; color:var(--amolih-text-muted); margin-top:4px;">
+                Placed on {{ order.created_at | date: "%B %d, %Y" }}
+              </div>
+              <div style="display:flex; gap:6px; justify-content:flex-end; margin-top:8px;">
+                {% if order.financial_status == 'paid' %}
+                  <span class="amolih-status-pill paid">● Paid</span>
+                {% else %}
+                  <span class="amolih-status-pill unfulfilled">{{ order.financial_status | escape }}</span>
+                {% endif %}
+                {% if order.fulfillment_status == 'fulfilled' %}
+                  <span class="amolih-status-pill fulfilled">● Fulfilled</span>
+                {% else %}
+                  <span class="amolih-status-pill unfulfilled">● {{ order.fulfillment_status | default: "Processing" | escape }}</span>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+
+          <!-- Parties & Dispatch Metadata Grid -->
+          <div class="amolih-invoice-meta-grid">
+            <!-- Billed To -->
+            <div>
+              <div class="amolih-invoice-meta-title">Billed To</div>
+              <div style="font-size:0.94rem; font-weight:600; color:var(--amolih-text);">
+                {{ order.billing_address.name | default: customer.name | escape }}
+              </div>
+              <div class="amolih-invoice-meta-body" style="color:var(--amolih-text-muted); margin-top:3px;">
+                {% if order.billing_address %}
+                  {% if order.billing_address.company %}{{ order.billing_address.company | escape }}<br/>{% endif %}
+                  {{ order.billing_address.address1 | escape }}<br/>
+                  {% if order.billing_address.address2 %}{{ order.billing_address.address2 | escape }}<br/>{% endif %}
+                  {{ order.billing_address.city | escape }}, {{ order.billing_address.province | escape }} {{ order.billing_address.zip | escape }}<br/>
+                  {{ order.billing_address.country | escape }}
+                  {% if order.billing_address.phone %}<br/>Phone: {{ order.billing_address.phone | escape }}{% endif %}
+                {% else %}
+                  {{ customer.email | escape }}
+                {% endif %}
+              </div>
+            </div>
+
+            <!-- Shipped To -->
+            <div>
+              <div class="amolih-invoice-meta-title">Shipped To</div>
+              <div style="font-size:0.94rem; font-weight:600; color:var(--amolih-text);">
+                {{ order.shipping_address.name | default: customer.name | escape }}
+              </div>
+              <div class="amolih-invoice-meta-body" style="color:var(--amolih-text-muted); margin-top:3px;">
+                {% if order.shipping_address %}
+                  {% if order.shipping_address.company %}{{ order.shipping_address.company | escape }}<br/>{% endif %}
+                  {{ order.shipping_address.address1 | escape }}<br/>
+                  {% if order.shipping_address.address2 %}{{ order.shipping_address.address2 | escape }}<br/>{% endif %}
+                  {{ order.shipping_address.city | escape }}, {{ order.shipping_address.province | escape }} {{ order.shipping_address.zip | escape }}<br/>
+                  {{ order.shipping_address.country | escape }}
+                  {% if order.shipping_address.phone %}<br/>Phone: {{ order.shipping_address.phone | escape }}{% endif %}
+                {% else %}
+                  No physical shipping address recorded
+                {% endif %}
+              </div>
+            </div>
+
+            <!-- Dispatch & Payment Info -->
+            <div>
+              <div class="amolih-invoice-meta-title">Dispatch & Payment Details</div>
+              <div class="amolih-invoice-meta-body">
+                <div><strong>Payment Status:</strong> {{ order.financial_status_label | default: order.financial_status | capitalize }}</div>
+                <div style="margin-top:3px;"><strong>Delivery Method:</strong> {{ order.shipping_methods.first.title | default: "Insured Air Courier" }}</div>
+                {% if order.fulfillments.size > 0 %}
+                  <div style="margin-top:3px;"><strong>Courier Partner:</strong> {{ order.fulfillments.first.tracking_company | default: "Express Courier" }}</div>
+                  {% if order.fulfillments.first.tracking_number %}
+                    <div style="margin-top:2px;"><strong>Tracking Reference:</strong> {{ order.fulfillments.first.tracking_number }}</div>
+                  {% endif %}
+                {% endif %}
+              </div>
+            </div>
+          </div>
+
+          <!-- Line Items Table -->
+          <div style="overflow-x:auto;">
+            <table class="amolih-invoice-table">
+              <thead>
+                <tr>
+                  <th>Item & Specification</th>
+                  <th style="text-align:center;">SKU</th>
+                  <th style="text-align:right;">Unit Price</th>
+                  <th style="text-align:center;">Qty</th>
+                  <th style="text-align:right;">Total</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for line in order.line_items limit: 50 %}
+                  {% if line.final_price_set.presentment_money.amount != blank %}
+                    {% assign inv_unit = line.final_price_set.presentment_money.amount %}
+                  {% elsif line.price_set.presentment_money.amount != blank %}
+                    {% assign inv_unit = line.price_set.presentment_money.amount %}
+                  {% elsif line.price != blank %}
+                    {% assign inv_unit = line.price | money_without_currency %}
+                  {% else %}
+                    {% assign inv_unit = "0.00" %}
+                  {% endif %}
+                  {% if line.final_line_price_set.presentment_money.amount != blank %}
+                    {% assign inv_sub = line.final_line_price_set.presentment_money.amount %}
+                  {% elsif line.original_line_price_set.presentment_money.amount != blank %}
+                    {% assign inv_sub = line.original_line_price_set.presentment_money.amount %}
+                  {% elsif line.final_line_price != blank %}
+                    {% assign inv_sub = line.final_line_price | money_without_currency %}
+                  {% else %}
+                    {% assign inv_sub = inv_unit %}
+                  {% endif %}
+                  <tr>
+                    <td>
+                      <div style="display:flex; align-items:center; gap:12px;">
+                        {% if line.image %}
+                          <img src="{{ line.image | image_url: width: 100 }}" alt="{{ line.title | escape }}" style="width:44px; height:44px; object-fit:cover; border-radius:6px; border:1px solid var(--amolih-border-light); flex-shrink:0;" />
+                        {% endif %}
+                        <div>
+                          <div style="font-family:var(--amolih-font-editorial); font-size:1.02rem; font-weight:500; color:var(--amolih-text);">
+                            {{ line.title | escape }}
+                          </div>
+                          {% if line.variant_title and line.variant_title != 'Default Title' %}
+                            <div style="font-size:0.78rem; color:var(--amolih-text-muted); margin-top:2px;">
+                              Variant: {{ line.variant_title | escape }}
+                            </div>
+                          {% endif %}
+                        </div>
+                      </div>
+                    </td>
+                    <td style="text-align:center; font-size:0.82rem; color:var(--amolih-text-muted);">
+                      {{ line.sku | default: "—" | escape }}
+                    </td>
+                    <td style="text-align:right;" class="amolih-order-total-price" data-currency="{{ order_curr }}" data-symbol="{{ curr_symbol }}" data-amount="{{ inv_unit }}">
+                      {{ curr_symbol }}{{ inv_unit }}
+                    </td>
+                    <td style="text-align:center; font-weight:600;">
+                      {{ line.quantity }}
+                    </td>
+                    <td style="text-align:right; font-weight:600; color:var(--amolih-primary);" class="amolih-order-total-price" data-currency="{{ order_curr }}" data-symbol="{{ curr_symbol }}" data-amount="{{ inv_sub }}">
+                      {{ curr_symbol }}{{ inv_sub }}
+                    </td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Financial Calculation Breakdown -->
+          <div style="display:flex; justify-content:flex-end; margin:1rem 0;">
+            <div class="amolih-invoice-calc-box">
+              <div class="amolih-invoice-calc-row">
+                <span>Subtotal</span>
+                <span class="amolih-order-total-price" data-currency="{{ order_curr }}" data-symbol="{{ curr_symbol }}" data-amount="{{ calc_subtotal }}">{{ curr_symbol }}{{ calc_subtotal }}</span>
+              </div>
+              {% if calc_discounts != "0.00" and calc_discounts != "0" %}
+                <div class="amolih-invoice-calc-row" style="color:#166534;">
+                  <span>Offers & Discounts Applied{% if order.discount_applications.size > 0 %} ({{ order.discount_applications.first.title }}){% endif %}</span>
+                  <span>-{{ curr_symbol }}{{ calc_discounts }}</span>
+                </div>
+              {% endif %}
+              <div class="amolih-invoice-calc-row">
+                <span>Insured Shipping & Handling</span>
+                <span>{% if calc_shipping != "0.00" and calc_shipping != "0" %}{{ curr_symbol }}{{ calc_shipping }}{% else %}Complimentary (Free){% endif %}</span>
+              </div>
+              <div class="amolih-invoice-calc-row" style="margin-bottom:0.75rem;">
+                <span>Taxes (GST / VAT)</span>
+                <span>{% if calc_tax != "0.00" and calc_tax != "0" %}{{ curr_symbol }}{{ calc_tax }}{% else %}Included{% endif %}</span>
+              </div>
+
+              <div class="amolih-invoice-calc-total">
+                <span style="font-size:0.82rem; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; color:var(--amolih-gold-dark);">Invoice Grand Total</span>
+                <span class="amolih-order-total-price" style="font-family:var(--amolih-heading-font); font-size:1.55rem; color:var(--amolih-primary);" data-currency="{{ order_curr }}" data-symbol="{{ curr_symbol }}" data-amount="{{ order_total }}">
+                  {{ curr_symbol }}{{ order_total }}
+                </span>
+              </div>
+
+              <div class="amolih-invoice-calc-row" style="margin-top:0.5rem; padding-top:0.4rem; border-top:1px dashed var(--amolih-border-light);">
+                <span>Amount Paid</span>
+                <span style="font-weight:600; color:var(--amolih-text);">{{ curr_symbol }}{{ order_total }}</span>
+              </div>
+              <div class="amolih-invoice-calc-row" style="margin-top:0.25rem; margin-bottom:0;">
+                <span>Balance Remaining</span>
+                <span style="font-weight:600; color:#166534;">{{ curr_symbol }}0.00</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Invoice Footer -->
+          <div class="amolih-invoice-footer-strip" style="border-top:1px dashed var(--amolih-gold-border); padding-top:0.75rem; margin-top:1rem; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+            <div style="font-size:0.75rem; color:var(--amolih-text-muted); line-height:1.45;">
+              Thank you for choosing Amolih.
+            </div>
+            <div style="font-size:0.72rem; color:var(--amolih-text-muted); text-align:right;">
+              Generated via Amolih Customer Portal &bull; System Verified
+            </div>
+          </div>
+        </div>
+      </div>
     {% endfor %}
+    </div>
   {% endif %}
 </div>`;
   }

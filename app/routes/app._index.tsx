@@ -158,6 +158,7 @@ export default function Index() {
 
   // Live Simulator State
   const [simActiveTab, setSimActiveTab] = useState(menuItems[0]?.destination || "details");
+  const [simViewingInvoice, setSimViewingInvoice] = useState(false);
   const [previewDevice, setPreviewDevice] = useState<"desktop" | "mobile">("desktop");
 
   const isSaving = fetcher.state === "submitting";
@@ -879,6 +880,7 @@ export default function Index() {
                                       window.open(item.destination, "_blank");
                                     } else {
                                       setSimActiveTab(item.destination);
+                                      setSimViewingInvoice(false);
                                     }
                                   }}
                                   style={{
@@ -1078,70 +1080,238 @@ export default function Index() {
 
                         {simActiveTab === "orders" && (
                           <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                            {simViewingInvoice ? (
                               <div>
-                                <h2
+                                {/* Invoice Top Bar */}
+                                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "14px", flexWrap: "wrap", gap: "8px" }}>
+                                  <button
+                                    type="button"
+                                    onClick={() => setSimViewingInvoice(false)}
+                                    style={{
+                                      fontSize: "12px",
+                                      fontWeight: 600,
+                                      padding: "6px 12px",
+                                      borderRadius: "6px",
+                                      border: "1px solid #CBD5E1",
+                                      background: "#FFFFFF",
+                                      color: textColor,
+                                      cursor: "pointer",
+                                    }}
+                                  >
+                                    ← Back to All Orders
+                                  </button>
+                                  <div style={{ display: "flex", gap: "6px", flexWrap: "wrap" }}>
+                                    <button
+                                      type="button"
+                                      onClick={() => window.print()}
+                                      style={{
+                                        fontSize: "12px",
+                                        fontWeight: 600,
+                                        padding: "6px 12px",
+                                        borderRadius: "6px",
+                                        background: primaryColor,
+                                        color: "#FFFFFF",
+                                        border: "none",
+                                        cursor: "pointer",
+                                      }}
+                                    >
+                                      🖨️ Download / Print Invoice
+                                    </button>
+                                    <span style={{ fontSize: "12px", padding: "6px 10px", borderRadius: "6px", border: "1px solid #CBD5E1", background: "#FFFFFF", color: textColor }}>
+                                      🚚 Track Courier ↗
+                                    </span>
+                                  </div>
+                                </div>
+
+                                {/* Printable Invoice Card */}
+                                <div
                                   style={{
-                                    fontFamily: "'Bellefair', 'Cormorant Garamond', serif",
-                                    fontSize: "24px",
-                                    fontWeight: 400,
-                                    margin: "0 0 4px 0",
-                                    color: textColor,
+                                    border: "1px solid #E2E8F0",
+                                    borderRadius: "12px",
+                                    padding: "20px",
+                                    background: "#FFFFFF",
+                                    boxShadow: "0 2px 8px rgba(0,0,0,0.04)",
                                   }}
                                 >
-                                  Orders History
-                                </h2>
-                                <p style={{ margin: 0, color: "#64748B", fontSize: "13px" }}>
-                                  3 fine jewelry orders recorded in your archive.
-                                </p>
-                              </div>
-                            </div>
-                            <div style={{ borderBottom: "1px solid #E2E8F0" }} />
+                                  {/* Header */}
+                                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", paddingBottom: "14px", borderBottom: "1px solid #E2E8F0" }}>
+                                    <div>
+                                      <div style={{ fontFamily: "'Bellefair', serif", fontSize: "24px", color: primaryColor, letterSpacing: "0.04em" }}>AMOLIH</div>
+                                      <div style={{ fontSize: "11px", color: "#64748B", marginTop: "3px", fontWeight: 500 }}>
+                                        Official Tax Invoice &bull; Order Receipt
+                                      </div>
+                                    </div>
+                                    <div style={{ textAlign: "right" }}>
+                                      <div style={{ display: "inline-block", background: "#FAF7F2", border: "1px solid rgba(197, 168, 128, 0.4)", padding: "2px 8px", borderRadius: "4px", fontSize: "10px", fontWeight: 700, color: "#A8895E", textTransform: "uppercase" }}>
+                                        Tax Invoice
+                                      </div>
+                                      <div style={{ fontFamily: "'Bellefair', serif", fontSize: "20px", color: textColor, marginTop: "2px" }}>Order #1042</div>
+                                      <div style={{ fontSize: "11px", color: "#64748B" }}>28 Oct 2026</div>
+                                      <div style={{ display: "flex", gap: "4px", justifyContent: "flex-end", marginTop: "4px" }}>
+                                        <span style={{ padding: "2px 6px", borderRadius: "999px", background: "#F0FDF4", color: "#166534", fontSize: "10px", fontWeight: 600 }}>● Paid</span>
+                                        <span style={{ padding: "2px 6px", borderRadius: "999px", background: "#ECFDF5", color: "#065F46", fontSize: "10px", fontWeight: 600 }}>● Fulfilled</span>
+                                      </div>
+                                    </div>
+                                  </div>
 
-                            <div
-                              style={{
-                                border: "1px solid #E2E8F0",
-                                borderRadius: "12px",
-                                padding: "18px 20px",
-                                background: "#FFFFFF",
-                                boxShadow: "0 2px 6px rgba(0,0,0,0.03)",
-                              }}
-                            >
-                              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px" }}>
-                                <div>
-                                  <span style={{ fontFamily: "'Bellefair', serif", fontSize: "18px", color: textColor }}>
-                                    Order #1042
-                                  </span>
-                                  <div style={{ fontSize: "12px", color: "#64748B" }}>Placed on 28 Oct 2026 &bull; Air Courier</div>
+                                  {/* Address Grid */}
+                                  <div style={{ display: "grid", gridTemplateColumns: previewDevice === "mobile" ? "1fr" : "1fr 1fr 1fr", gap: "12px", margin: "14px 0", padding: "12px", background: "#FAF7F2", borderRadius: "8px" }}>
+                                    <div>
+                                      <div style={{ fontSize: "10px", fontWeight: 700, textTransform: "uppercase", color: "#A8895E" }}>Billed To</div>
+                                      <div style={{ fontSize: "13px", fontWeight: 600, color: textColor, marginTop: "2px" }}>Sarah Jenkins</div>
+                                      <div style={{ fontSize: "11px", color: "#64748B", marginTop: "2px", lineHeight: 1.4 }}>
+                                        12 Altamount Road, Cumballa Hill<br />Mumbai, MH 400026<br />India
+                                      </div>
+                                    </div>
+                                    <div>
+                                      <div style={{ fontSize: "10px", fontWeight: 700, textTransform: "uppercase", color: "#A8895E" }}>Shipped To</div>
+                                      <div style={{ fontSize: "13px", fontWeight: 600, color: textColor, marginTop: "2px" }}>Sarah Jenkins</div>
+                                      <div style={{ fontSize: "11px", color: "#64748B", marginTop: "2px", lineHeight: 1.4 }}>
+                                        12 Altamount Road, Cumballa Hill<br />Mumbai, MH 400026<br />India
+                                      </div>
+                                    </div>
+                                    <div>
+                                      <div style={{ fontSize: "10px", fontWeight: 700, textTransform: "uppercase", color: "#A8895E" }}>Dispatch Details</div>
+                                      <div style={{ fontSize: "11px", color: textColor, marginTop: "2px", lineHeight: 1.4 }}>
+                                        <div><strong>Payment:</strong> Pre-paid (Shopify)</div>
+                                        <div><strong>Delivery:</strong> Insured Air Courier</div>
+                                        <div><strong>Carrier:</strong> BlueDart Express</div>
+                                        <div><strong>Tracking:</strong> BLU98234812IN</div>
+                                      </div>
+                                    </div>
+                                  </div>
+
+                                  {/* Items Table */}
+                                  <div style={{ overflowX: "auto" }}>
+                                    <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "12px", textAlign: "left" }}>
+                                      <thead>
+                                        <tr style={{ borderTop: "1px solid #E2E8F0", borderBottom: "1px solid #E2E8F0", color: "#A8895E" }}>
+                                          <th style={{ padding: "8px 6px" }}>Item Description</th>
+                                          <th style={{ padding: "8px 6px", textAlign: "center" }}>SKU</th>
+                                          <th style={{ padding: "8px 6px", textAlign: "right" }}>Unit Price</th>
+                                          <th style={{ padding: "8px 6px", textAlign: "center" }}>Qty</th>
+                                          <th style={{ padding: "8px 6px", textAlign: "right" }}>Total</th>
+                                        </tr>
+                                      </thead>
+                                      <tbody>
+                                        <tr style={{ borderBottom: "1px solid #F1F5F9" }}>
+                                          <td style={{ padding: "10px 6px", fontWeight: 500 }}>Jaipur Solitaire Charm Necklace</td>
+                                          <td style={{ padding: "10px 6px", textAlign: "center", color: "#64748B" }}>AML-SOL-01</td>
+                                          <td style={{ padding: "10px 6px", textAlign: "right" }}>₹3,450.00</td>
+                                          <td style={{ padding: "10px 6px", textAlign: "center", fontWeight: 600 }}>1</td>
+                                          <td style={{ padding: "10px 6px", textAlign: "right", fontWeight: 600, color: primaryColor }}>₹3,450.00</td>
+                                        </tr>
+                                      </tbody>
+                                    </table>
+                                  </div>
+
+                                  {/* Summary Breakdown */}
+                                  <div style={{ display: "flex", justifyContent: "flex-end", marginTop: "14px" }}>
+                                    <div style={{ width: "100%", maxWidth: "260px", background: "#FAF7F2", padding: "12px", borderRadius: "8px", fontSize: "12px" }}>
+                                      <div style={{ display: "flex", justifyContent: "space-between", color: "#64748B", marginBottom: "4px" }}>
+                                        <span>Subtotal</span><span>₹3,450.00</span>
+                                      </div>
+                                      <div style={{ display: "flex", justifyContent: "space-between", color: "#64748B", marginBottom: "4px" }}>
+                                        <span>Insured Shipping</span><span>Free</span>
+                                      </div>
+                                      <div style={{ display: "flex", justifyContent: "space-between", color: "#64748B", marginBottom: "6px" }}>
+                                        <span>Taxes (GST)</span><span>Included</span>
+                                      </div>
+                                      <div style={{ borderTop: "1px solid #E2E8F0", paddingTop: "6px", display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
+                                        <span style={{ fontWeight: 700, color: "#A8895E", fontSize: "11px", textTransform: "uppercase" }}>Total</span>
+                                        <span style={{ fontFamily: "'Bellefair', serif", fontSize: "18px", color: primaryColor }}>₹3,450.00</span>
+                                      </div>
+                                      <div style={{ display: "flex", justifyContent: "space-between", color: "#64748B", marginTop: "4px", paddingTop: "4px", borderTop: "1px dashed #E2E8F0", fontSize: "11px" }}>
+                                        <span>Balance Remaining</span><span style={{ color: "#166534", fontWeight: 600 }}>₹0.00</span>
+                                      </div>
+                                    </div>
+                                  </div>
                                 </div>
-                                <div style={{ display: "flex", gap: "6px" }}>
-                                  <span style={{ padding: "3px 8px", borderRadius: "999px", background: "#F0FDF4", color: "#166534", fontSize: "11px", fontWeight: 600 }}>
-                                    ● Paid
-                                  </span>
-                                  <span style={{ padding: "3px 8px", borderRadius: "999px", background: "#ECFDF5", color: "#065F46", fontSize: "11px", fontWeight: 600 }}>
-                                    ● Fulfilled
-                                  </span>
+                              </div>
+                            ) : (
+                              <div>
+                                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px" }}>
+                                  <div>
+                                    <h2
+                                      style={{
+                                        fontFamily: "'Bellefair', 'Cormorant Garamond', serif",
+                                        fontSize: "24px",
+                                        fontWeight: 400,
+                                        margin: "0 0 4px 0",
+                                        color: textColor,
+                                      }}
+                                    >
+                                      Orders History
+                                    </h2>
+                                    <p style={{ margin: 0, color: "#64748B", fontSize: "13px" }}>
+                                      3 fine jewelry orders recorded in your archive.
+                                    </p>
+                                  </div>
+                                </div>
+                                <div style={{ borderBottom: "1px solid #E2E8F0", marginBottom: "16px" }} />
+
+                                <div
+                                  style={{
+                                    border: "1px solid #E2E8F0",
+                                    borderRadius: "12px",
+                                    padding: "18px 20px",
+                                    background: "#FFFFFF",
+                                    boxShadow: "0 2px 6px rgba(0,0,0,0.03)",
+                                  }}
+                                >
+                                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px" }}>
+                                    <div>
+                                      <span style={{ fontFamily: "'Bellefair', serif", fontSize: "18px", color: textColor }}>
+                                        Order #1042
+                                      </span>
+                                      <div style={{ fontSize: "12px", color: "#64748B" }}>Placed on 28 Oct 2026 &bull; Air Courier</div>
+                                    </div>
+                                    <div style={{ display: "flex", gap: "6px" }}>
+                                      <span style={{ padding: "3px 8px", borderRadius: "999px", background: "#F0FDF4", color: "#166534", fontSize: "11px", fontWeight: 600 }}>
+                                        ● Paid
+                                      </span>
+                                      <span style={{ padding: "3px 8px", borderRadius: "999px", background: "#ECFDF5", color: "#065F46", fontSize: "11px", fontWeight: 600 }}>
+                                        ● Fulfilled
+                                      </span>
+                                    </div>
+                                  </div>
+
+                                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", margin: "10px 0" }}>
+                                    <span style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "16px", fontWeight: 600 }}>
+                                      Jaipur Solitaire Charm Necklace &times; 1
+                                    </span>
+                                    <span style={{ fontFamily: "'Bellefair', serif", fontSize: "20px", color: primaryColor }}>
+                                      ₹3,450.00
+                                    </span>
+                                  </div>
+
+                                  <div style={{ display: "flex", gap: "8px", marginTop: "12px", paddingTop: "10px", borderTop: "1px solid #F1F5F9", flexWrap: "wrap" }}>
+                                    <button
+                                      type="button"
+                                      onClick={() => setSimViewingInvoice(true)}
+                                      style={{
+                                        padding: "6px 12px",
+                                        borderRadius: "6px",
+                                        background: primaryColor,
+                                        color: "#fff",
+                                        fontSize: "12px",
+                                        fontWeight: 600,
+                                        border: "none",
+                                        cursor: "pointer",
+                                      }}
+                                    >
+                                      📄 View Invoice & Details
+                                    </button>
+                                    <span style={{ padding: "6px 12px", borderRadius: "6px", background: "#FAF7F2", border: "1px solid #E2E8F0", color: textColor, fontSize: "12px", fontWeight: 500 }}>
+                                      🚚 Track Courier ↗
+                                    </span>
+                                    <span style={{ padding: "6px 12px", borderRadius: "6px", background: "#FAF7F2", border: "1px solid #E2E8F0", color: textColor, fontSize: "12px", fontWeight: 500 }}>
+                                      💬 Inquire on WhatsApp
+                                    </span>
+                                  </div>
                                 </div>
                               </div>
-
-                              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", margin: "10px 0" }}>
-                                <span style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "16px", fontWeight: 600 }}>
-                                  Jaipur Solitaire Charm Necklace &times; 1
-                                </span>
-                                <span style={{ fontFamily: "'Bellefair', serif", fontSize: "20px", color: primaryColor }}>
-                                  ₹3,450.00
-                                </span>
-                              </div>
-
-                              <div style={{ display: "flex", gap: "8px", marginTop: "12px", paddingTop: "10px", borderTop: "1px solid #F1F5F9" }}>
-                                <span style={{ padding: "5px 10px", borderRadius: "6px", background: primaryColor, color: "#fff", fontSize: "12px", fontWeight: 600 }}>
-                                  Track Shipment ↗
-                                </span>
-                                <span style={{ padding: "5px 10px", borderRadius: "6px", background: "#FAF7F2", border: "1px solid #E2E8F0", color: textColor, fontSize: "12px", fontWeight: 500 }}>
-                                  💬 Inquire on WhatsApp
-                                </span>
-                              </div>
-                            </div>
+                            )}
                           </div>
                         )}
 

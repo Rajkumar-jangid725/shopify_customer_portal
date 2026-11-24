@@ -133,8 +133,14 @@
   }
 
   var activeTab = "details";
+  var activeInvoiceOrderId = null;
   var hash = window.location.hash.replace("#", "");
-  if (hash && ["details", "orders", "circle", "addresses"].indexOf(hash) !== -1) activeTab = hash;
+  if (hash && ["details", "orders", "circle", "addresses"].indexOf(hash) !== -1) {
+    activeTab = hash;
+  } else if (hash && hash.indexOf("invoice-") === 0) {
+    activeTab = "orders";
+    activeInvoiceOrderId = hash.replace("invoice-", "");
+  }
 
   function renderPortalUI() {
     [".customer", ".shopify-section-main-account", ".shopify-section-main-addresses", ".shopify-section-main-order", ".account-page", "main > .customer", "#MainContent > .customer"].forEach(function (sel) {
@@ -220,7 +226,142 @@
           '<p style="color:var(--amolih-muted);max-width:400px;margin:0 auto 18px;font-family:var(--amolih-font-modern);">Discover our latest Jaipur handcrafted solitaires, bespoke charms, and customizable fine jewelry.</p>' +
           '<a href="/collections/all" class="amolih-order-action">Explore Atelier Collection</a></div></div>';
       }
-      return '<div><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;"><div><h2 class="amolih-pane-title">Orders History</h2><p class="amolih-pane-subtitle">' + orders.length + ' fine jewelry order' + (orders.length > 1 ? "s" : "") + ' recorded in your archive.</p></div>' +
+
+      // Check if viewing specific invoice
+      if (activeInvoiceOrderId) {
+        var cleanTarget = String(activeInvoiceOrderId).trim();
+        var digitsTarget = cleanTarget.replace(/\D/g, "");
+        var invOrder = orders.filter(function (x) {
+          var xId = String(x.id || "").trim();
+          var xNum = String(x.orderNumber || "").trim();
+          var xName = String(x.name || "").trim();
+          return (xId && (xId === cleanTarget || (digitsTarget && xId.replace(/\D/g, "") === digitsTarget))) ||
+                 (xNum && (xNum === cleanTarget || (digitsTarget && xNum === digitsTarget))) ||
+                 (xName && (xName === cleanTarget || (digitsTarget && xName.replace(/\D/g, "") === digitsTarget)));
+        })[0];
+
+        if (!invOrder) {
+          var idx = parseInt(cleanTarget, 10);
+          if (!isNaN(idx) && orders[idx - 1]) {
+            invOrder = orders[idx - 1];
+          } else if (orders.length === 1) {
+            invOrder = orders[0];
+          }
+        }
+
+        if (invOrder) {
+          var fPill = invOrder.fulfillmentStatus === "Fulfilled" ? "fulfilled" : "unfulfilled";
+          var bAddr = invOrder.billingAddress || {};
+          var sAddr = invOrder.shippingAddress || {};
+          var itemsTableHtml = (invOrder.lineItems || []).map(function (it) {
+            return '<tr style="border-bottom:1px solid var(--amolih-border-light);">' +
+              '<td style="padding:12px 10px;vertical-align:middle;">' +
+              '<div style="font-family:var(--amolih-font-editorial);font-size:15px;font-weight:500;color:var(--amolih-text);">' + esc(it.title) + '</div>' +
+              (it.variantTitle ? '<div style="font-size:12px;color:var(--amolih-muted);margin-top:2px;">Variant: ' + esc(it.variantTitle) + '</div>' : '') +
+              '</td>' +
+              '<td style="padding:12px 10px;font-size:12px;color:var(--amolih-muted);text-align:center;vertical-align:middle;">' + esc(it.sku || "—") + '</td>' +
+              '<td style="padding:12px 10px;text-align:right;vertical-align:middle;">' + esc(it.unitPrice || it.price) + '</td>' +
+              '<td style="padding:12px 10px;font-weight:600;text-align:center;vertical-align:middle;">' + it.quantity + '</td>' +
+              '<td style="padding:12px 10px;font-weight:600;color:var(--amolih-primary);text-align:right;vertical-align:middle;">' + esc(it.lineTotal || it.price) + '</td>' +
+              '</tr>';
+          }).join("");
+
+          var trackLink = invOrder.statusUrl ? '<a href="' + invOrder.statusUrl + '" target="_blank" rel="noopener" class="amolih-order-action" style="margin-top:0;background:#FFFFFF;color:var(--amolih-text)!important;border:1px solid var(--amolih-border);font-size:12px;padding:6px 14px;">🚚 Track Courier ↗</a>' : '';
+
+          return '<div class="amolih-order-invoice-detail is-active">' +
+            '<div class="amolih-invoice-nav-bar" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;flex-wrap:wrap;gap:10px;">' +
+            '<button type="button" class="amolih-order-action amolih-embed-back-orders" style="background:#FFFFFF;color:var(--amolih-text)!important;border:1px solid var(--amolih-border);margin-top:0;font-size:12px;padding:7px 16px;font-weight:600;cursor:pointer;">← Back to All Orders</button>' +
+            '<div style="display:flex;gap:8px;flex-wrap:wrap;">' +
+            '<button type="button" class="amolih-order-action amolih-embed-print-invoice" style="margin-top:0;font-size:12px;padding:7px 16px;font-weight:600;cursor:pointer;">🖨️ Download / Print Invoice</button>' +
+            trackLink +
+            '</div></div>' +
+
+            '<div class="amolih-invoice-paper" id="amolih-embed-invoice-doc" data-order-name="' + esc(invOrder.name || "#" + invOrder.orderNumber) + '" style="background:#FFFFFF;border:1px solid var(--amolih-border);border-radius:var(--amolih-radius);padding:22px 20px;box-shadow:var(--amolih-shadow);">' +
+            '<!-- Header -->' +
+            '<div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:18px;padding-bottom:20px;border-bottom:1px solid var(--amolih-gold-border);">' +
+            '<div>' +
+            '<div style="font-family:var(--amolih-heading-font);font-size:30px;color:var(--amolih-primary);letter-spacing:0.06em;line-height:1.1;">AMOLIH</div>' +
+            '<div style="font-size:12px;color:var(--amolih-muted);margin-top:4px;font-weight:500;">Official Tax Invoice & Order Receipt</div>' +
+            '</div>' +
+            '<div style="text-align:right;">' +
+            '<div style="display:inline-block;background:#FAF7F2;border:1px solid var(--amolih-gold-border);padding:4px 10px;border-radius:6px;font-size:11px;font-weight:700;color:var(--amolih-gold-dark);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:6px;">Tax Invoice</div>' +
+            '<div style="font-family:var(--amolih-heading-font);font-size:24px;color:var(--amolih-text);line-height:1.15;">' + esc(invOrder.name || "#" + invOrder.orderNumber) + '</div>' +
+            '<div style="font-size:12px;color:var(--amolih-muted);margin-top:4px;">Placed on ' + esc(invOrder.createdAt || "") + '</div>' +
+            '<div style="display:flex;gap:6px;justify-content:flex-end;margin-top:8px;">' +
+            '<span class="amolih-status-pill ' + (invOrder.financialStatus === "Paid" ? "paid" : "unfulfilled") + '">● ' + esc(invOrder.financialStatus || "Paid") + '</span>' +
+            '<span class="amolih-status-pill ' + fPill + '">● ' + esc(invOrder.fulfillmentStatus || "Processing") + '</span>' +
+            '</div></div></div>' +
+
+            '<!-- Address Grid -->' +
+            '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:18px;margin:20px 0;padding:16px;background:#FAF7F2;border:1px solid var(--amolih-border);border-radius:var(--amolih-radius-sm);">' +
+            '<div>' +
+            '<div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--amolih-gold-dark);margin-bottom:6px;">Billed To</div>' +
+            '<div style="font-size:14px;font-weight:600;color:var(--amolih-text);">' + esc(bAddr.name || customerData.name || customerData.firstName) + '</div>' +
+            '<div style="font-size:13px;color:var(--amolih-muted);line-height:1.5;margin-top:4px;">' +
+            (bAddr.address1 ? esc(bAddr.address1) + '<br/>' : '') +
+            (bAddr.address2 ? esc(bAddr.address2) + '<br/>' : '') +
+            (bAddr.city ? esc(bAddr.city) + ', ' + esc(bAddr.province || "") + ' ' + esc(bAddr.zip || "") + '<br/>' : '') +
+            esc(bAddr.country || "") +
+            (bAddr.phone ? '<br/>Phone: ' + esc(bAddr.phone) : '') +
+            '</div></div>' +
+
+            '<div>' +
+            '<div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--amolih-gold-dark);margin-bottom:6px;">Shipped To</div>' +
+            '<div style="font-size:14px;font-weight:600;color:var(--amolih-text);">' + esc(sAddr.name || customerData.name || customerData.firstName) + '</div>' +
+            '<div style="font-size:13px;color:var(--amolih-muted);line-height:1.5;margin-top:4px;">' +
+            (sAddr.address1 ? esc(sAddr.address1) + '<br/>' : '') +
+            (sAddr.address2 ? esc(sAddr.address2) + '<br/>' : '') +
+            (sAddr.city ? esc(sAddr.city) + ', ' + esc(sAddr.province || "") + ' ' + esc(sAddr.zip || "") + '<br/>' : '') +
+            esc(sAddr.country || "") +
+            (sAddr.phone ? '<br/>Phone: ' + esc(sAddr.phone) : '') +
+            '</div></div>' +
+
+            '<div>' +
+            '<div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--amolih-gold-dark);margin-bottom:6px;">Dispatch Details</div>' +
+            '<div style="font-size:13px;color:var(--amolih-text);line-height:1.5;">' +
+            '<div><strong>Payment Mode:</strong> ' + esc(invOrder.financialStatus || "Paid") + '</div>' +
+            '<div style="margin-top:4px;"><strong>Delivery Method:</strong> ' + esc(invOrder.shippingMethod || "Insured Air Courier") + '</div>' +
+            (invOrder.trackingCompany ? '<div style="margin-top:4px;"><strong>Courier:</strong> ' + esc(invOrder.trackingCompany) + '</div>' : '') +
+            (invOrder.trackingNumber ? '<div style="margin-top:2px;"><strong>Tracking #:</strong> ' + esc(invOrder.trackingNumber) + '</div>' : '') +
+            '</div></div></div>' +
+
+            '<!-- Items Table -->' +
+            '<div style="overflow-x:auto;">' +
+            '<table style="width:100%;border-collapse:collapse;text-align:left;margin:18px 0;">' +
+            '<thead><tr style="background:#FAF7F2;border-top:1px solid var(--amolih-border);border-bottom:1px solid var(--amolih-border);">' +
+            '<th style="padding:10px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--amolih-gold-dark);">Item & Specification</th>' +
+            '<th style="padding:10px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--amolih-gold-dark);text-align:center;">SKU</th>' +
+            '<th style="padding:10px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--amolih-gold-dark);text-align:right;">Unit Price</th>' +
+            '<th style="padding:10px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--amolih-gold-dark);text-align:center;">Qty</th>' +
+            '<th style="padding:10px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--amolih-gold-dark);text-align:right;">Total</th>' +
+            '</tr></thead>' +
+            '<tbody>' + itemsTableHtml + '</tbody>' +
+            '</table></div>' +
+
+            '<!-- Calculations -->' +
+            '<div style="display:flex;justify-content:flex-end;margin:18px 0;">' +
+            '<div style="width:100%;max-width:360px;background:#FAF7F2;border:1px solid var(--amolih-border);border-radius:var(--amolih-radius-sm);padding:16px;">' +
+            '<div style="display:flex;justify-content:space-between;font-size:13px;color:var(--amolih-muted);margin-bottom:6px;"><span>Subtotal</span><span>' + esc(invOrder.subtotalPrice || invOrder.totalPrice) + '</span></div>' +
+            (invOrder.discounts && invOrder.discounts !== "₹0.00" && invOrder.discounts !== "$0.00" && invOrder.discounts !== "0.00" ? '<div style="display:flex;justify-content:space-between;font-size:13px;color:#166534;margin-bottom:6px;"><span>Offers &amp; Discounts Applied</span><span>-' + esc(invOrder.discounts) + '</span></div>' : '') +
+            '<div style="display:flex;justify-content:space-between;font-size:13px;color:var(--amolih-muted);margin-bottom:6px;"><span>Insured Shipping</span><span>' + (invOrder.shippingPrice && invOrder.shippingPrice !== "₹0.00" && invOrder.shippingPrice !== "$0.00" && invOrder.shippingPrice !== "0.00" ? esc(invOrder.shippingPrice) : 'Complimentary (Free)') + '</span></div>' +
+            '<div style="display:flex;justify-content:space-between;font-size:13px;color:var(--amolih-muted);margin-bottom:8px;"><span>Taxes (GST / VAT)</span><span>' + (invOrder.taxPrice && invOrder.taxPrice !== "₹0.00" && invOrder.taxPrice !== "$0.00" && invOrder.taxPrice !== "0.00" ? esc(invOrder.taxPrice) : 'Included') + '</span></div>' +
+            '<div style="border-top:1px solid var(--amolih-gold-border);padding-top:10px;margin-top:6px;display:flex;justify-content:space-between;align-items:baseline;">' +
+            '<span style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--amolih-gold-dark);">Invoice Grand Total</span>' +
+            '<span style="font-family:var(--amolih-heading-font);font-size:22px;color:var(--amolih-primary);">' + esc(invOrder.totalPrice) + '</span>' +
+            '</div>' +
+            '<div style="display:flex;justify-content:space-between;font-size:12px;color:var(--amolih-muted);margin-top:6px;padding-top:6px;border-top:1px dashed var(--amolih-border-light);"><span>Amount Paid</span><span style="font-weight:600;color:var(--amolih-text);">' + esc(invOrder.totalPrice) + '</span></div>' +
+            '<div style="display:flex;justify-content:space-between;font-size:12px;color:var(--amolih-muted);margin-top:4px;"><span>Balance Remaining</span><span style="font-weight:600;color:#166534;">' + (invOrder.currencySymbol || "₹") + '0.00</span></div>' +
+            '</div></div>' +
+
+            '<!-- Footer -->' +
+            '<div class="amolih-invoice-footer-strip" style="border-top:1px dashed var(--amolih-gold-border);padding-top:10px;margin-top:14px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">' +
+            '<div style="font-size:11px;color:var(--amolih-muted);line-height:1.45;">Thank you for choosing Amolih.</div>' +
+            '<div style="font-size:11px;color:var(--amolih-muted);text-align:right;">Generated via Amolih Customer Portal &bull; System Verified</div>' +
+            '</div></div></div>';
+        }
+      }
+
+      return '<div><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;"><div><h2 class="amolih-pane-title">Orders History</h2><p class="amolih-pane-subtitle">' + orders.length + ' fine jewelry order' + (orders.length > 1 ? "s" : "") + ' recorded in your account.</p></div>' +
         '<a href="/collections/all" class="amolih-order-action" style="margin-top:0;font-size:12px;padding:6px 14px;">Explore New Arrivals ↗</a></div><hr class="amolih-divider" />' +
         orders.map(function (o) {
           var fPill = o.fulfillmentStatus === "Fulfilled" ? "fulfilled" : "unfulfilled";
@@ -232,15 +373,16 @@
               '<span style="font-size:12px;color:var(--amolih-muted);margin-left:6px;">&times; ' + it.quantity + '</span></div>' +
               '<span style="font-weight:600;font-size:14px;">' + itPrice + '</span></div>';
           }).join("");
-          var trackBtn = o.statusUrl ? '<a href="' + o.statusUrl + '" target="_blank" rel="noopener" class="amolih-order-action" style="margin-top:0;font-size:12px;padding:6px 12px;">Track Shipment & Invoice ↗</a>' : '';
+          var viewInvBtn = '<button type="button" class="amolih-order-action amolih-embed-view-invoice" data-order-id="' + esc(o.id || o.orderNumber) + '" style="margin-top:0;font-size:12px;padding:6px 14px;font-weight:600;cursor:pointer;">📄 View Invoice & Details</button>';
+          var trackBtn = o.statusUrl ? '<a href="' + o.statusUrl + '" target="_blank" rel="noopener" class="amolih-order-action" style="margin-top:0;background:#FFFFFF;color:var(--amolih-text)!important;border:1px solid var(--amolih-border);font-size:12px;padding:6px 12px;">🚚 Track Courier ↗</a>' : '';
           var inquiryBtn = '<a href="https://wa.me/918233905718?text=Hi+Amolih%2C+I+have+a+question+regarding+my+Order+' + encodeURIComponent(o.name || "#" + o.orderNumber) + '." target="_blank" rel="noopener" class="amolih-order-action" style="margin-top:0;background:#FFFFFF;color:var(--amolih-text)!important;border:1px solid var(--amolih-border);font-size:12px;padding:6px 12px;">💬 Inquire on WhatsApp</a>';
           return '<div class="amolih-order-card">' +
             '<div class="amolih-order-header"><div><span class="amolih-order-name">' + esc(o.name || "#" + o.orderNumber) + '</span>' +
             '<div style="font-size:12px;color:var(--amolih-muted);margin-top:2px;">Placed on ' + esc(o.createdAt || "") + '</div></div>' +
             '<span class="amolih-order-price">' + orderPrice + '</span></div>' +
-            '<div class="amolih-order-meta"><span class="amolih-status-pill ' + fPill + '">● ' + esc(o.fulfillmentStatus || "In Atelier") + '</span><span>Payment: ' + esc(o.financialStatus || "Paid") + '</span></div>' +
+            '<div class="amolih-order-meta"><span class="amolih-status-pill ' + fPill + '">● ' + esc(o.fulfillmentStatus || "Processing") + '</span><span>Payment: ' + esc(o.financialStatus || "Paid") + '</span></div>' +
             (itemsHtml ? '<div class="amolih-order-items">' + itemsHtml + '</div>' : '') +
-            '<div style="display:flex;gap:8px;margin-top:14px;padding-top:10px;border-top:1px solid var(--amolih-border-light);flex-wrap:wrap;">' + trackBtn + inquiryBtn + '</div>' +
+            '<div style="display:flex;gap:8px;margin-top:14px;padding-top:10px;border-top:1px solid var(--amolih-border-light);flex-wrap:wrap;">' + viewInvBtn + trackBtn + inquiryBtn + '</div>' +
             '</div>';
         }).join("") + '</div>';
     }
@@ -350,6 +492,77 @@
       });
     }
 
+    // In-App Invoice Navigation & Print Events
+    document.querySelectorAll(".amolih-embed-view-invoice").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        activeInvoiceOrderId = this.getAttribute("data-order-id");
+        try { history.pushState(null, "", "#invoice-" + activeInvoiceOrderId); } catch (e) { }
+        renderPortalUI();
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      });
+    });
+
+    document.querySelectorAll(".amolih-embed-back-orders").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        activeInvoiceOrderId = null;
+        try { history.pushState(null, "", "#orders"); } catch (e) { }
+        renderPortalUI();
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      });
+    });
+
+    function printEmbedInvoice() {
+      var docEl = document.getElementById("amolih-embed-invoice-doc") || document.querySelector(".amolih-invoice-paper");
+      if (!docEl) {
+        window.print();
+        return;
+      }
+      var orderName = docEl.getAttribute("data-order-name") || "Invoice";
+      var iframe = document.getElementById("amolih-embed-print-iframe");
+      if (!iframe) {
+        iframe = document.createElement("iframe");
+        iframe.id = "amolih-embed-print-iframe";
+        iframe.style.position = "fixed";
+        iframe.style.top = "-9999px";
+        iframe.style.left = "-9999px";
+        iframe.style.width = "0px";
+        iframe.style.height = "0px";
+        iframe.style.border = "none";
+        document.body.appendChild(iframe);
+      }
+      var iframeDoc = iframe.contentWindow || iframe.contentDocument;
+      if (iframeDoc.document) iframeDoc = iframeDoc.document;
+
+      var printStyles = "" +
+        "@page { size: portrait; margin: 10mm 12mm; }\n" +
+        "* { box-sizing: border-box; -webkit-print-color-adjust: exact; print-color-adjust: exact; }\n" +
+        "html, body { margin: 0; padding: 0; background: #FFFFFF !important; color: #1A1A1A; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 11px; line-height: 1.35; }\n" +
+        ".amolih-invoice-paper { box-sizing: border-box; border: 1px solid #D5C7B2 !important; border-radius: 6px !important; padding: 16px 20px !important; background: #FFFFFF !important; max-width: 100% !important; width: 100% !important; margin: 0 !important; box-shadow: none !important; }\n" +
+        ".amolih-status-pill { display: inline-block; padding: 2px 7px; border-radius: 999px; font-size: 9px; font-weight: 600; line-height: 1.3; }\n" +
+        ".amolih-status-pill.paid, .amolih-status-pill.fulfilled { background: #EBF8F1 !important; color: #14532D !important; border: 1px solid #BBF7D0 !important; }\n" +
+        ".amolih-status-pill.unfulfilled { background: #FEF9EE !important; color: #854D0E !important; border: 1px solid #FDE68A !important; }\n" +
+        ".amolih-invoice-footer-strip { page-break-inside: avoid; break-inside: avoid; }\n";
+
+      iframeDoc.open();
+      iframeDoc.write('<!DOCTYPE html><html><head><meta charset="utf-8"/><title>Invoice - ' + orderName + ' - Amolih</title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Bellefair&family=Cormorant+Garamond:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"><style>' + printStyles + '</style></head><body>' + docEl.outerHTML + '</body></html>');
+      iframeDoc.close();
+
+      setTimeout(function () {
+        try {
+          iframe.contentWindow.focus();
+          iframe.contentWindow.print();
+        } catch (err) {
+          window.print();
+        }
+      }, 300);
+    }
+
+    document.querySelectorAll(".amolih-embed-print-invoice").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        printEmbedInvoice();
+      });
+    });
+
     // Auto-scroll active horizontal nav item to center view
     var activeItem = document.querySelector(".amolih-nav-item.amolih-active");
     if (activeItem) {
@@ -358,6 +571,55 @@
       }, 100);
     }
   }
+
+  // Global Delegated Listeners for Invoice Navigation & Print (Never lost on re-renders)
+  document.addEventListener("click", function (e) {
+    var viewBtn = e.target.closest(".amolih-embed-view-invoice, .amolih-btn-view-invoice");
+    if (viewBtn) {
+      e.preventDefault();
+      e.stopPropagation();
+      var orderId = (viewBtn.getAttribute("data-order-id") || "").trim();
+      activeTab = "orders";
+      activeInvoiceOrderId = orderId;
+      try { history.pushState(null, "", "#invoice-" + encodeURIComponent(orderId)); } catch (err) { }
+      renderPortalUI();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      return;
+    }
+
+    var backBtn = e.target.closest(".amolih-embed-back-orders, .amolih-btn-back-to-orders");
+    if (backBtn) {
+      e.preventDefault();
+      e.stopPropagation();
+      activeTab = "orders";
+      activeInvoiceOrderId = null;
+      try { history.pushState(null, "", "#orders"); } catch (err) { }
+      renderPortalUI();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      return;
+    }
+
+    var printBtn = e.target.closest(".amolih-embed-print-invoice, .amolih-btn-print-invoice");
+    if (printBtn) {
+      e.preventDefault();
+      e.stopPropagation();
+      printEmbedInvoice();
+      return;
+    }
+  });
+
+  window.addEventListener("hashchange", function () {
+    var h = window.location.hash.replace("#", "");
+    if (h && h.indexOf("invoice-") === 0) {
+      activeTab = "orders";
+      activeInvoiceOrderId = h.replace("invoice-", "");
+      renderPortalUI();
+    } else if (h && ["details", "orders", "circle", "addresses"].indexOf(h) !== -1) {
+      activeTab = h;
+      activeInvoiceOrderId = null;
+      renderPortalUI();
+    }
+  });
 
   function esc(s) {
     if (!s) return "";

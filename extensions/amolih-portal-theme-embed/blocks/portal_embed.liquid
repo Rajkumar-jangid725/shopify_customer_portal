@@ -187,17 +187,70 @@
             {% else %}
               {% assign order_total = order.total_price | money_without_currency %}
             {% endif %}
+            {% if order.subtotal_price_set.presentment_money.amount != blank %}
+              {% assign calc_subtotal = order.subtotal_price_set.presentment_money.amount %}
+            {% elsif order.subtotal_price != blank %}
+              {% assign calc_subtotal = order.subtotal_price | money_without_currency %}
+            {% else %}
+              {% assign calc_subtotal = order_total %}
+            {% endif %}
+            {% if order.total_discounts_set.presentment_money.amount != blank %}
+              {% assign calc_discounts = order.total_discounts_set.presentment_money.amount %}
+            {% elsif order.total_discounts != blank %}
+              {% assign calc_discounts = order.total_discounts | money_without_currency %}
+            {% else %}
+              {% assign calc_discounts = "0.00" %}
+            {% endif %}
+            {% if order.shipping_price != blank %}
+              {% assign calc_shipping = order.shipping_price | money_without_currency %}
+            {% else %}
+              {% assign calc_shipping = "0.00" %}
+            {% endif %}
+            {% if order.tax_price != blank %}
+              {% assign calc_tax = order.tax_price | money_without_currency %}
+            {% else %}
+              {% assign calc_tax = "0.00" %}
+            {% endif %}
             {
               "id": {{ order.id | json }},
               "name": {{ order.name | json }},
               "orderNumber": {{ order.order_number | json }},
-              "createdAt": {{ order.created_at | date: "%d %b %Y" | json }},
-              "financialStatus": {{ order.financial_status_label | json }},
-              "fulfillmentStatus": {{ order.fulfillment_status_label | json }},
+              "createdAt": {{ order.created_at | date: "%B %d, %Y" | json }},
+              "financialStatus": {{ order.financial_status_label | default: order.financial_status | json }},
+              "fulfillmentStatus": {{ order.fulfillment_status_label | default: order.fulfillment_status | default: "In Atelier" | json }},
               "currency": {{ order_curr | json }},
               "currencySymbol": {{ curr_symbol | json }},
               "totalPrice": {{ curr_symbol | append: order_total | json }},
-              "statusUrl": {{ order.status_url | json }},
+              "subtotalPrice": {{ curr_symbol | append: calc_subtotal | json }},
+              "discounts": {{ curr_symbol | append: calc_discounts | json }},
+              "shippingPrice": {{ curr_symbol | append: calc_shipping | json }},
+              "taxPrice": {{ curr_symbol | append: calc_tax | json }},
+              "statusUrl": {{ order.status_url | default: order.order_status_url | json }},
+              "shippingMethod": {{ order.shipping_methods.first.title | default: "Insured Air Courier" | json }},
+              "trackingCompany": {{ order.fulfillments.first.tracking_company | default: "" | json }},
+              "trackingNumber": {{ order.fulfillments.first.tracking_number | default: "" | json }},
+              "shippingAddress": {
+                "name": {{ order.shipping_address.name | default: customer.name | json }},
+                "company": {{ order.shipping_address.company | default: "" | json }},
+                "address1": {{ order.shipping_address.address1 | default: "" | json }},
+                "address2": {{ order.shipping_address.address2 | default: "" | json }},
+                "city": {{ order.shipping_address.city | default: "" | json }},
+                "province": {{ order.shipping_address.province | default: "" | json }},
+                "zip": {{ order.shipping_address.zip | default: "" | json }},
+                "country": {{ order.shipping_address.country | default: "" | json }},
+                "phone": {{ order.shipping_address.phone | default: "" | json }}
+              },
+              "billingAddress": {
+                "name": {{ order.billing_address.name | default: customer.name | json }},
+                "company": {{ order.billing_address.company | default: "" | json }},
+                "address1": {{ order.billing_address.address1 | default: "" | json }},
+                "address2": {{ order.billing_address.address2 | default: "" | json }},
+                "city": {{ order.billing_address.city | default: "" | json }},
+                "province": {{ order.billing_address.province | default: "" | json }},
+                "zip": {{ order.billing_address.zip | default: "" | json }},
+                "country": {{ order.billing_address.country | default: "" | json }},
+                "phone": {{ order.billing_address.phone | default: "" | json }}
+              },
               "lineItemsCount": {{ order.line_items.size }},
               "lineItems": [
                 {% for item in order.line_items limit: 50 %}
@@ -212,10 +265,22 @@
                   {% else %}
                     {% assign item_price = item.price | money_without_currency %}
                   {% endif %}
+                  {% if item.final_line_price_set.presentment_money.amount != blank %}
+                    {% assign item_sub = item.final_line_price_set.presentment_money.amount %}
+                  {% elsif item.original_line_price_set.presentment_money.amount != blank %}
+                    {% assign item_sub = item.original_line_price_set.presentment_money.amount %}
+                  {% elsif item.final_line_price != blank %}
+                    {% assign item_sub = item.final_line_price | money_without_currency %}
+                  {% else %}
+                    {% assign item_sub = item_price %}
+                  {% endif %}
                   {
                     "title": {{ item.title | json }},
+                    "variantTitle": {% if item.variant.title and item.variant.title != 'Default Title' %}{{ item.variant.title | json }}{% else %}""{% endif %},
+                    "sku": {{ item.sku | default: "" | json }},
                     "quantity": {{ item.quantity }},
-                    "price": {{ curr_symbol | append: item_price | json }}
+                    "unitPrice": {{ curr_symbol | append: item_price | json }},
+                    "lineTotal": {{ curr_symbol | append: item_sub | json }}
                   }{% unless forloop.last %},{% endunless %}
                 {% endfor %}
               ]

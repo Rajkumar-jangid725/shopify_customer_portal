@@ -733,3 +733,62 @@
     font-size: 12px !important;
   }
 }
+
+/* Print Invoice Styles (Custlo Standard) */
+@media print {
+  body {
+    background: #FFFFFF !important;
+    color: #000000 !important;
+  }
+  .amolih-sidebar,
+  .amolih-hero-banner,
+  .amolih-sidebar,
+  #amolih-sidebar,
+  .amolih-hero-banner,
+  .amolih-nav-menu,
+  .amolih-invoice-nav-bar,
+  .amolih-mobile-footer-actions,
+  .amolih-order-action,
+  header,
+  footer,
+  nav,
+  aside,
+  .header,
+  .footer,
+  .announcement-bar,
+  #shopify-section-header,
+  #shopify-section-footer {
+    display: none !important;
+  }
+  #amolih-portal-wrapper,
+  .amolih-portal-layout,
+  .amolih-main-content {
+    display: block !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    max-width: 100% !important;
+    width: 100% !important;
+    border: none !important;
+    box-shadow: none !important;
+    background: transparent !important;
+  }
+  .amolih-order-invoice-detail {
+    display: block !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+  .amolih-invoice-paper {
+    border: 1px solid #D5C7B2 !important;
+    box-shadow: none !important;
+    border-radius: 6px !important;
+    padding: 16px 20px !important;
+    width: 100% !important;
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+  .amolih-invoice-footer-strip {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+}
