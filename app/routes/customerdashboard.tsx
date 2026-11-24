@@ -3261,7 +3261,21 @@ function renderPanelLiquid(
             </div>
 
             <div style="color:#475569; font-size:0.92rem; line-height:1.6; font-family:var(--amolih-font-modern);">
-              {{ address | format_address }}
+              {% if address.company != blank %}
+                <div>{{ address.company | escape }}</div>
+              {% endif %}
+              {% if address.address1 != blank %}
+                <div>{{ address.address1 | escape }}</div>
+              {% endif %}
+              {% if address.address2 != blank %}
+                <div>{{ address.address2 | escape }}</div>
+              {% endif %}
+              <div>
+                {% if address.city != blank %}{{ address.city | escape }}{% endif %}{% if address.province != blank or address.province_code != blank %}{% if address.city != blank %}, {% endif %}{{ address.province_code | default: address.province | escape }}{% endif %}{% if address.zip != blank %} {{ address.zip | escape }}{% endif %}
+              </div>
+              {% if address.country != blank %}
+                <div>{{ address.country | escape }}</div>
+              {% endif %}
               {% if address.phone != blank %}
                 <div style="font-size:0.82rem; color:var(--amolih-text-muted); margin-top:6px;">
                   📞 {{ address.phone | escape }}
