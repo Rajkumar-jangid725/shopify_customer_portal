@@ -157,9 +157,7 @@
 
     var heroHtml = '<div class="amolih-hero-banner">' +
       '<div>' +
-      '<div class="amolih-hero-tag">✦ Amolih Privé &bull; Jaipur Atelier</div>' +
       '<h1 class="amolih-hero-title">' + (customerData.firstName ? esc(portalConfig.welcomeMessage || "Welcome back") + ", " + esc(customerData.firstName) : esc(portalConfig.portalTitle || "Amolih Customer Portal")) + '</h1>' +
-      '<p class="amolih-hero-sub">Jaipur Artisan Fine Jewelry &bull; Bespoke account dashboard & concierge</p>' +
       '</div>' +
       '<div class="amolih-avatar-circle" title="' + esc(customerData.name || "") + '">' + userInitials + '</div>' +
       '</div>';
@@ -181,19 +179,10 @@
           '<div class="amolih-nav-left"><span class="amolih-nav-icon">' + (item.icon || "🔗") + '</span><span class="amolih-nav-label">' + esc(item.label) + '</span></div>' + badge + '</div></li>';
       }).join("") +
       '</ul>' +
-      '<div class="amolih-sidebar-concierge-card" style="padding:16px; margin:8px; background:#FFFFFF; border:1px solid var(--amolih-border); border-radius:var(--amolih-radius-sm); text-align:center;">' +
-      '<div style="font-family:var(--amolih-font-editorial); font-size:15px; font-weight:600; color:var(--amolih-text); margin-bottom:4px;">Jaipur Atelier Concierge</div>' +
-      '<div style="font-size:12px; color:var(--amolih-muted); margin-bottom:10px;">Bespoke sizing, styling & assistance</div>' +
-      '<a href="' + esc(portalConfig.supportUrl || "https://wa.me/918233905718") + '" target="_blank" rel="noopener" class="amolih-order-action" style="width:100%; display:inline-flex; justify-content:center; padding:8px 12px; font-size:12px; margin-top:0;">💬 Chat on WhatsApp</a>' +
-      '</div>' +
+
       '<div class="amolih-sidebar-footer"><a href="/account/logout" class="amolih-logout-link"><span>🚪</span><span>Sign out</span></a></div></div>' +
       '<div class="amolih-main-content" id="amolih-main-pane">' + renderTab() +
       '<div class="amolih-mobile-footer-actions">' +
-      '<div class="amolih-mobile-concierge-box">' +
-      '<div style="font-family:var(--amolih-font-editorial); font-size:16px; font-weight:600; color:var(--amolih-text); margin-bottom:4px;">Jaipur Atelier Concierge</div>' +
-      '<div style="font-size:12px; color:var(--amolih-muted); margin-bottom:12px;">Bespoke jewelry sizing, customization & order care</div>' +
-      '<a href="' + esc(portalConfig.supportUrl || "https://wa.me/918233905718") + '" target="_blank" rel="noopener" class="amolih-order-action" style="width:auto; display:inline-flex; justify-content:center; padding:9px 18px; font-size:13px; margin-top:0;">💬 Chat on WhatsApp</a>' +
-      '</div>' +
       '<div style="text-align:center; padding:6px 0;"><a href="/account/logout" class="amolih-logout-link" style="justify-content:center;"><span>🚪</span><span>Sign out of account</span></a></div>' +
       '</div>' +
       '</div></div>';
@@ -203,17 +192,15 @@
 
   function renderTab() {
     if (activeTab === "details") {
-      var defaultCity = (customerData.defaultAddress && customerData.defaultAddress.city) ? customerData.defaultAddress.city : "Jaipur / Global";
-      var defaultCountry = (customerData.defaultAddress && customerData.defaultAddress.country) ? customerData.defaultAddress.country : "Insured Delivery";
+      var defaultCity = (customerData.defaultAddress && customerData.defaultAddress.city) ? customerData.defaultAddress.city : "No address saved";
+      var defaultCountry = (customerData.defaultAddress && customerData.defaultAddress.country) ? customerData.defaultAddress.country : "Default address";
 
-      return '<div><div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:10px;margin-bottom:6px;">' +
-        '<div><h2 class="amolih-pane-title">Client Profile & Bespoke Contact</h2>' +
-        '<p class="amolih-pane-subtitle">Your registered client information, fine jewelry investment totals, and concierge details.</p></div>' +
-        '<a href="/account/addresses" class="amolih-order-action" style="margin-top:0;font-size:12px;padding:6px 14px;">Manage Locations</a></div><hr class="amolih-divider" />' +
+      return '<div><div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:6px;">' +
+        '<div style="display:flex;align-items:center;"><h2 class="amolih-pane-title" style="margin:0;line-height:1.2;position:relative;top:3px;">Profile Details</h2></div>' +
+        '<a href="/account/addresses" class="amolih-order-action" style="margin:0;font-size:12px;padding:6px 14px;display:inline-flex;align-items:center;line-height:1;">Manage Locations</a></div><hr class="amolih-divider" />' +
         '<div class="amolih-metrics-grid">' +
-        '<div class="amolih-metric-card"><div class="amolih-metric-label">Lifetime Investment</div><div class="amolih-metric-val">' + formatOrderPrice(customerData.totalSpent, customerData.currency, customerData.currencySymbol) + '</div><div class="amolih-metric-sub">Fine jewelry acquired</div></div>' +
-        '<div class="amolih-metric-card"><div class="amolih-metric-label">Orders Placed</div><div class="amolih-metric-val">' + customerData.ordersCount + '</div><div class="amolih-metric-sub">Bespoke & ready pieces</div></div>' +
-        '<div class="amolih-metric-card"><div class="amolih-metric-label">Privilege Status</div><div class="amolih-metric-val" style="font-size:22px;">Tier 2 Privé</div><div class="amolih-metric-sub">Amolih Circle VIP Perks</div></div>' +
+        '<div class="amolih-metric-card"><div class="amolih-metric-label">Lifetime Investment</div><div class="amolih-metric-val">' + formatOrderPrice(customerData.totalSpent, customerData.currency, customerData.currencySymbol) + '</div><div class="amolih-metric-sub">Total spent</div></div>' +
+        '<div class="amolih-metric-card"><div class="amolih-metric-label">Orders Placed</div><div class="amolih-metric-val">' + customerData.ordersCount + '</div><div class="amolih-metric-sub">Total orders</div></div>' +
         '<div class="amolih-metric-card"><div class="amolih-metric-label">Primary Destination</div><div class="amolih-metric-val" style="font-size:20px;font-family:var(--amolih-font-modern);">' + esc(defaultCity) + '</div><div class="amolih-metric-sub">' + esc(defaultCountry) + '</div></div>' +
         '</div>' +
         '<div class="amolih-profile-grid">' +
@@ -262,18 +249,18 @@
       var rawTarget = portalConfig.circlePageUrl || "amolih-circle-progress-bar";
       var cleanHandle = rawTarget.replace(/^https?:\/\/[^/]+/i, "").replace(/^\/?pages\//i, "").replace(/^\/+|\/+$/g, "").split("?")[0].split("#")[0] || "amolih-circle-progress-bar";
       var circleHref = "/pages/" + cleanHandle;
-      setTimeout(function() {
+      setTimeout(function () {
         var container = document.getElementById("amolih-embed-circle-content");
         var loader = document.getElementById("amolih-embed-circle-loading");
         var frame = document.getElementById("amolih-embed-circle-frame");
         if (!container) return;
-        fetch(circleHref).then(function(r) { return r.text(); }).then(function(html) {
+        fetch(circleHref).then(function (r) { return r.text(); }).then(function (html) {
           var parser = new DOMParser();
           var doc = parser.parseFromString(html, "text/html");
           var main = doc.querySelector("#MainContent .rte") || doc.querySelector("main .rte") || doc.querySelector("#MainContent") || doc.querySelector("main");
           if (main) {
             var unwanted = main.querySelectorAll("header, footer, nav, .announcement-bar, #shopify-section-header, #shopify-section-footer, .header-wrapper, .footer");
-            unwanted.forEach(function(u) { u.remove(); });
+            unwanted.forEach(function (u) { u.remove(); });
             if (main.textContent.trim().length > 10 || main.querySelector("img, svg, video, form, table, [class*='loyalty'], [class*='progress'], [class*='tier']")) {
               container.innerHTML = main.innerHTML;
               if (loader) loader.style.display = "none";
@@ -283,7 +270,7 @@
           }
           if (loader) loader.style.display = "none";
           if (frame) frame.style.display = "block";
-        }).catch(function() {
+        }).catch(function () {
           if (loader) loader.style.display = "none";
           if (frame) frame.style.display = "block";
         });

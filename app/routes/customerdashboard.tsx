@@ -1204,7 +1204,7 @@ ${googleFontLink}
   .amolih-panel-header {
     display: flex;
     justify-content: space-between;
-    align-items: flex-start;
+    align-items: center;
     flex-wrap: wrap;
     gap: 1rem;
     margin-bottom: 0.5rem;
@@ -1432,6 +1432,7 @@ ${googleFontLink}
     border-radius: var(--amolih-radius-sm);
     font-size: 0.88rem;
     font-weight: 500;
+    line-height: 1;
     border: 1px solid var(--amolih-border);
     cursor: pointer;
     transition: all 0.15s ease;
@@ -1587,13 +1588,10 @@ ${googleFontLink}
   <!-- Luxury Amolih Hero Banner -->
   <div class="amolih-hero-banner">
     <div>
-      <div class="amolih-hero-tag">✦ Amolih Privé &bull; Jaipur Atelier</div>
       {% if customer %}
         <h1 class="amolih-hero-title">${welcome}, {{ customer.first_name | default: customer.email | escape }}</h1>
-        <p class="amolih-hero-sub">Jaipur Artisan Fine Jewelry &bull; Bespoke account dashboard & concierge</p>
       {% else %}
         <h1 class="amolih-hero-title">${title}</h1>
-        <p class="amolih-hero-sub">Jaipur Artisan Fine Jewelry &bull; Bespoke account dashboard</p>
       {% endif %}
     </div>
 
@@ -1630,15 +1628,6 @@ ${googleFontLink}
         </nav>
       </div>
 
-      <!-- Sidebar WhatsApp Concierge Strip (Desktop) -->
-      <div class="amolih-sidebar-concierge">
-        <div class="amolih-concierge-title">Jaipur Atelier Concierge</div>
-        <div class="amolih-concierge-desc">Bespoke sizing, personalization & care</div>
-        <a href="${escapeHtml(supportUrl)}" target="_blank" rel="noopener" class="amolih-concierge-btn">
-          <span>💬</span> <span>Chat on WhatsApp</span>
-        </a>
-      </div>
-
       <div class="amolih-sidebar-logout">
         <a href="/account/logout" class="amolih-logout-link">
           <span>🚪</span> <span>Sign out of account</span>
@@ -1664,15 +1653,6 @@ ${googleFontLink}
 
         <!-- Mobile Concierge & Sign-out Strip (Visible only on mobile) -->
         <div class="amolih-mobile-footer-strip">
-          <div class="amolih-mobile-concierge-card">
-            <div>
-              <div class="amolih-concierge-title" style="font-size:1.1rem; margin-bottom:4px;">Jaipur Atelier Concierge</div>
-              <div class="amolih-concierge-desc" style="margin-bottom:0;">Bespoke jewelry sizing, customization & order care</div>
-            </div>
-            <a href="${escapeHtml(supportUrl)}" target="_blank" rel="noopener" class="amolih-concierge-btn" style="width:auto; padding:0.65rem 1.4rem;">
-              <span>💬</span> <span>Chat on WhatsApp</span>
-            </a>
-          </div>
           <div style="text-align:center; padding:0.5rem 0 1rem;">
             <a href="/account/logout" class="amolih-logout-link" style="justify-content:center;">
               <span>🚪</span> <span>Sign out of account</span>
@@ -2312,18 +2292,17 @@ function renderPanelLiquid(
   // 4. PROFILE DETAILS (MODERN LUXURY VIEWS)
   if (activeTab === "details") {
     return `<div class="amolih-panel">
-  <div class="amolih-panel-header">
-    <div>
-      <h2 class="amolih-pane-title">Client Profile & Bespoke Contact</h2>
-      <p class="amolih-pane-subtitle">Your registered client information, fine jewelry investment totals, and concierge details.</p>
+  <div class="amolih-panel-header" style="align-items: center;">
+    <div style="display: flex; align-items: center;">
+      <h2 class="amolih-pane-title" style="margin: 0; line-height: 1.2; position: relative; top: 3px;">Profile Details</h2>
     </div>
-    <button type="button" class="amolih-button-secondary" id="amolih-toggle-edit-profile">
+    <button type="button" class="amolih-button-secondary" id="amolih-toggle-edit-profile" style="margin: 0; display: inline-flex; align-items: center; justify-content: center; line-height: 1;">
       ✏️ Edit Profile
     </button>
   </div>
   <hr class="amolih-divider" />
 
-  <!-- 4 Quick-Stats Luxury Metric Cards -->
+  <!-- 3 Quick-Stats Luxury Metric Cards -->
   {% assign cust_curr = customer.orders.first.total_price_set.presentment_money.currency_code | default: customer.orders.first.currency %}
   {% if cust_curr == blank or cust_curr == 'USD' %}
     {% if customer.default_address.country_code == 'IN' or customer.default_address.country == 'India' %}
@@ -2380,27 +2359,21 @@ function renderPanelLiquid(
           {{ cust_symbol }}0.00
         {% endif %}
       </div>
-      <div class="amolih-metric-sub">Fine jewelry acquired</div>
+      <div class="amolih-metric-sub">Total spent</div>
     </div>
 
     <div class="amolih-metric-card">
       <div class="amolih-metric-label">Orders Placed</div>
       <div class="amolih-metric-val">{{ customer.orders.size }}</div>
-      <div class="amolih-metric-sub">Bespoke & ready pieces</div>
-    </div>
-
-    <div class="amolih-metric-card">
-      <div class="amolih-metric-label">Privilege Status</div>
-      <div class="amolih-metric-val" style="font-size:1.45rem;">Tier 2 Privé</div>
-      <div class="amolih-metric-sub">Amolih Circle VIP Perks</div>
+      <div class="amolih-metric-sub">Total orders</div>
     </div>
 
     <div class="amolih-metric-card">
       <div class="amolih-metric-label">Primary Destination</div>
       <div class="amolih-metric-val" style="font-size:1.35rem; font-family:var(--amolih-font-modern);">
-        {{ customer.default_address.city | default: "Jaipur / Global" | escape }}
+        {{ customer.default_address.city | default: "No address saved" | escape }}
       </div>
-      <div class="amolih-metric-sub">{{ customer.default_address.country | default: "Insured Courier" | escape }}</div>
+      <div class="amolih-metric-sub">{{ customer.default_address.country | default: "Default address" | escape }}</div>
     </div>
   </div>
 

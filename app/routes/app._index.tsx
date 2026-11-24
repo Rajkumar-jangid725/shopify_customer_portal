@@ -735,26 +735,6 @@ export default function Index() {
                       }}
                     >
                       <div>
-                        <div
-                          style={{
-                            display: "inline-flex",
-                            alignItems: "center",
-                            gap: "6px",
-                            fontSize: "10px",
-                            fontWeight: 700,
-                            letterSpacing: "0.12em",
-                            textTransform: "uppercase",
-                            color: "#A8895E",
-                            background: "#FFFFFF",
-                            border: "1px solid rgba(197, 168, 128, 0.4)",
-                            padding: "2px 8px",
-                            borderRadius: "999px",
-                            marginBottom: "6px",
-                            fontFamily: "'Inter', sans-serif",
-                          }}
-                        >
-                          ✦ AMOLIH PRIVÉ &bull; JAIPUR ATELIER
-                        </div>
                         <h1
                           style={{
                             fontFamily: "'Bellefair', 'Cormorant Garamond', Georgia, serif",
@@ -767,16 +747,6 @@ export default function Index() {
                         >
                           {welcomeMessage}, Sarah
                         </h1>
-                        <p
-                          style={{
-                            color: "#64748B",
-                            fontSize: "13px",
-                            margin: "4px 0 0",
-                            fontFamily: "'Inter', 'Open Sans', sans-serif",
-                          }}
-                        >
-                          Jaipur Artisan Fine Jewelry &bull; Bespoke account dashboard & concierge
-                        </p>
                       </div>
 
                       <div
@@ -954,51 +924,7 @@ export default function Index() {
                             })}
                         </div>
 
-                        {/* WhatsApp Concierge Strip (Desktop only) */}
-                        {previewDevice !== "mobile" && (
-                          <div
-                            style={{
-                              margin: "8px",
-                              padding: "14px",
-                              background: "#FFFFFF",
-                              border: "1px solid #E2E8F0",
-                              borderRadius: "8px",
-                              textAlign: "center",
-                            }}
-                          >
-                            <div
-                              style={{
-                                fontFamily: "'Cormorant Garamond', serif",
-                                fontSize: "15px",
-                                fontWeight: 600,
-                                color: textColor,
-                                marginBottom: "2px",
-                              }}
-                            >
-                              Jaipur Atelier Concierge
-                            </div>
-                            <div style={{ fontSize: "11px", color: "#64748B", marginBottom: "8px" }}>
-                              Bespoke sizing, styling & assistance
-                            </div>
-                            <a
-                              href={supportUrl}
-                              target="_blank"
-                              rel="noreferrer"
-                              style={{
-                                display: "block",
-                                padding: "6px 10px",
-                                borderRadius: "6px",
-                                background: primaryColor,
-                                color: "#fff",
-                                textDecoration: "none",
-                                fontSize: "12px",
-                                fontWeight: 600,
-                              }}
-                            >
-                              💬 Chat on WhatsApp
-                            </a>
-                          </div>
-                        )}
+
                       </div>
 
                       {/* RIGHT SIMULATOR CANVAS: DYNAMIC CONTENT ACCORDING TO SELECTED MENU */}
@@ -1015,27 +941,44 @@ export default function Index() {
                         {simActiveTab === "details" && (
                           <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
                             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                              <div>
+                              <div style={{ display: "flex", alignItems: "center" }}>
                                 <h2
                                   style={{
                                     fontFamily: "'Bellefair', 'Cormorant Garamond', serif",
                                     fontSize: "24px",
                                     fontWeight: 400,
-                                    margin: "0 0 4px 0",
+                                    margin: 0,
                                     color: textColor,
                                     letterSpacing: "0.015em",
+                                    lineHeight: 1.2,
+                                    position: "relative",
+                                    top: "3px",
                                   }}
                                 >
-                                  Client Profile & Bespoke Contact
+                                  Profile Details
                                 </h2>
-                                <p style={{ margin: 0, color: "#64748B", fontSize: "13px" }}>
-                                  Your registered client information, fine jewelry investment totals, and concierge details.
-                                </p>
                               </div>
+                              <span
+                                style={{
+                                  fontSize: "12px",
+                                  border: "1px solid #E2E8F0",
+                                  padding: "6px 12px",
+                                  borderRadius: "6px",
+                                  background: "#FFFFFF",
+                                  color: textColor,
+                                  fontWeight: 500,
+                                  display: "inline-flex",
+                                  alignItems: "center",
+                                  gap: "4px",
+                                  lineHeight: 1,
+                                }}
+                              >
+                                ✏️ Edit Profile
+                              </span>
                             </div>
                             <div style={{ borderBottom: "1px solid #E2E8F0" }} />
 
-                            {/* 4 Quick Metric Cards */}
+                            {/* 3 Quick Metric Cards */}
                             <div
                               style={{
                                 display: "grid",
@@ -1057,7 +1000,7 @@ export default function Index() {
                                 <div style={{ fontFamily: "'Bellefair', serif", fontSize: previewDevice === "mobile" ? "20px" : "24px", color: primaryColor, marginTop: "2px" }}>
                                   ₹38,450.00
                                 </div>
-                                <div style={{ fontSize: "11px", color: "#64748B", marginTop: "2px" }}>Fine jewelry acquired</div>
+                                <div style={{ fontSize: "11px", color: "#64748B", marginTop: "2px" }}>Total spent</div>
                               </div>
 
                               <div
@@ -1074,24 +1017,7 @@ export default function Index() {
                                 <div style={{ fontFamily: "'Bellefair', serif", fontSize: previewDevice === "mobile" ? "20px" : "24px", color: textColor, marginTop: "2px" }}>
                                   3
                                 </div>
-                                <div style={{ fontSize: "11px", color: "#64748B", marginTop: "2px" }}>Bespoke & ready pieces</div>
-                              </div>
-
-                              <div
-                                style={{
-                                  background: "#FAF7F2",
-                                  border: "1px solid rgba(197, 168, 128, 0.4)",
-                                  borderRadius: "8px",
-                                  padding: previewDevice === "mobile" ? "10px 12px" : "14px",
-                                }}
-                              >
-                                <div style={{ fontSize: "10px", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "#A8895E" }}>
-                                  Privilege Status
-                                </div>
-                                <div style={{ fontFamily: "'Bellefair', serif", fontSize: previewDevice === "mobile" ? "18px" : "20px", color: textColor, marginTop: "2px" }}>
-                                  Tier 2 Privé
-                                </div>
-                                <div style={{ fontSize: "11px", color: "#64748B", marginTop: "2px" }}>Amolih Circle VIP</div>
+                                <div style={{ fontSize: "11px", color: "#64748B", marginTop: "2px" }}>Total orders</div>
                               </div>
 
                               <div
@@ -1108,7 +1034,7 @@ export default function Index() {
                                 <div style={{ fontSize: previewDevice === "mobile" ? "14px" : "15px", fontWeight: 600, color: textColor, marginTop: "4px" }}>
                                   Mumbai, IN
                                 </div>
-                                <div style={{ fontSize: "11px", color: "#64748B", marginTop: "2px" }}>Insured Courier</div>
+                                <div style={{ fontSize: "11px", color: "#64748B", marginTop: "2px" }}>Default shipping address</div>
                               </div>
                             </div>
 
@@ -1333,55 +1259,16 @@ export default function Index() {
                       </div>
                     </div>
 
-                    {/* Mobile Concierge Strip (Visible below content on mobile preview) */}
+                    {/* Mobile Sign out Strip (Visible below content on mobile preview) */}
                     {previewDevice === "mobile" && (
                       <div
                         style={{
                           marginTop: "14px",
-                          padding: "16px",
-                          background: "#FFFFFF",
-                          border: "1px solid #E2E8F0",
-                          borderRadius: "12px",
+                          padding: "12px",
                           textAlign: "center",
-                          boxShadow: "0 2px 6px rgba(0,0,0,0.02)",
                         }}
                       >
-                        <div
-                          style={{
-                            fontFamily: "'Cormorant Garamond', serif",
-                            fontSize: "16px",
-                            fontWeight: 600,
-                            color: textColor,
-                            marginBottom: "2px",
-                          }}
-                        >
-                          Jaipur Atelier Concierge
-                        </div>
-                        <div style={{ fontSize: "11px", color: "#64748B", marginBottom: "10px" }}>
-                          Bespoke sizing, styling & assistance
-                        </div>
-                        <a
-                          href={supportUrl}
-                          target="_blank"
-                          rel="noreferrer"
-                          style={{
-                            display: "inline-flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            padding: "8px 16px",
-                            borderRadius: "6px",
-                            background: primaryColor,
-                            color: "#fff",
-                            textDecoration: "none",
-                            fontSize: "12px",
-                            fontWeight: 600,
-                          }}
-                        >
-                          💬 Chat on WhatsApp
-                        </a>
-                        <div style={{ marginTop: "12px", paddingTop: "10px", borderTop: "1px solid #F1F5F9" }}>
-                          <span style={{ fontSize: "12px", color: "#94A3B8" }}>🚪 Sign out of account</span>
-                        </div>
+                        <span style={{ fontSize: "12px", color: "#94A3B8" }}>🚪 Sign out of account</span>
                       </div>
                     )}
                   </div>
