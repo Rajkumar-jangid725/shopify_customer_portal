@@ -513,48 +513,26 @@
 
     function printEmbedInvoice() {
       var docEl = document.getElementById("amolih-embed-invoice-doc") || document.querySelector(".amolih-invoice-paper");
-      if (!docEl) {
+      var prevTitle = document.title;
+      var orderName = docEl ? (docEl.getAttribute("data-order-name") || "Invoice") : "Invoice";
+      try {
+        document.title = "Invoice " + orderName + " - Amolih";
+      } catch (e) { }
+
+      document.body.classList.add("amolih-printing-invoice");
+
+      try {
         window.print();
-        return;
+      } catch (err) {
+        console.error("Window print error:", err);
       }
-      var orderName = docEl.getAttribute("data-order-name") || "Invoice";
-      var iframe = document.getElementById("amolih-embed-print-iframe");
-      if (!iframe) {
-        iframe = document.createElement("iframe");
-        iframe.id = "amolih-embed-print-iframe";
-        iframe.style.position = "fixed";
-        iframe.style.top = "-9999px";
-        iframe.style.left = "-9999px";
-        iframe.style.width = "0px";
-        iframe.style.height = "0px";
-        iframe.style.border = "none";
-        document.body.appendChild(iframe);
-      }
-      var iframeDoc = iframe.contentWindow || iframe.contentDocument;
-      if (iframeDoc.document) iframeDoc = iframeDoc.document;
-
-      var printStyles = "" +
-        "@page { size: portrait; margin: 10mm 12mm; }\n" +
-        "* { box-sizing: border-box; -webkit-print-color-adjust: exact; print-color-adjust: exact; }\n" +
-        "html, body { margin: 0; padding: 0; background: #FFFFFF !important; color: #1A1A1A; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 11px; line-height: 1.35; }\n" +
-        ".amolih-invoice-paper { box-sizing: border-box; border: 1px solid #D5C7B2 !important; border-radius: 6px !important; padding: 16px 20px !important; background: #FFFFFF !important; max-width: 100% !important; width: 100% !important; margin: 0 !important; box-shadow: none !important; }\n" +
-        ".amolih-status-pill { display: inline-block; padding: 2px 7px; border-radius: 999px; font-size: 9px; font-weight: 600; line-height: 1.3; }\n" +
-        ".amolih-status-pill.paid, .amolih-status-pill.fulfilled { background: #EBF8F1 !important; color: #14532D !important; border: 1px solid #BBF7D0 !important; }\n" +
-        ".amolih-status-pill.unfulfilled { background: #FEF9EE !important; color: #854D0E !important; border: 1px solid #FDE68A !important; }\n" +
-        ".amolih-invoice-footer-strip { page-break-inside: avoid; break-inside: avoid; }\n";
-
-      iframeDoc.open();
-      iframeDoc.write('<!DOCTYPE html><html><head><meta charset="utf-8"/><title>Invoice - ' + orderName + ' - Amolih</title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Bellefair&family=Cormorant+Garamond:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"><style>' + printStyles + '</style></head><body>' + docEl.outerHTML + '</body></html>');
-      iframeDoc.close();
 
       setTimeout(function () {
+        document.body.classList.remove("amolih-printing-invoice");
         try {
-          iframe.contentWindow.focus();
-          iframe.contentWindow.print();
-        } catch (err) {
-          window.print();
-        }
-      }, 300);
+          document.title = prevTitle;
+        } catch (e) { }
+      }, 1200);
     }
 
     document.querySelectorAll(".amolih-embed-print-invoice").forEach(function (btn) {

@@ -742,13 +742,12 @@
   }
   .amolih-sidebar,
   .amolih-hero-banner,
-  .amolih-sidebar,
   #amolih-sidebar,
-  .amolih-hero-banner,
   .amolih-nav-menu,
   .amolih-invoice-nav-bar,
   .amolih-mobile-footer-actions,
   .amolih-order-action,
+  .amolih-order-card,
   header,
   footer,
   nav,
@@ -759,6 +758,7 @@
   #shopify-section-header,
   #shopify-section-footer {
     display: none !important;
+    visibility: hidden !important;
   }
   #amolih-portal-wrapper,
   .amolih-portal-layout,
@@ -790,5 +790,30 @@
   .amolih-invoice-footer-strip {
     page-break-inside: avoid;
     break-inside: avoid;
+  }
+  body.amolih-printing-invoice * {
+    visibility: hidden;
+  }
+  body.amolih-printing-invoice .amolih-order-invoice-detail,
+  body.amolih-printing-invoice .amolih-order-invoice-detail *,
+  body.amolih-printing-invoice #amolih-embed-invoice-doc,
+  body.amolih-printing-invoice #amolih-embed-invoice-doc *,
+  body.amolih-printing-invoice .amolih-invoice-paper,
+  body.amolih-printing-invoice .amolih-invoice-paper * {
+    visibility: visible;
+  }
+  body.amolih-printing-invoice .amolih-order-invoice-detail,
+  body.amolih-printing-invoice #amolih-embed-invoice-doc {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+  body.amolih-printing-invoice .amolih-invoice-nav-bar,
+  body.amolih-printing-invoice .amolih-invoice-nav-bar * {
+    display: none !important;
+    visibility: hidden !important;
   }
 }

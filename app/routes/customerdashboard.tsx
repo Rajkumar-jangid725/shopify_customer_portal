@@ -1551,19 +1551,21 @@ ${googleFontLink}
     .amolih-mobile-footer-strip,
     .amolih-panel-header,
     .amolih-divider,
-    #amolih-orders-list-view,
+    .amolih-order-card,
     .amolih-invoice-nav-bar,
     .amolih-btn-sm,
     .amolih-button,
     .amolih-button-secondary {
       display: none !important;
+      visibility: hidden !important;
     }
     #amolih-portal-container,
     .amolih-dashboard,
     .amolih-layout,
     .amolih-main-pane,
     .amolih-main-content,
-    .amolih-panel {
+    .amolih-panel,
+    #amolih-orders-list-view {
       display: block !important;
       margin: 0 !important;
       padding: 0 !important;
@@ -1581,6 +1583,26 @@ ${googleFontLink}
       margin: 0 !important;
       padding: 0 !important;
       width: 100% !important;
+    }
+    body.amolih-printing-invoice * {
+      visibility: hidden;
+    }
+    body.amolih-printing-invoice .amolih-order-invoice-detail.is-active,
+    body.amolih-printing-invoice .amolih-order-invoice-detail.is-active * {
+      visibility: visible;
+    }
+    body.amolih-printing-invoice .amolih-order-invoice-detail.is-active {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 100% !important;
+      margin: 0 !important;
+      padding: 0 !important;
+    }
+    body.amolih-printing-invoice .amolih-invoice-nav-bar,
+    body.amolih-printing-invoice .amolih-invoice-nav-bar * {
+      display: none !important;
+      visibility: hidden !important;
     }
     .amolih-invoice-paper {
       box-shadow: none !important;
@@ -2176,74 +2198,56 @@ ${googleFontLink}
     function printOrderInvoice(orderId, orderIndex) {
       var cleanId = (orderId || "").toString().trim();
       var cleanIdx = (orderIndex || "").toString().trim();
-      var docEl = null;
 
+      var inv = null;
       if (cleanId) {
-        docEl = document.getElementById("amolih-invoice-doc-" + cleanId) ||
-                document.querySelector('.amolih-invoice-paper[data-order-id="' + cleanId + '"]');
+        inv = document.getElementById("amolih-invoice-view-" + cleanId) ||
+              document.querySelector('.amolih-order-invoice-detail[data-order-id="' + cleanId + '"]');
       }
-      if (!docEl && cleanIdx) {
-        docEl = document.querySelector('.amolih-invoice-paper[data-order-index="' + cleanIdx + '"]');
+      if (!inv && cleanIdx) {
+        inv = document.querySelector('.amolih-order-invoice-detail[data-order-index="' + cleanIdx + '"]');
       }
-      if (!docEl) {
-        docEl = document.querySelector(".amolih-order-invoice-detail.is-active .amolih-invoice-paper") ||
-                document.querySelector(".amolih-invoice-paper");
+      if (!inv) {
+        inv = document.querySelector(".amolih-order-invoice-detail.is-active") ||
+              document.querySelector(".amolih-order-invoice-detail");
       }
 
-      if (!docEl) {
+      if (inv) {
+        document.querySelectorAll(".amolih-order-card").forEach(function(c) {
+          c.style.setProperty("display", "none", "important");
+        });
+        document.querySelectorAll(".amolih-order-invoice-detail").forEach(function(el) {
+          el.style.setProperty("display", "none", "important");
+          el.classList.remove("is-active");
+        });
+        inv.style.setProperty("display", "block", "important");
+        inv.classList.add("is-active");
+      }
+
+      var docEl = inv ? inv.querySelector(".amolih-invoice-paper") : document.querySelector(".amolih-invoice-paper");
+      var orderName = docEl ? (docEl.getAttribute("data-order-name") || "") : "";
+      if (!orderName && cleanId) orderName = "#" + cleanId.replace(/\D/g, "");
+      if (!orderName) orderName = "Invoice";
+
+      var prevTitle = document.title;
+      try {
+        document.title = "Invoice " + orderName + " - Amolih";
+      } catch(e) {}
+
+      document.body.classList.add("amolih-printing-invoice");
+
+      try {
         window.print();
-        return;
+      } catch(err) {
+        console.error("Window print error:", err);
       }
-
-      var orderName = docEl.getAttribute("data-order-name") || ("#" + (cleanId || "Invoice"));
-      var iframe = document.getElementById("amolih-print-iframe");
-      if (!iframe) {
-        iframe = document.createElement("iframe");
-        iframe.id = "amolih-print-iframe";
-        iframe.style.position = "fixed";
-        iframe.style.top = "-9999px";
-        iframe.style.left = "-9999px";
-        iframe.style.width = "0px";
-        iframe.style.height = "0px";
-        iframe.style.border = "none";
-        document.body.appendChild(iframe);
-      }
-      var iframeDoc = iframe.contentWindow || iframe.contentDocument;
-      if (iframeDoc.document) iframeDoc = iframeDoc.document;
-
-      var printStyles = "" +
-        "@page { size: portrait; margin: 10mm 12mm; }\n" +
-        "* { box-sizing: border-box; -webkit-print-color-adjust: exact; print-color-adjust: exact; }\n" +
-        "html, body { margin: 0; padding: 0; background: #FFFFFF !important; color: #1A1A1A; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 11px; line-height: 1.35; }\n" +
-        ".amolih-invoice-paper { box-sizing: border-box; border: 1px solid #D5C7B2 !important; border-radius: 6px !important; padding: 16px 20px !important; background: #FFFFFF !important; max-width: 100% !important; width: 100% !important; margin: 0 !important; box-shadow: none !important; }\n" +
-        ".amolih-invoice-header { display: flex; justify-content: space-between; align-items: flex-start; padding-bottom: 10px !important; border-bottom: 1px solid rgba(197, 168, 128, 0.4) !important; margin-bottom: 10px !important; }\n" +
-        ".amolih-invoice-brand { font-family: 'Bellefair', Georgia, serif; font-size: 24px !important; color: #355E59 !important; letter-spacing: 0.05em; line-height: 1.1; }\n" +
-        ".amolih-invoice-meta-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px !important; margin: 10px 0 !important; padding: 8px 12px !important; background: #FAF7F2 !important; border: 1px solid #E8E3DD !important; border-radius: 6px !important; }\n" +
-        ".amolih-invoice-meta-title { font-size: 9px !important; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: #A8895E !important; margin-bottom: 2px !important; }\n" +
-        ".amolih-invoice-meta-body { font-size: 10.5px !important; line-height: 1.35 !important; color: #475569 !important; }\n" +
-        ".amolih-invoice-table { width: 100%; border-collapse: collapse; margin: 10px 0 !important; }\n" +
-        ".amolih-invoice-table th { background: #FAF7F2 !important; border-top: 1px solid #E8E3DD !important; border-bottom: 1px solid #E8E3DD !important; padding: 5px 8px !important; font-size: 9.5px !important; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #A8895E !important; }\n" +
-        ".amolih-invoice-table td { padding: 5px 8px !important; border-bottom: 1px solid #F1EDE8 !important; font-size: 10.5px !important; vertical-align: middle; }\n" +
-        ".amolih-status-pill { display: inline-block; padding: 2px 7px; border-radius: 999px; font-size: 9px; font-weight: 600; line-height: 1.3; }\n" +
-        ".amolih-status-pill.paid, .amolih-status-pill.fulfilled { background: #EBF8F1 !important; color: #14532D !important; border: 1px solid #BBF7D0 !important; }\n" +
-        ".amolih-status-pill.unfulfilled { background: #FEF9EE !important; color: #854D0E !important; border: 1px solid #FDE68A !important; }\n" +
-        ".amolih-invoice-calc-box { width: 100%; max-width: 290px; background: #FAF7F2 !important; border: 1px solid #E8E3DD !important; border-radius: 6px !important; padding: 8px 12px !important; page-break-inside: avoid; break-inside: avoid; }\n" +
-        ".amolih-invoice-calc-row { display: flex; justify-content: space-between; font-size: 10.5px; color: #475569; margin-bottom: 3px; }\n" +
-        ".amolih-invoice-calc-total { border-top: 1px solid rgba(197, 168, 128, 0.4); padding-top: 4px; margin-top: 3px; display: flex; justify-content: space-between; align-items: baseline; }\n" +
-        ".amolih-invoice-footer-strip { border-top: 1px dashed rgba(197, 168, 128, 0.4); padding-top: 8px !important; margin-top: 10px !important; display: flex; justify-content: space-between; align-items: center; font-size: 9.5px; color: #64748B; page-break-inside: avoid; break-inside: avoid; }\n";
-
-      iframeDoc.open();
-      iframeDoc.write('<!DOCTYPE html><html><head><meta charset="utf-8"/><title>Invoice - ' + orderName + ' - Amolih</title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Bellefair&family=Cormorant+Garamond:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"><style>' + printStyles + '</style></head><body>' + docEl.outerHTML + '</body></html>');
-      iframeDoc.close();
 
       setTimeout(function() {
+        document.body.classList.remove("amolih-printing-invoice");
         try {
-          iframe.contentWindow.focus();
-          iframe.contentWindow.print();
-        } catch(err) {
-          window.print();
-        }
-      }, 300);
+          document.title = prevTitle;
+        } catch(e) {}
+      }, 1200);
     }
 
     // Expose functions globally for direct inline onclick invocations
@@ -2462,6 +2466,61 @@ function renderPanelLiquid(
         } catch(e) {}
       };
 
+      window.printOrderInvoice = function(orderId, orderIndex) {
+        var cleanId = (orderId || "").toString().trim();
+        var cleanIdx = (orderIndex || "").toString().trim();
+
+        var inv = null;
+        if (cleanId) {
+          inv = document.getElementById("amolih-invoice-view-" + cleanId) ||
+                document.querySelector('.amolih-order-invoice-detail[data-order-id="' + cleanId + '"]');
+        }
+        if (!inv && cleanIdx) {
+          inv = document.querySelector('.amolih-order-invoice-detail[data-order-index="' + cleanIdx + '"]');
+        }
+        if (!inv) {
+          inv = document.querySelector(".amolih-order-invoice-detail.is-active") ||
+                document.querySelector(".amolih-order-invoice-detail");
+        }
+
+        if (inv) {
+          document.querySelectorAll(".amolih-order-card").forEach(function(c) {
+            c.style.setProperty("display", "none", "important");
+          });
+          document.querySelectorAll(".amolih-order-invoice-detail").forEach(function(el) {
+            el.style.setProperty("display", "none", "important");
+            el.classList.remove("is-active");
+          });
+          inv.style.setProperty("display", "block", "important");
+          inv.classList.add("is-active");
+        }
+
+        var docEl = inv ? inv.querySelector(".amolih-invoice-paper") : document.querySelector(".amolih-invoice-paper");
+        var orderName = docEl ? (docEl.getAttribute("data-order-name") || "") : "";
+        if (!orderName && cleanId) orderName = "#" + cleanId.replace(/\D/g, "");
+        if (!orderName) orderName = "Invoice";
+
+        var prevTitle = document.title;
+        try {
+          document.title = "Invoice " + orderName + " - Amolih";
+        } catch(e) {}
+
+        document.body.classList.add("amolih-printing-invoice");
+
+        try {
+          window.print();
+        } catch(err) {
+          console.error("Window print error:", err);
+        }
+
+        setTimeout(function() {
+          document.body.classList.remove("amolih-printing-invoice");
+          try {
+            document.title = prevTitle;
+          } catch(e) {}
+        }, 1200);
+      };
+
       function amolihBindOrderButtons() {
         document.querySelectorAll(".amolih-btn-view-invoice").forEach(function(btn) {
           btn.onclick = function(e) {
@@ -2485,7 +2544,11 @@ function renderPanelLiquid(
             if (e) { e.preventDefault(); e.stopPropagation(); }
             var oId = this.getAttribute("data-order-id");
             var oIdx = this.getAttribute("data-order-index");
-            if (window.printOrderInvoice) window.printOrderInvoice(oId, oIdx);
+            if (window.printOrderInvoice) {
+              window.printOrderInvoice(oId, oIdx);
+            } else {
+              window.print();
+            }
             return false;
           };
         });
@@ -2526,7 +2589,11 @@ function renderPanelLiquid(
           if (e.stopPropagation) e.stopPropagation();
           var oId = pBtn.getAttribute("data-order-id");
           var oIdx = pBtn.getAttribute("data-order-index");
-          if (window.printOrderInvoice) window.printOrderInvoice(oId, oIdx);
+          if (window.printOrderInvoice) {
+            window.printOrderInvoice(oId, oIdx);
+          } else {
+            window.print();
+          }
           return false;
         }
       }, true);
@@ -2745,7 +2812,7 @@ function renderPanelLiquid(
             ← Back to All Orders
           </button>
           <div style="display:flex; gap:8px; flex-wrap:wrap;">
-            <button type="button" class="amolih-button amolih-btn-print-invoice" onclick="window.printOrderInvoice && window.printOrderInvoice('{{ order.id }}', '{{ forloop.index }}'); return false;" data-order-id="{{ order.id }}" data-order-name="{{ order.name | escape }}" data-order-index="{{ forloop.index }}" style="font-size:0.85rem; padding:0.55rem 1.15rem; gap:6px; cursor:pointer;">
+            <button type="button" class="amolih-button amolih-btn-print-invoice" onclick="if (window.printOrderInvoice) { window.printOrderInvoice('{{ order.id }}', '{{ forloop.index }}'); } else { window.print(); } return false;" data-order-id="{{ order.id }}" data-order-name="{{ order.name | escape }}" data-order-index="{{ forloop.index }}" style="font-size:0.85rem; padding:0.55rem 1.15rem; gap:6px; cursor:pointer;">
               🖨️ Download / Print Invoice
             </button>
             {% if order.order_status_url %}
