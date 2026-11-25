@@ -31,15 +31,15 @@ model Session {
 }
 
 // ====================================================
-// Custlo-Style Customer Portal Configurations & Menus
+// Customer Portal Configurations & Menus
 // ====================================================
 
 model PortalConfig {
   id              String        @id @default(uuid())
   shop            String        @unique
   portalTitle     String        @default("Amolih Customer Portal")
-  primaryColor    String        @default("#355E59") // Custlo deep forest / sage
-  sidebarBgColor  String        @default("#FBF8F5") // Custlo warm cream
+  primaryColor    String        @default("#355E59") // Deep forest / sage
+  sidebarBgColor  String        @default("#FBF8F5") // Warm cream
   textColor       String        @default("#1A1A1A")
   fontFamily      String        @default("inherit") // Storefront Theme Typography
   baseFontSize    String?       @default("14px")

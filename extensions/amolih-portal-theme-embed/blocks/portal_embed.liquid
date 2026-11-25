@@ -1,5 +1,5 @@
 {% comment %}
-  Amolih Customer Account Portal Embed (Custlo Alternative)
+  Amolih Customer Account Portal Embed
   Completely overrides default customer account layout on /account pages
   or redirects to the App Proxy dashboard (/apps/customerdashboard)
 {% endcomment %}
@@ -11,7 +11,7 @@
 
 {% assign is_account_page = false %}
 {% unless is_auth_action %}
-  {% if request.path == '/account' or request.path == '/account/' or template.name == 'account' or template.name == 'customers/account' or template.name == 'addresses' or template.name == 'customers/addresses' or template.name == 'order' or template.name == 'customers/order' %}
+  {% if request.path contains '/account' or request.path contains '/customers' or template.name contains 'account' or template.name contains 'customer' or template.name contains 'addresses' or template.name contains 'order' or template contains 'account' or template contains 'customer' %}
     {% assign is_account_page = true %}
   {% endif %}
 {% endunless %}
@@ -38,37 +38,53 @@
 {% assign localized_proxy_path = market_prefix | append: proxy_path %}
 
 {% if is_account_page %}
-  {% if block.settings.portal_mode == 'redirect_to_proxy' %}
-    {% if customer %}
-      <script>
-        (function() {
-          var targetPath = {{ localized_proxy_path | json }};
-          var currentQuery = window.location.search || "";
-          var currentHash = window.location.hash || "";
-          window.location.replace(targetPath + currentQuery + currentHash);
-        })();
-      </script>
-      <style>
-        body { visibility: hidden !important; }
-      </style>
-    {% else %}
-      {% assign login_url = market_prefix | append: '/account/login' %}
-      <script>
-        (function() {
-          var loginPath = {{ login_url | json }};
-          var targetPath = {{ localized_proxy_path | json }};
-          var currentQuery = window.location.search || "";
-          var currentHash = window.location.hash || "";
-          window.location.replace(loginPath + "?return_to=" + encodeURIComponent(targetPath + currentQuery + currentHash));
-        })();
-      </script>
-      <style>
-        body { visibility: hidden !important; }
-      </style>
-    {% endif %}
-  {% elsif block.settings.override_default_account %}
+  <script>
+    (function() {
+      // 1. Check if portal is disabled or user requested default account
+      var searchStr = window.location.search || "";
+      var urlParams = new URLSearchParams(searchStr);
+      if (urlParams.get("portal_disabled") === "1" || urlParams.get("default_account") === "1") {
+        try { sessionStorage.setItem("amolih_portal_disabled", "true"); } catch(e) {}
+        return;
+      }
+
+      var isDisabled = false;
+      try {
+        if (sessionStorage.getItem("amolih_portal_disabled") === "true") {
+          isDisabled = true;
+        }
+      } catch(e) {}
+
+      if (isDisabled) return;
+
+      var targetPath = {{ localized_proxy_path | json }};
+      if (!targetPath) targetPath = "/apps/customerdashboard";
+
+      {% if customer %}
+        // Customer is logged in -> route instantly to customer portal app dashboard
+        var currentQuery = searchStr;
+        var currentHash = window.location.hash || "";
+
+        // Preserve sub-routes like /account/addresses
+        var p = window.location.pathname.toLowerCase();
+        if (p.indexOf("/addresses") !== -1 && currentQuery.indexOf("tab=") === -1) {
+          currentQuery += (currentQuery ? "&tab=addresses" : "?tab=addresses");
+        } else if (p.indexOf("/orders") !== -1 && currentQuery.indexOf("tab=") === -1) {
+          currentQuery += (currentQuery ? "&tab=orders" : "?tab=orders");
+        }
+
+        window.location.replace(targetPath + currentQuery + currentHash);
+      {% else %}
+        // Customer not logged in -> redirect to login, returning to customer portal upon login
+        var loginUrl = {{ market_prefix | json }} + "/account/login?return_to=" + encodeURIComponent(targetPath);
+        window.location.replace(loginUrl);
+      {% endif %}
+    })();
+  </script>
+  {% if customer %}
     <style id="amolih-portal-anti-flicker">
-      /* Hide standard theme customer account elements instantly to avoid flicker */
+      /* Instantly hide default Shopify theme account elements */
+      body { visibility: hidden !important; }
       .customer,
       .shopify-section-main-account,
       .shopify-section-main-addresses,

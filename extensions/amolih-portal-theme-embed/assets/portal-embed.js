@@ -251,7 +251,7 @@
           '<div style="text-align:center;padding:48px 20px;background:#FAF7F2;border:1px dashed var(--amolih-gold-border);border-radius:var(--amolih-radius);">' +
           '<div style="font-size:42px;margin-bottom:12px;">💎</div>' +
           '<h3 style="font-family:var(--amolih-heading-font);font-size:24px;margin:0 0 8px;font-weight:400;">Your Jewelry Box is Waiting</h3>' +
-          '<p style="color:var(--amolih-muted);max-width:400px;margin:0 auto 18px;font-family:var(--amolih-font-modern);">Discover our latest Jaipur handcrafted solitaires, bespoke charms, and customizable fine jewelry.</p>' +
+          '<p style="color:var(--amolih-muted);max-width:400px;margin:0 auto 18px;font-family:var(--amolih-font-modern);">Discover our latest handcrafted solitaires, bespoke charms, and customizable fine jewelry.</p>' +
           '<a href="' + marketPrefix + '/collections/all" class="amolih-order-action">Explore Atelier Collection</a></div></div>';
       }
 

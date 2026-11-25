@@ -392,7 +392,7 @@
   padding: 20px 24px;
   margin-bottom: 16px;
   background: #FFFFFF;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
   transition: all 0.2s ease;
 }
 
@@ -589,7 +589,7 @@
     display: none;
   }
 
-  .amolih-nav-menu > li {
+  .amolih-nav-menu>li {
     flex: 0 0 auto !important;
     margin: 0 !important;
     padding: 0 !important;
@@ -704,18 +704,20 @@
   .amolih-metrics-grid {
     grid-template-columns: 1fr !important;
   }
+
   .amolih-nav-item {
     padding: 7px 13px !important;
     font-size: 12px !important;
   }
 }
 
-/* Print Invoice Styles (Custlo Standard) */
+/* Print Invoice Styles (Official Standard) */
 @media print {
   body {
     background: #FFFFFF !important;
     color: #000000 !important;
   }
+
   .amolih-sidebar,
   .amolih-hero-banner,
   #amolih-sidebar,
@@ -736,6 +738,7 @@
     display: none !important;
     visibility: hidden !important;
   }
+
   #amolih-portal-wrapper,
   .amolih-portal-layout,
   .amolih-main-content {
@@ -748,12 +751,14 @@
     box-shadow: none !important;
     background: transparent !important;
   }
+
   .amolih-order-invoice-detail {
     display: block !important;
     width: 100% !important;
     margin: 0 !important;
     padding: 0 !important;
   }
+
   .amolih-invoice-paper {
     border: 1px solid #D5C7B2 !important;
     box-shadow: none !important;
@@ -763,13 +768,16 @@
     page-break-inside: avoid;
     break-inside: avoid;
   }
+
   .amolih-invoice-footer-strip {
     page-break-inside: avoid;
     break-inside: avoid;
   }
+
   body.amolih-printing-invoice * {
     visibility: hidden;
   }
+
   body.amolih-printing-invoice .amolih-order-invoice-detail,
   body.amolih-printing-invoice .amolih-order-invoice-detail *,
   body.amolih-printing-invoice #amolih-embed-invoice-doc,
@@ -778,6 +786,7 @@
   body.amolih-printing-invoice .amolih-invoice-paper * {
     visibility: visible;
   }
+
   body.amolih-printing-invoice .amolih-order-invoice-detail,
   body.amolih-printing-invoice #amolih-embed-invoice-doc {
     position: absolute;
@@ -787,6 +796,7 @@
     margin: 0 !important;
     padding: 0 !important;
   }
+
   body.amolih-printing-invoice .amolih-invoice-nav-bar,
   body.amolih-printing-invoice .amolih-invoice-nav-bar * {
     display: none !important;

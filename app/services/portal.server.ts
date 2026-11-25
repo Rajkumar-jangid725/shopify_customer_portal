@@ -25,6 +25,7 @@ export interface PortalConfigData {
   circleTierTitle: string;
   circlePageUrl?: string | null;
   welcomeMessage: string;
+  customCss?: string | null;
   menuItems: MenuItemData[];
 }
 
@@ -149,6 +150,7 @@ export async function getPortalConfig(shop: string) {
       circleTierTitle: "Amolih Circle's Progress Bar",
       circlePageUrl: "amolih-circle-progress-bar",
       welcomeMessage: "Welcome back",
+      customCss: "",
       menuItems: DEFAULT_MENU_ITEMS.map((item, idx) => ({ ...item, id: `item-${idx}` })),
     };
   }
@@ -166,6 +168,8 @@ export async function savePortalConfig(
     circleTierTitle?: string;
     circlePageUrl?: string;
     welcomeMessage?: string;
+    customCss?: string;
+    baseFontSize?: string;
   },
   menuItems: MenuItemData[]
 ) {
@@ -188,6 +192,8 @@ export async function savePortalConfig(
         circleTierTitle: branding.circleTierTitle || "Amolih Circle's Progress Bar",
         circlePageUrl: branding.circlePageUrl || "amolih-circle-progress-bar",
         welcomeMessage: branding.welcomeMessage || "Welcome back",
+        customCss: branding.customCss || "",
+        baseFontSize: branding.baseFontSize || "",
       },
     });
 

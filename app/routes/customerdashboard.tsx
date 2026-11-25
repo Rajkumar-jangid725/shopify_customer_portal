@@ -55,7 +55,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
       if (match && !pathPrefix.startsWith(match[0])) {
         pathPrefix = match[0] + (pathPrefix.startsWith("/") ? pathPrefix : "/" + pathPrefix);
       }
-    } catch (e) {}
+    } catch (e) { }
   }
   const urlMatch = url.pathname.match(/^\/([a-z]{2}(?:-[a-z]{2})?)/i);
   if (urlMatch && !pathPrefix.startsWith(urlMatch[0])) {
@@ -489,6 +489,28 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   const errorMessage = url.searchParams.get("error") || "";
 
   const config = await getPortalConfig(shop);
+
+  let appSettings: any = {};
+  try {
+    if (config.baseFontSize && config.baseFontSize.startsWith("{")) {
+      appSettings = JSON.parse(config.baseFontSize);
+    }
+  } catch (e) {}
+
+  const isAppActive = appSettings.general?.appStatus !== false;
+  if (!isAppActive) {
+    // When App status is false, return customer to Shopify's default account page
+    return liquid(`
+      <script>
+        try { sessionStorage.setItem("amolih_portal_disabled", "true"); } catch(e) {}
+        window.location.replace("{{ routes.root_url }}/account?portal_disabled=1");
+      </script>
+      <div style="text-align:center; padding: 4rem 1rem; font-family: sans-serif;">
+        <p>Redirecting to default account...</p>
+      </div>
+    `);
+  }
+
   const menuItems = (config.menuItems || []).filter(
     (item: MenuItem) => item.isEnabled !== false,
   );
@@ -589,11 +611,32 @@ function renderDashboardHtml({
   successMessage: string;
   errorMessage: string;
 }) {
+  let appSettings: any = {};
+  try {
+    if (config.baseFontSize && config.baseFontSize.startsWith("{")) {
+      appSettings = JSON.parse(config.baseFontSize);
+    }
+  } catch (e) {}
+
   const title = escapeHtml(config.portalTitle || "Amolih Customer Portal");
   const welcome = escapeHtml(config.welcomeMessage || "Welcome back");
-  const primary = escapeHtml(config.primaryColor || "#355E59");
-  const sidebarBg = escapeHtml(config.sidebarBgColor || "#FBF8F5");
-  const textColor = escapeHtml(config.textColor || "#1A1A1A");
+  const primary = escapeHtml(
+    appSettings?.navigationStyle?.activeItemBg ||
+    appSettings?.colorTypography?.primaryBtnBg ||
+    config.primaryColor ||
+    "#355E59"
+  );
+  const sidebarBg = escapeHtml(
+    appSettings?.navigationStyle?.itemsBg ||
+    appSettings?.colorTypography?.halfContainerBg ||
+    config.sidebarBgColor ||
+    "#FBF8F5"
+  );
+  const textColor = escapeHtml(
+    appSettings?.colorTypography?.headingColor ||
+    config.textColor ||
+    "#1A1A1A"
+  );
   const rawFontFamily = config.fontFamily || "inherit";
   const supportUrl =
     config.supportUrl ||
@@ -604,7 +647,7 @@ function renderDashboardHtml({
 
   // AMOLIH TYPOGRAPHY ARCHITECTURE:
   // Storefront font stack:
-  // Headings/Serifs: 'Bellefair', 'Cormorant Garamond' (Editorial Jaipur Luxury)
+  // Headings/Serifs: 'Bellefair', 'Cormorant Garamond' (Editorial Luxury)
   // Interface/Body: 'Inter', 'Open Sans' (Modern Clean Sans)
   const isInheritTheme =
     !rawFontFamily ||
@@ -719,6 +762,19 @@ ${googleFontLink}
     --amolih-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.04);
     --amolih-shadow: 0 4px 20px -2px rgba(53, 94, 89, 0.06), 0 2px 6px -1px rgba(0, 0, 0, 0.04);
     --amolih-shadow-hover: 0 10px 25px -4px rgba(53, 94, 89, 0.12), 0 4px 10px -2px rgba(0, 0, 0, 0.06);
+    --amolih-btn-bg: ${escapeHtml(appSettings?.colorTypography?.primaryBtnBg || primary)};
+    --amolih-btn-text: ${escapeHtml(appSettings?.colorTypography?.primaryBtnText || "#FFFFFF")};
+    --amolih-btn-hover: ${escapeHtml(appSettings?.colorTypography?.primaryBtnHover || "#24423E")};
+    --amolih-container-bg: ${escapeHtml(appSettings?.colorTypography?.fullContainerBg || "#FAF7F2")};
+    --amolih-half-container-bg: ${escapeHtml(appSettings?.colorTypography?.halfContainerBg || "#FFFFFF")};
+    --amolih-nav-border: ${escapeHtml(appSettings?.navigationStyle?.border || "#E5E5E5")};
+    --amolih-nav-header-bg: ${escapeHtml(appSettings?.navigationStyle?.headerBg || "#FDF8F3")};
+    --amolih-nav-active-bg: ${escapeHtml(appSettings?.navigationStyle?.activeItemBg || primary)};
+    --amolih-nav-active-text: ${escapeHtml(appSettings?.navigationStyle?.activeItemText || "#FFFFFF")};
+    --amolih-nav-hover-bg: ${escapeHtml(appSettings?.navigationStyle?.hoverItemBg || "#C5A880")};
+    --amolih-heading-size: ${escapeHtml(appSettings?.colorTypography?.headingSize ? appSettings.colorTypography.headingSize + "px" : "2rem")};
+    --amolih-body-size: ${escapeHtml(appSettings?.colorTypography?.textSize ? appSettings.colorTypography.textSize + "px" : "14px")};
+    --amolih-menu-size: ${escapeHtml(appSettings?.navigationStyle?.menuTextSize ? appSettings.navigationStyle.menuTextSize + "px" : "14px")};
   }
 
   html, body {
@@ -1424,7 +1480,7 @@ ${googleFontLink}
     font-weight: 500;
   }
 
-  /* In-App Invoice View (Custlo Reference Standard) */
+  /* In-App Invoice View (Official Reference Standard) */
   .amolih-order-invoice-detail {
     margin-top: 0.5rem;
     display: none;
@@ -1864,6 +1920,9 @@ ${googleFontLink}
     from { transform: rotate(0deg); }
     to { transform: rotate(360deg); }
   }
+
+  /* Custom Typography & Global Custom CSS (Configured via App) */
+  ${(config as any).customCss || ""}
 </style>
 
 <section class="amolih-dashboard">
@@ -1924,7 +1983,7 @@ ${googleFontLink}
           <div style="font-size:3rem; margin-bottom:1rem;">✦</div>
           <h2 class="amolih-pane-title">Sign in Required</h2>
           <p class="amolih-pane-subtitle" style="max-width:440px; margin:0.5rem auto 1.5rem;">
-            Please sign in to access your bespoke Jaipur fine jewelry orders, saved shipping locations, and VIP privileges.
+            Please sign in to access your bespoke fine jewelry orders, saved shipping locations, and VIP privileges.
           </p>
           <div>
             <a class="amolih-button" href="{{ market_prefix }}/account/login?return_to={{ localized_proxy_path | url_encode }}">Sign in to Amolih</a>
@@ -1948,6 +2007,7 @@ ${googleFontLink}
 
 <script>
   (function() {
+    try { sessionStorage.removeItem("amolih_portal_disabled"); } catch(e) {}
     // 0. Market Localization Persistence & History Management
     var serverMarketPrefix = {{ market_prefix | json }} || "";
     var serverCountry = {{ localization.country.iso_code | default: "" | json }};
@@ -2179,7 +2239,7 @@ ${googleFontLink}
       });
     });
 
-    // 6. Custlo-Style In-App Invoice Navigation & Print Logic (Robust Delegated Architecture)
+    // 6. In-App Invoice Navigation & Print Logic (Robust Delegated Architecture)
     function findInvoiceElement(orderId, orderName, orderIndex, clickedBtn) {
       var cleanId = (orderId || "").toString().trim();
       var cleanName = (orderName || "").toString().trim();
